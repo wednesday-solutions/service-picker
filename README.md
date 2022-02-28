@@ -1,6 +1,6 @@
 # service-picker
 
-This repo will contain a number of @wednesdaysol's open source projects, connected and working together. Pick whatever you need and build your own ecosytem. 
+This repo will contain a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosytem. 
 
 Keep the repos you're interested in and you're good to do. 
 
