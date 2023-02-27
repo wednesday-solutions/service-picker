@@ -6,38 +6,36 @@ import (
 )
 
 var (
-		FRONTEND = "frontend"
-		MOBILE = "mobile"
-		BACKEND = "backend"
-		DATABASES = "databases"	
-		REACT = "react"
-	)
+	FRONTEND  = "frontend"
+	MOBILE    = "mobile"
+	BACKEND   = "backend"
+	DATABASES = "databases"
+	REACT     = "react"
+)
 
 // ServiceCmd is the command variable of ServiceSelection.
 var ServiceSelection = ServiceSelectionFn()
 
 func RunService(*cobra.Command, []string) {
-	selectedService:= utils.PromptSelect("Pick a service", []string{FRONTEND, MOBILE, BACKEND, DATABASES})
-	
+	selectedService := utils.PromptSelect("Pick a service", []string{FRONTEND, MOBILE, BACKEND, DATABASES})
+
 	switch selectedService {
 
-	case FRONTEND: 
-	
-	utils.PromptSelectStack(FRONTEND, []string{REACT})
+	case FRONTEND:
 
-	case BACKEND: 
-		
+		utils.PromptSelectStack(FRONTEND, []string{REACT})
 
-	case DATABASES: 
-		
-	
-	case MOBILE: 
-	
+	case BACKEND:
 
-	default: {
-		
+	case DATABASES:
+
+	case MOBILE:
+
+	default:
+		{
+
+		}
 	}
-}
 }
 
 // ServiceSelectionFn represents the ServiceSelection command
@@ -55,7 +53,7 @@ func ServiceSelectionFn() *cobra.Command {
 
 		from the list of @wednesday-solutions's open source projects.
 `,
-Run: RunService,
+		Run: RunService,
 	}
 	return ServiceSelection
 }
@@ -64,6 +62,5 @@ func init() {
 
 	RootCmd.AddCommand(ServiceSelection)
 
-	// negt gqlgen only give suggestions
 	ServiceSelection.Flags().BoolP("help", "h", false, "Help for service selection")
 }

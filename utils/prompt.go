@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os/exec"
 
 	cp "github.com/otiai10/copy"
 
@@ -9,26 +10,25 @@ import (
 )
 
 var (
-		INIT = "init"
-		CLOUD_NATIVE = "cloud native"
-		AWS = "AWS"
-		CREATE_CD = "Create CD pipeline"
-		CREATE_INFRA = "Create Infra"
-	)
+	INIT         = "init"
+	CLOUD_NATIVE = "cloud native"
+	AWS          = "AWS"
+	CREATE_CD    = "Create CD pipeline"
+	CREATE_INFRA = "Create Infra"
+)
 
+func PromptSelect(label string, items []string) string {
 
-func PromptSelect(label string, items []string ) string  {
-	
 	prompt := promptui.Select{
-	Label: label,
-	Items: items,
-}
+		Label: label,
+		Items: items,
+	}
 
-_, result, err:= prompt.Run()
+	_, result, err := prompt.Run()
 
-checkNilErr(err)
+	checkNilErr(err)
 
-return result
+	return result
 }
 
 func PromptSelectCloudProviderConfig(service string, stack string) {
@@ -36,47 +36,45 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 	var cloudProviderConfigItems = []string{CREATE_CD, CREATE_INFRA}
 
 	selectedCloudConfig := PromptSelect(cloudProviderConfigLabel, cloudProviderConfigItems)
-		if selectedCloudConfig == CREATE_CD {
-			cdSource:= "workflows/" + service +  "/cd/" + stack + ".yml"
-			cdDestination := CurrentDirectory() + "/" + service + "/.github/workflows/cd.yml"
+	if selectedCloudConfig == CREATE_CD {
+		cdSource := "workflows/" + service + "/cd/" + stack + ".yml"
+		cdDestination := CurrentDirectory() + "/" + service + "/.github/workflows/cd.yml"
 
-			status, _ := IsExists(cdDestination)
-			if !status {
-				err := cp.Copy(cdSource, cdDestination)
-				checkNilErr(err)
-			} else {
-				fmt.Println("Error:", "The", service, stack, "CD you are looking to create already exists")
-			}
-			
-
-			} else if selectedCloudConfig == CREATE_INFRA {
-		      infraSource:= "infrastructure/" + service
-			  infraDestination:= CurrentDirectory() + "/"
-			  status,_ := IsExists(infraDestination + "/stacks")
-			  if !status {
-				  err := cp.Copy(infraSource, infraDestination)
-				  checkNilErr(err)
-			  } else {
-				  fmt.Println("Error:", "The", service, stack, "infrastructure you are looking to create already exists")
-			  }
-			  
-			  
-			}
-			
+		status, _ := IsExists(cdDestination)
+		if !status {
+			err := cp.Copy(cdSource, cdDestination)
+			checkNilErr(err)
+		} else {
+			fmt.Println("The", service, stack, "CD you are looking to create already exists")
 		}
 
-func PromptSelectCloudProvider(service string, stack string){
+	} else if selectedCloudConfig == CREATE_INFRA {
+		infraSource := "infrastructure/" + service
+		infraDestination := CurrentDirectory() + "/"
+		status, _ := IsExists(infraDestination + "/stacks")
+		if !status {
+			err := cp.Copy(infraSource, infraDestination)
+			checkNilErr(err)
+		} else {
+			fmt.Println("The", service, stack, "infrastructure you are looking to create already exists")
+		}
+
+	}
+
+}
+
+func PromptSelectCloudProvider(service string, stack string) {
 	var cloudProviderLabel string = "Choose a cloud provider"
 	var cloudProviderItems = []string{AWS}
 
-    selectedCloudProvider := PromptSelect(cloudProviderLabel, cloudProviderItems)
+	selectedCloudProvider := PromptSelect(cloudProviderLabel, cloudProviderItems)
 	if selectedCloudProvider == AWS {
 		PromptSelectCloudProviderConfig(service, stack)
 	}
 }
 
 func PromptSelectStackConfig(service string, stack string) {
-	
+
 	var configLabel string = "Choose the config to setup"
 	var configItems = []string{INIT, CLOUD_NATIVE}
 
@@ -86,21 +84,24 @@ func PromptSelectStackConfig(service string, stack string) {
 		destination := CurrentDirectory() + "/" + service
 		status, _ := IsExists(destination)
 		if !status {
-			source:= "services/" + service +  "/" + stack
-		    err := cp.Copy(source, destination)
-		    checkNilErr(err)
+			repos := map[string]string{
+				"react": "https://github.com/wednesday-solutions/react-template",
+			}
+			makeDirErr := MakeDirectory(CurrentDirectory()+"/", service)
+			checkNilErr(makeDirErr)
+			cmd := exec.Command("git", "clone", repos[stack], service)
+			err := cmd.Run()
+			checkNilErr(err)
 		} else {
-			fmt.Println("Error:", "The", service, "service already exists. You can initialise only one stack in a service")
+			fmt.Println("The", service, "service already exists. You can initialise only one stack in a service")
 		}
-		
-		
+
 	} else {
 		PromptSelectCloudProvider(service, stack)
 	}
 }
 
-
-func PromptSelectStack(service string, items []string){
-	 stack := PromptSelect("Pick a stack", items)
-	 PromptSelectStackConfig(service, stack)
+func PromptSelectStack(service string, items []string) {
+	stack := PromptSelect("Pick a stack", items)
+	PromptSelectStackConfig(service, stack)
 }
