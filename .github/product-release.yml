@@ -1,0 +1,111 @@
+name: Publish package in go-pkg
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  Release-go-pkg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Actions Ecosystem Action Get Merged Pull Request
+        uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
+        id: getMergedPR
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetching all tags
+        run: |
+          git fetch --prune --unshallow --tags
+
+      - name: Get Commit Message
+        run: |
+          declare -A category=( [fix]="" [chore]="" [revert]="" [build]="" [docs]="" [feat]="" [perf]="" [refactor]="" [style]="" [temp]="" [test]="" [ci]="" [others]="")
+          declare -A categoryTitle=( [fix]="<h5>Bug Fixes</h5>" [chore]="<h5>Changes to build process or aux tools</h5>" [revert]="<h5>Revert Commits</h5>" [build]="<h5>Build</h5>" [docs]="<h5>Documentation</h5>" [feat]="<h5>New Features</h5>" [perf]="<h5>Performace Enhancements</h5>" [refactor]="<h5>Refactored</h5>" [style]="<h5>Changed Style</h5>" [temp]="<h5>Temporary Commit</h5>" [test]="<h5>Added Tests</h5>" [ci]="<h5>Changes to CI config</h5>" [others]="<h5>Others</h5>")
+          msg="#${{ steps.getMergedPR.outputs.number }} ${{ steps.getMergedPR.outputs.title }}"
+          for i in $(git log --format=%h $(git merge-base HEAD^1 HEAD^2)..HEAD^2)
+          do 
+            IFS=":" read -r type cmmsg <<< $(git log --format=%B -n 1 $i)
+            type="${type}" | xargs
+            text_msg="&nbsp;&nbsp;&nbsp;&nbsp;&#8226; $i - ${cmmsg}<br/>"
+            flag=1
+            for i in "${!category[@]}"
+            do
+              if [ "${type}" == "$i" ]
+              then 
+                category[$i]+="${text_msg}"
+                flag=0
+                break
+              fi
+            done
+              if [ $flag -eq 1 ]
+              then 
+                category[others]+="${text_msg}"
+              fi
+            done
+            for i in "${!category[@]}"
+            do
+              if [ ! -z "${category[$i]}" ] && [ "others" != "$i" ]
+                then 
+                msg+="${categoryTitle[$i]}${category[$i]}"
+              fi
+            done
+            if [ ! -z "${category[others]}" ]
+            then 
+              msg+="${categoryTitle[others]}${category[others]}"
+            fi
+            echo "New Release Note: $msg" 
+            echo "COMMIT_MESSAGE=${msg}" >> $GITHUB_ENV
+
+      - name: Bump Version
+        uses: anothrNick/github-tag-action@v1
+        id: bump
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          DRY_RUN: true
+          WITH_V: true
+          VERBOSE: true
+
+      - name: Push tag to GitHub
+        id: new-tag
+        run: |
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config --global user.name "GITHUB_ACTOR"
+          git config --global push.followTags true
+          NEW_TAG=${{ steps.bump.outputs.new_tag }}
+          echo "New Tag: $NEW_TAG"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+          echo "$NEW_TAG Tag pushed successfully."
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Publish go-pkg
+        run: |
+          VERSION=${{ steps.new-tag.outputs.new_tag }}
+          echo "New version: $VERSION"
+          PKG="github.com/wednesday-solutions/service-picker@$VERSION"
+          echo "New package version: $PKG"
+          GOPROXY=proxy.golang.org go list -m $PKG
+
+      - name: Create Product Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump.outputs.new_tag }}
+          RELEASE_NAME: ${{ steps.bump.outputs.new_tag }}
+          body: |
+            ${{ env.COMMIT_MESSAGE }}
+            @alichherawalla
+            @praveenkumar1798
+          draft: false
+          prerelease: false

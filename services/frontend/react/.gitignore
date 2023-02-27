@@ -1,0 +1,19 @@
+# Don't check auto-generated stuff into git
+.history/
+build
+node_modules
+stats.json
+coverage/
+.vscode/
+switcher_backup.env
+yarn-error.log
+storybook-static
+reports/
+.lighthouseci
+# Cruft
+.DS_Store
+npm-debug.log
+.idea
+/test-results/
+/playwright-report/
+/playwright/.cache/
