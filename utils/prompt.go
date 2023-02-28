@@ -84,12 +84,9 @@ func PromptSelectStackConfig(service string, stack string) {
 		destination := CurrentDirectory() + "/" + service
 		status, _ := IsExists(destination)
 		if !status {
-			repos := map[string]string{
-				"react": "https://github.com/wednesday-solutions/react-template",
-			}
 			makeDirErr := MakeDirectory(CurrentDirectory()+"/", service)
 			checkNilErr(makeDirErr)
-			cmd := exec.Command("git", "clone", repos[stack], service)
+			cmd := exec.Command("git", "clone", Repos()[stack], service)
 			err := cmd.Run()
 			checkNilErr(err)
 		} else {
