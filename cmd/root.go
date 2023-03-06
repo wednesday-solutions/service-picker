@@ -16,7 +16,7 @@ func RootCmdFn() *cobra.Command {
 		Long: `
 Service Picker.
 
-It contains a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosytem.
+It contains a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosystem.
 
 This repo will have support for production applications using the following tech stacks
 - mobile

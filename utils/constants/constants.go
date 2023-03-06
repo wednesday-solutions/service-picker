@@ -1,4 +1,4 @@
-package utils
+package constants
 
 var Repos = func() map[string]string {
 	return map[string]string{
