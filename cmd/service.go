@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/wednesday-solutions/service-picker/utils"
+	"github.com/wednesday-solutions/picky/utils/prompt"
 )
 
 var (
@@ -17,13 +17,12 @@ var (
 var ServiceSelection = ServiceSelectionFn()
 
 func RunService(*cobra.Command, []string) {
-	selectedService := utils.PromptSelect("Pick a service", []string{FRONTEND, MOBILE, BACKEND, DATABASES})
+	selectedService := prompt.PromptSelect("Pick a service", []string{FRONTEND, MOBILE, BACKEND, DATABASES})
 
 	switch selectedService {
 
 	case FRONTEND:
-
-		utils.PromptSelectStack(FRONTEND, []string{REACT})
+		prompt.PromptSelectStack(FRONTEND, []string{REACT})
 
 	case BACKEND:
 

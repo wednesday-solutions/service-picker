@@ -1,12 +1,14 @@
-package utils
+package prompt
 
 import (
 	"fmt"
 	"os/exec"
 
-	cp "github.com/otiai10/copy"
-
 	"github.com/manifoldco/promptui"
+	cp "github.com/otiai10/copy"
+	"github.com/wednesday-solutions/picky/utils/constants"
+	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
 var (
@@ -26,7 +28,7 @@ func PromptSelect(label string, items []string) string {
 
 	_, result, err := prompt.Run()
 
-	checkNilErr(err)
+	errorhandler.CheckNilErr(err)
 
 	return result
 }
@@ -38,29 +40,27 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 	selectedCloudConfig := PromptSelect(cloudProviderConfigLabel, cloudProviderConfigItems)
 	if selectedCloudConfig == CREATE_CD {
 		cdSource := "workflows/" + service + "/cd/" + stack + ".yml"
-		cdDestination := CurrentDirectory() + "/" + service + "/.github/workflows/cd.yml"
+		cdDestination := fileutils.CurrentDirectory() + "/" + service + "/.github/workflows/cd.yml"
 
-		status, _ := IsExists(cdDestination)
+		status, _ := fileutils.IsExists(cdDestination)
 		if !status {
 			err := cp.Copy(cdSource, cdDestination)
-			checkNilErr(err)
+			errorhandler.CheckNilErr(err)
 		} else {
 			fmt.Println("The", service, stack, "CD you are looking to create already exists")
 		}
 
 	} else if selectedCloudConfig == CREATE_INFRA {
 		infraSource := "infrastructure/" + service
-		infraDestination := CurrentDirectory() + "/"
-		status, _ := IsExists(infraDestination + "/stacks")
+		infraDestination := fileutils.CurrentDirectory() + "/"
+		status, _ := fileutils.IsExists(infraDestination + "/stacks")
 		if !status {
 			err := cp.Copy(infraSource, infraDestination)
-			checkNilErr(err)
+			errorhandler.CheckNilErr(err)
 		} else {
 			fmt.Println("The", service, stack, "infrastructure you are looking to create already exists")
 		}
-
 	}
-
 }
 
 func PromptSelectCloudProvider(service string, stack string) {
@@ -81,16 +81,16 @@ func PromptSelectStackConfig(service string, stack string) {
 	selectedConfig := PromptSelect(configLabel, configItems)
 
 	if selectedConfig == INIT {
-		destination := CurrentDirectory() + "/" + service
-		status, _ := IsExists(destination)
+		destination := fileutils.CurrentDirectory() + "/" + service
+		status, _ := fileutils.IsExists(destination)
 		if !status {
-			makeDirErr := MakeDirectory(CurrentDirectory()+"/", service)
-			checkNilErr(makeDirErr)
-			cmd := exec.Command("git", "clone", Repos()[stack], service)
+			makeDirErr := fileutils.MakeDirectory(fileutils.CurrentDirectory()+"/", service)
+			errorhandler.CheckNilErr(makeDirErr)
+			cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
 			err := cmd.Run()
-			checkNilErr(err)
+			errorhandler.CheckNilErr(err)
 		} else {
-			fmt.Println("The", service, "service already exists. You can initialise only one stack in a service")
+			fmt.Println("The", service, "service already exists. You can initialize only one stack in a service")
 		}
 
 	} else {

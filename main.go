@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wednesday-solutions/service-picker/cmd"
+	"github.com/wednesday-solutions/picky/cmd"
 )
 
 func main() {
