@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/wednesday-solutions/service-picker/utils/prompt"
+	"github.com/wednesday-solutions/picky/utils/prompt"
 )
 
 var (

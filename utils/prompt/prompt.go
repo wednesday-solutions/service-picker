@@ -6,9 +6,9 @@ import (
 
 	"github.com/manifoldco/promptui"
 	cp "github.com/otiai10/copy"
-	"github.com/wednesday-solutions/service-picker/utils/constants"
-	"github.com/wednesday-solutions/service-picker/utils/errorhandler"
-	"github.com/wednesday-solutions/service-picker/utils/fileutils"
+	"github.com/wednesday-solutions/picky/utils/constants"
+	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
 var (
