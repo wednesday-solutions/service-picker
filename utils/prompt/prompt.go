@@ -73,6 +73,20 @@ func PromptSelectCloudProvider(service string, stack string) {
 	}
 }
 
+func PromptSelectInit(service, stack string) {
+	destination := fileutils.CurrentDirectory() + "/" + service
+	status, _ := fileutils.IsExists(destination)
+	if !status {
+		makeDirErr := fileutils.MakeDirectory(fileutils.CurrentDirectory()+"/", service)
+		errorhandler.CheckNilErr(makeDirErr)
+		cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
+		err := cmd.Run()
+		errorhandler.CheckNilErr(err)
+	} else {
+		fmt.Println("The", service, "service already exists. You can initialize only one stack in a service")
+	}
+}
+
 func PromptSelectStackConfig(service string, stack string) {
 
 	var configLabel string = "Choose the config to setup"
@@ -81,18 +95,7 @@ func PromptSelectStackConfig(service string, stack string) {
 	selectedConfig := PromptSelect(configLabel, configItems)
 
 	if selectedConfig == INIT {
-		destination := fileutils.CurrentDirectory() + "/" + service
-		status, _ := fileutils.IsExists(destination)
-		if !status {
-			makeDirErr := fileutils.MakeDirectory(fileutils.CurrentDirectory()+"/", service)
-			errorhandler.CheckNilErr(makeDirErr)
-			cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
-			err := cmd.Run()
-			errorhandler.CheckNilErr(err)
-		} else {
-			fmt.Println("The", service, "service already exists. You can initialize only one stack in a service")
-		}
-
+		PromptSelectInit(service, stack)
 	} else {
 		PromptSelectCloudProvider(service, stack)
 	}
