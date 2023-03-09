@@ -14,14 +14,6 @@ import (
 	"github.com/wednesday-solutions/picky/utils/helpers"
 )
 
-var (
-	INIT         = "init"
-	CLOUD_NATIVE = "cloud native"
-	AWS          = "AWS"
-	CREATE_CD    = "Create CD pipeline"
-	CREATE_INFRA = "Create Infra"
-)
-
 func PromptSelect(label string, items []string) string {
 
 	prompt := promptui.Select{
@@ -38,10 +30,10 @@ func PromptSelect(label string, items []string) string {
 
 func PromptSelectCloudProviderConfig(service string, stack string) {
 	var cloudProviderConfigLabel string = "Choose a cloud provider config"
-	var cloudProviderConfigItems = []string{CREATE_CD, CREATE_INFRA}
+	var cloudProviderConfigItems = []string{constants.CREATE_CD, constants.CREATE_INFRA}
 
 	selectedCloudConfig := PromptSelect(cloudProviderConfigLabel, cloudProviderConfigItems)
-	if selectedCloudConfig == CREATE_CD {
+	if selectedCloudConfig == constants.CREATE_CD {
 		cdSource := "workflows/" + service + "/cd/" + stack + ".yml"
 		cdDestination := fileutils.CurrentDirectory() + "/" + service + "/.github/workflows/cd.yml"
 
@@ -53,7 +45,7 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 			fmt.Println("The", service, stack, "CD you are looking to create already exists")
 		}
 
-	} else if selectedCloudConfig == CREATE_INFRA {
+	} else if selectedCloudConfig == constants.CREATE_INFRA {
 		infraSource := "infrastructure/" + service
 		infraDestination := fileutils.CurrentDirectory() + "/"
 		status, _ := fileutils.IsExists(infraDestination + "/stacks")
@@ -68,20 +60,24 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 
 func PromptSelectCloudProvider(service string, stack string) {
 	var cloudProviderLabel string = "Choose a cloud provider"
-	var cloudProviderItems = []string{AWS}
+	var cloudProviderItems = []string{constants.AWS}
 
 	selectedCloudProvider := PromptSelect(cloudProviderLabel, cloudProviderItems)
-	if selectedCloudProvider == AWS {
+	if selectedCloudProvider == constants.AWS {
 		PromptSelectCloudProviderConfig(service, stack)
 	}
 }
 
-func PromptSelectInit(service, stack string) {
+func PromptSelectInit(service, stack, database string) {
 
 	currentDir := fileutils.CurrentDirectory()
 	splitDirs := strings.Split(currentDir, "/")
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
+
+	if database != "" {
+		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
+	}
 
 	var createDockerFile bool
 	destination := currentDir + "/" + service
@@ -93,19 +89,19 @@ func PromptSelectInit(service, stack string) {
 		err := cmd.Run()
 		errorhandler.CheckNilErr(err)
 
-		if service == "frontend" || service == "mobile" {
-			destination = currentDir + "/" + "backend"
+		if service == constants.WEB || service == constants.MOBILE {
+			destination = currentDir + "/" + constants.BACKEND
 			status, _ := fileutils.IsExists(destination)
 			if status {
 				createDockerFile = true
 			}
-		} else if service == "backend" {
-			destination = currentDir + "/" + "frontend"
+		} else if service == constants.BACKEND {
+			destination = currentDir + "/" + constants.WEB
 			status, _ := fileutils.IsExists(destination)
 			if status {
 				createDockerFile = true
 			} else {
-				destination = currentDir + "/" + "mobile"
+				destination = currentDir + "/" + constants.MOBILE
 				status, _ := fileutils.IsExists(destination)
 				if status {
 					createDockerFile = true
@@ -127,21 +123,47 @@ func PromptSelectInit(service, stack string) {
 	}
 }
 
-func PromptSelectStackConfig(service string, stack string) {
+func PromptSelectStackConfig(service, stack, database string) {
 
 	var configLabel string = "Choose the config to setup"
-	var configItems = []string{INIT, CLOUD_NATIVE}
+	var configItems = []string{constants.INIT, constants.CLOUD_NATIVE}
 
 	selectedConfig := PromptSelect(configLabel, configItems)
 
-	if selectedConfig == INIT {
-		PromptSelectInit(service, stack)
+	if selectedConfig == constants.INIT {
+		PromptSelectInit(service, stack, database)
 	} else {
 		PromptSelectCloudProvider(service, stack)
 	}
 }
 
+func PromptSelectStackDatabase(service, stack string) {
+	var database string
+	var label string = "Choose a database"
+	switch stack {
+	case constants.NODE_HAPI:
+		database = PromptSelect(label, []string{constants.MYSQL})
+	case constants.NODE_EXPRESS:
+		database = PromptSelect(label, []string{constants.POSTGRES})
+	case constants.NODE_EXPRESS_TS:
+		database = PromptSelect(label, []string{})
+	case constants.GOLANG:
+		database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
+	default:
+		fmt.Println("Something went wrong")
+	}
+
+	PromptSelectStackConfig(service, stack, database)
+}
+
 func PromptSelectStack(service string, items []string) {
 	stack := PromptSelect("Pick a stack", items)
-	PromptSelectStackConfig(service, stack)
+
+	// Choose database if the service is backend
+	if service == constants.BACKEND {
+		PromptSelectStackDatabase(service, stack)
+
+	} else {
+		PromptSelectStackConfig(service, stack, "")
+	}
 }
