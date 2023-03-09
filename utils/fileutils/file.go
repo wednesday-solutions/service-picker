@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/wednesday-solutions/picky/utils/errorhandler"
 )
 
 // IsExists will check if the path exists or no.
@@ -11,11 +13,11 @@ func IsExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
-	}
-	if os.IsNotExist(err) {
+	} else if os.IsNotExist(err) {
 		return false, nil
+	} else {
+		return false, err
 	}
-	return false, err
 }
 
 // CurrentDirectory will give the root directory.
@@ -23,8 +25,9 @@ func CurrentDirectory() string {
 	path, err := filepath.Abs(".")
 	if err != nil {
 		return ""
+	} else {
+		return path
 	}
-	return path
 }
 
 // MakeDirectory will make directory according to input.
@@ -32,8 +35,9 @@ func MakeDirectory(path string, dirName string) error {
 	err := os.Mkdir(path+"/"+dirName, 0755)
 	if err != nil {
 		return err
+	} else {
+		return nil
 	}
-	return nil
 }
 
 // MakeFile will create new file according to input path and file name.
@@ -45,10 +49,10 @@ func MakeFile(path, fileName string) error {
 	return nil
 }
 
-// WriteToFile will write input data into the file.
-func WriteToFile(path, file, data string) error {
+// TruncateAndWriteToFile will write input data into the file.
+func TruncateAndWriteToFile(path, file, data string) error {
 	// Opens file with read and write permissions.
-	openFile, err := os.OpenFile(fmt.Sprintf("%s/%s", path, file), os.O_RDWR, 0644)
+	openFile, err := os.OpenFile(fmt.Sprintf("%s/%s", path, file), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return err
 	}
@@ -63,5 +67,21 @@ func WriteToFile(path, file, data string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// AppendToFile will append given string to existing file.
+func AppendToFile(path, file, data string) error {
+	openFile, err := os.OpenFile(fmt.Sprintf("%s/%s", path, file), os.O_RDWR, 0644)
+	errorhandler.CheckNilErr(err)
+
+	defer openFile.Close()
+
+	_, err = openFile.WriteString(data)
+	errorhandler.CheckNilErr(err)
+
+	err = openFile.Sync()
+	errorhandler.CheckNilErr(err)
+
 	return nil
 }

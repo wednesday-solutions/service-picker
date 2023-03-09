@@ -23,9 +23,7 @@ func RunService(*cobra.Command, []string) {
 	case constants.MOBILE:
 
 	default:
-		{
 
-		}
 	}
 }
 
