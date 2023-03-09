@@ -1,10 +1,11 @@
 # service-picker
 
-This repo will contain a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosytem. 
+This repo will contain a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosystem.
 
-Keep the repos you're interested in and you're good to do. 
+Keep the repos you're interested in and you're good to do.
 
 This repo will have support for production applications using the following tech stacks
+
 - mobile
   - android app
   - iOS app
