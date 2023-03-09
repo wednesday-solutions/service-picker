@@ -3,15 +3,12 @@ package prompt
 import (
 	"fmt"
 	"os/exec"
-	"strings"
 
 	"github.com/manifoldco/promptui"
 	cp "github.com/otiai10/copy"
-	"github.com/stoewer/go-strcase"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/helpers"
 )
 
 var (
@@ -77,51 +74,14 @@ func PromptSelectCloudProvider(service string, stack string) {
 }
 
 func PromptSelectInit(service, stack string) {
-
-	currentDir := fileutils.CurrentDirectory()
-	splitDirs := strings.Split(currentDir, "/")
-	projectName := splitDirs[len(splitDirs)-1]
-	projectName = strcase.SnakeCase(projectName)
-
-	var createDockerFile bool
-	destination := currentDir + "/" + service
+	destination := fileutils.CurrentDirectory() + "/" + service
 	status, _ := fileutils.IsExists(destination)
 	if !status {
-		makeDirErr := fileutils.MakeDirectory(currentDir+"/", service)
+		makeDirErr := fileutils.MakeDirectory(fileutils.CurrentDirectory()+"/", service)
 		errorhandler.CheckNilErr(makeDirErr)
 		cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
 		err := cmd.Run()
 		errorhandler.CheckNilErr(err)
-
-		if service == "frontend" || service == "mobile" {
-			destination = currentDir + "/" + "backend"
-			status, _ := fileutils.IsExists(destination)
-			if status {
-				createDockerFile = true
-			}
-		} else if service == "backend" {
-			destination = currentDir + "/" + "frontend"
-			status, _ := fileutils.IsExists(destination)
-			if status {
-				createDockerFile = true
-			} else {
-				destination = currentDir + "/" + "mobile"
-				status, _ := fileutils.IsExists(destination)
-				if status {
-					createDockerFile = true
-				}
-			}
-		}
-		if createDockerFile {
-			// create Docker File
-			dockerComposeFile := "docker-compose.yml"
-			err = fileutils.MakeFile(currentDir, dockerComposeFile)
-			errorhandler.CheckNilErr(err)
-
-			// write Docker File
-			err = helpers.WriteDockerFile(dockerComposeFile, "postgres", projectName)
-			errorhandler.CheckNilErr(err)
-		}
 	} else {
 		fmt.Println("The", service, "service already exists. You can initialize only one stack in a service")
 	}
