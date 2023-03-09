@@ -16,6 +16,7 @@ const (
 	WEB      = "web"
 	MOBILE   = "mobile"
 	BACKEND  = "backend"
+	FRONTEND = "frontend"
 	DATABASE = "database"
 )
 

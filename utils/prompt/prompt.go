@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"strings"
 
@@ -75,37 +76,36 @@ func PromptSelectInit(service, stack, database string) {
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
 
-	if database != "" {
+	if service == constants.BACKEND {
 		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
 	}
 
 	var createDockerFile bool
-	destination := currentDir + "/" + service
+	dirName := service
+	if service == constants.WEB || service == constants.MOBILE {
+		dirName = constants.FRONTEND
+	}
+	destination := currentDir + "/" + dirName
+
 	status, _ := fileutils.IsExists(destination)
 	if !status {
-		makeDirErr := fileutils.MakeDirectory(currentDir+"/", service)
+		makeDirErr := fileutils.MakeDirectory(currentDir+"/", dirName)
 		errorhandler.CheckNilErr(makeDirErr)
-		cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
+		cmd := exec.Command("git", "clone", constants.Repos()[stack], dirName)
 		err := cmd.Run()
 		errorhandler.CheckNilErr(err)
 
-		if service == constants.WEB || service == constants.MOBILE {
+		if dirName == constants.FRONTEND {
 			destination = currentDir + "/" + constants.BACKEND
 			status, _ := fileutils.IsExists(destination)
 			if status {
 				createDockerFile = true
 			}
-		} else if service == constants.BACKEND {
-			destination = currentDir + "/" + constants.WEB
+		} else if dirName == constants.BACKEND {
+			destination = currentDir + "/" + constants.FRONTEND
 			status, _ := fileutils.IsExists(destination)
 			if status {
 				createDockerFile = true
-			} else {
-				destination = currentDir + "/" + constants.MOBILE
-				status, _ := fileutils.IsExists(destination)
-				if status {
-					createDockerFile = true
-				}
 			}
 		}
 		if createDockerFile {
@@ -115,7 +115,7 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 
 			// write Docker File
-			err = helpers.WriteDockerFile(dockerComposeFile, "postgres", projectName)
+			err = helpers.WriteDockerFile(dockerComposeFile, database, projectName)
 			errorhandler.CheckNilErr(err)
 		}
 	} else {
@@ -149,8 +149,10 @@ func PromptSelectStackDatabase(service, stack string) {
 		database = PromptSelect(label, []string{})
 	case constants.GOLANG:
 		database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
+	case constants.REACT, constants.NEXT:
+		database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL, constants.MONGODB})
 	default:
-		fmt.Println("Something went wrong")
+		log.Fatalln("Something went wrong")
 	}
 
 	PromptSelectStackConfig(service, stack, database)
@@ -159,8 +161,15 @@ func PromptSelectStackDatabase(service, stack string) {
 func PromptSelectStack(service string, items []string) {
 	stack := PromptSelect("Pick a stack", items)
 
-	// Choose database if the service is backend
-	if service == constants.BACKEND {
+	var status bool
+	var err error
+	if service != constants.BACKEND {
+		status, err = fileutils.IsExists(fileutils.CurrentDirectory() + "/" + constants.BACKEND)
+		errorhandler.CheckNilErr(err)
+	}
+
+	// Choose database
+	if status || service == constants.BACKEND {
 		PromptSelectStackDatabase(service, stack)
 
 	} else {
