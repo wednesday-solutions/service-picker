@@ -13,6 +13,13 @@ var (
 	REACT     = "react"
 )
 
+var (
+	NODE_HAPI       = "Node (Hapi- REST API)"
+	NODE_EXPRESS    = "Node (Express- GraphQL API)"
+	NODE_EXPRESS_TS = "Node (Express- TypeScript)"
+	GOLANG          = "Golang (Echo- GraphQL API)"
+)
+
 // ServiceCmd is the command variable of ServiceSelection.
 var ServiceSelection = ServiceSelectionFn()
 
@@ -25,6 +32,7 @@ func RunService(*cobra.Command, []string) {
 		prompt.PromptSelectStack(FRONTEND, []string{REACT})
 
 	case BACKEND:
+		prompt.PromptSelectStack(BACKEND, []string{NODE_HAPI, NODE_EXPRESS, NODE_EXPRESS_TS, GOLANG})
 
 	case DATABASES:
 
