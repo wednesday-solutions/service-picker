@@ -110,6 +110,9 @@ func PromptSelectInit(service, stack, database string) {
 
 			err = helpers.UpdateEnvFiles(database, projectName)
 			errorhandler.CheckNilErr(err)
+
+			err = helpers.ConvertMysqlToPostgres(projectName)
+			errorhandler.CheckNilErr(err)
 		}
 
 		// Docker-compose file
