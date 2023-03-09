@@ -101,6 +101,14 @@ func PromptSelectInit(service, stack, database string) {
 		err := cmd.Run()
 		errorhandler.CheckNilErr(err)
 
+		// Delete cd.yml file from the cloned repo.
+		cdFilePatch := currentDir + "/" + dirName + "/.github/workflows/cd.yml"
+		status, _ := fileutils.IsExists(cdFilePatch)
+		if status {
+			err = fileutils.RemoveFile(cdFilePatch)
+			errorhandler.CheckNilErr(err)
+		}
+
 		// Database selection
 		if stack == constants.NODE_HAPI && database == constants.POSTGRES {
 			// Convert DB Connection of Hapi template into Postgres.

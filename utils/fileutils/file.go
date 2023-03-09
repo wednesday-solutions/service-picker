@@ -49,6 +49,15 @@ func MakeFile(path, fileName string) error {
 	return nil
 }
 
+func RemoveFile(path string) error {
+	err := os.Remove(path) // Remove a single file
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
+
 // TruncateAndWriteToFile will write input data into the file.
 func TruncateAndWriteToFile(path, file, data string) error {
 	// Opens file with read and write permissions.
