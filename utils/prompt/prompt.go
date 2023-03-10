@@ -58,7 +58,7 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 				cdFileUrl = githubUrl + "go-template-mysql/main" + cdFile
 			}
 		case constants.REACT:
-			cdFileUrl = githubUrl + "react-graphql-ts-template/master" + cdFile
+			cdFileUrl = githubUrl + "react-template/master" + cdFile
 		case constants.NEXT:
 			cdFileUrl = githubUrl + "nextjs-template/master" + cdFile
 		default:
@@ -145,7 +145,7 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 
-		// Database selection
+		// Database conversion
 		if stack == constants.NODE_HAPI && database == constants.POSTGRES {
 			// Convert DB Connection of Hapi template into Postgres.
 			file := "/backend/config/db.js"
