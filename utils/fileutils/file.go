@@ -49,6 +49,13 @@ func MakeFile(path, fileName string) error {
 	return nil
 }
 
+func CreateFile(file string) error {
+	_, err := os.Create(file)
+	errorhandler.CheckNilErr(err)
+
+	return nil
+}
+
 func RemoveFile(path string) error {
 	err := os.Remove(path) // Remove a single file
 	if err != nil {
@@ -62,6 +69,27 @@ func RemoveFile(path string) error {
 func TruncateAndWriteToFile(path, file, data string) error {
 	// Opens file with read and write permissions.
 	openFile, err := os.OpenFile(fmt.Sprintf("%s/%s", path, file), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer openFile.Close()
+
+	_, err = openFile.WriteString(data)
+	if err != nil {
+		return err
+	}
+
+	err = openFile.Sync()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// WriteToFile will write input data into the file.
+func WriteToFile(file, data string) error {
+	// Opens file with read and write permissions.
+	openFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return err
 	}

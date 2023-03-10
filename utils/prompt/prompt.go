@@ -2,7 +2,9 @@ package prompt
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os/exec"
 	"strings"
 
@@ -39,16 +41,40 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 		dirName = constants.FRONTEND
 	}
 	if selectedCloudConfig == constants.CREATE_CD {
-		cdSource := "workflows/" + dirName + "/cd/" + stack + ".yml"
-		// cdDestination := fileutils.CurrentDirectory() + "/" + dirName + "/.github/workflows/cd.yml"
 
-		cdDestination := "github.com/wednesday-solutions/picky/" + cdSource
-		fmt.Println(cdDestination)
+		githubUrl := "https://raw.githubusercontent.com/wednesday-solutions/"
+		var cdFileUrl string
+		cdFile := "/.github/workflows/cd.yml"
 
+		switch stack {
+		case constants.NODE_HAPI:
+			cdFileUrl = githubUrl + "nodejs-hapi-template/main" + cdFile
+		case constants.NODE_EXPRESS:
+			cdFileUrl = githubUrl + "node-express-graphql-template/develop" + cdFile
+		case constants.REACT:
+			cdFileUrl = githubUrl + "react-graphql-ts-template/master" + cdFile
+		default:
+			cdFileUrl = ""
+		}
+
+		cdDestination := fileutils.CurrentDirectory() + "/" + dirName + cdFile
 		status, _ := fileutils.IsExists(cdDestination)
 		if !status {
-			err := cp.Copy(cdSource, cdDestination)
+			resp, err := http.Get(cdFileUrl)
 			errorhandler.CheckNilErr(err)
+			defer resp.Body.Close()
+
+			cdFileData, err := io.ReadAll(resp.Body)
+			errorhandler.CheckNilErr(err)
+
+			// Create CD File
+			err = fileutils.CreateFile(cdDestination)
+			errorhandler.CheckNilErr(err)
+
+			// Write CDFileData to CD File
+			err = fileutils.WriteToFile(cdDestination, string(cdFileData))
+			errorhandler.CheckNilErr(err)
+
 		} else {
 			fmt.Println("The", dirName, stack, "CD you are looking to create already exists")
 		}
