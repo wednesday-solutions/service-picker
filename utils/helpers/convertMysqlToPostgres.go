@@ -6,7 +6,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func ConvertMysqlToPostgres(projectName, stack string) error {
+func ConvertMysqlToPostgres(stack, projectName string) error {
 	switch stack {
 	case constants.NODE_HAPI:
 		oauth_clients_01 := `create sequence oauth_clients_seq;

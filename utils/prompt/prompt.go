@@ -119,7 +119,7 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.UpdateEnvFiles(stack, database, projectName)
 			errorhandler.CheckNilErr(err)
 
-			err = helpers.ConvertMysqlToPostgres(projectName, stack)
+			err = helpers.ConvertMysqlToPostgres(stack, projectName)
 			errorhandler.CheckNilErr(err)
 		}
 
