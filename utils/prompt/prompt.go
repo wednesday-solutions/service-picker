@@ -31,7 +31,7 @@ func PromptSelect(label string, items []string) string {
 	return result
 }
 
-func PromptSelectCloudProviderConfig(service string, stack string) {
+func PromptSelectCloudProviderConfig(service, stack, database string) {
 	cloudProviderConfigLabel := "Choose a cloud provider config"
 	cloudProviderConfigItems := []string{constants.CREATE_CD, constants.CREATE_INFRA}
 
@@ -51,8 +51,16 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 			cdFileUrl = githubUrl + "nodejs-hapi-template/main" + cdFile
 		case constants.NODE_EXPRESS:
 			cdFileUrl = githubUrl + "node-express-graphql-template/develop" + cdFile
+		case constants.GOLANG:
+			if database == constants.POSTGRES {
+				cdFileUrl = githubUrl + "go-template/master" + cdFile
+			} else if database == constants.MYSQL {
+				cdFileUrl = githubUrl + "go-template-mysql/main" + cdFile
+			}
 		case constants.REACT:
 			cdFileUrl = githubUrl + "react-graphql-ts-template/master" + cdFile
+		case constants.NEXT:
+			cdFileUrl = githubUrl + "nextjs-template/master" + cdFile
 		default:
 			cdFileUrl = ""
 		}
@@ -60,6 +68,8 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 		cdDestination := fileutils.CurrentDirectory() + "/" + dirName + cdFile
 		status, _ := fileutils.IsExists(cdDestination)
 		if !status {
+
+			// Accessing CD File which is present in the Github.
 			resp, err := http.Get(cdFileUrl)
 			errorhandler.CheckNilErr(err)
 			defer resp.Body.Close()
@@ -91,13 +101,13 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 	}
 }
 
-func PromptSelectCloudProvider(service string, stack string) {
+func PromptSelectCloudProvider(service, stack, database string) {
 	cloudProviderLabel := "Choose a cloud provider"
 	cloudProviderItems := []string{constants.AWS}
 
 	selectedCloudProvider := PromptSelect(cloudProviderLabel, cloudProviderItems)
 	if selectedCloudProvider == constants.AWS {
-		PromptSelectCloudProviderConfig(service, stack)
+		PromptSelectCloudProviderConfig(service, stack, database)
 	}
 }
 
@@ -187,7 +197,7 @@ func PromptSelectStackConfig(service, stack, database string) {
 	if selectedConfig == constants.INIT {
 		PromptSelectInit(service, stack, database)
 	} else {
-		PromptSelectCloudProvider(service, stack)
+		PromptSelectCloudProvider(service, stack, database)
 	}
 }
 
