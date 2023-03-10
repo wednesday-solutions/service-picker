@@ -6,9 +6,11 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func UpdateEnvFiles(database, projectName string) error {
+func UpdateEnvFiles(stack, database, projectName string) error {
 
-	postgresDockerSource := `NAME=Node Template
+	switch stack {
+	case constants.NODE_HAPI:
+		postgresDockerSource := `NAME=Node Template
 NODE_ENV=production
 ENVIRONMENT_NAME=docker
 PORT=9000
@@ -20,7 +22,7 @@ POSTGRES_PASSWORD=reportingdashboard123
 POSTGRES_PORT=5432
 REDIS_HOST=redis`
 
-	mysqlDockerSource := `NAME=Node Template
+		mysqlDockerSource := `NAME=Node Template
 NODE_ENV=production
 ENVIRONMENT_NAME=docker
 PORT=9000
@@ -34,7 +36,7 @@ ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa1
 REDIS_DOMAIN=redis
 REDIS_PORT=6379`
 
-	postgresLocalSource := `NAME=Node Template
+		postgresLocalSource := `NAME=Node Template
 NODE_ENV=development
 ENVIRONMENT_NAME=local
 PORT=9000
@@ -46,7 +48,7 @@ POSTGRES_PASSWORD=reportingdashboard123
 REDIS_HOST=localhost
 REDIS_PORT=6379`
 
-	mysqlLocalSource := `NAME=Node Template
+		mysqlLocalSource := `NAME=Node Template
 NODE_ENV=local
 ENVIRONMENT_NAME=local
 PORT=9000
@@ -58,7 +60,7 @@ MYSQL_PASSWORD=password
 REDIS_DOMAIN=localhost
 ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa14b1bb195bbe9d72c9599ba0c6b556f9bd1607a8478be87e5a91b697c74032e0ae7af`
 
-	postgresDevSource := `NAME=Node Template (DEV)
+		postgresDevSource := `NAME=Node Template (DEV)
 NODE_ENV=development
 ENVIRONMENT_NAME=development
 PORT=9000
@@ -69,7 +71,7 @@ POSTGRES_USER=reporting_dashboard_role
 POSTGRES_PASSWORD=reportingdashboard123
 REDIS_HOST=redis`
 
-	mysqlDevSource := `NAME=Node Template (DEV)
+		mysqlDevSource := `NAME=Node Template (DEV)
 NODE_ENV=development
 ENVIRONMENT_NAME=development
 PORT=9000
@@ -82,33 +84,36 @@ MYSQL_ROOT_PASSWORD=password
 REDIS_HOST=redis
 ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa14b1bb195bbe9d72c9599ba0c6b556f9bd1607a8478be87e5a91b697c74032e0ae7af`
 
-	var envFile string
-	var err error
-	if database == constants.POSTGRES {
-		envFile = "/backend/.env.docker"
-		err = hbs.ParseAndWriteToFile(postgresDockerSource, database, projectName, envFile)
+		var envFile string
+		var err error
+		if database == constants.POSTGRES {
+			envFile = "/backend/.env.docker"
+			err = hbs.ParseAndWriteToFile(postgresDockerSource, database, projectName, envFile)
+			errorhandler.CheckNilErr(err)
+
+			envFile = "/backend/.env.local"
+			err = hbs.ParseAndWriteToFile(postgresLocalSource, database, projectName, envFile)
+			errorhandler.CheckNilErr(err)
+
+			envFile = "/backend/.env.development"
+			err = hbs.ParseAndWriteToFile(postgresDevSource, database, projectName, envFile)
+
+		} else if database == constants.MYSQL {
+			envFile = "/backend/.env.docker"
+			err = hbs.ParseAndWriteToFile(mysqlDockerSource, database, projectName, envFile)
+			errorhandler.CheckNilErr(err)
+
+			envFile = "/backend/.env.local"
+			err = hbs.ParseAndWriteToFile(mysqlLocalSource, database, projectName, envFile)
+			errorhandler.CheckNilErr(err)
+
+			envFile = "/backend/.env.development"
+			err = hbs.ParseAndWriteToFile(mysqlDevSource, database, projectName, envFile)
+		}
 		errorhandler.CheckNilErr(err)
 
-		envFile = "/backend/.env.local"
-		err = hbs.ParseAndWriteToFile(postgresLocalSource, database, projectName, envFile)
-		errorhandler.CheckNilErr(err)
-
-		envFile = "/backend/.env.development"
-		err = hbs.ParseAndWriteToFile(postgresDevSource, database, projectName, envFile)
-
-	} else if database == constants.MYSQL {
-		envFile = "/backend/.env.docker"
-		err = hbs.ParseAndWriteToFile(mysqlDockerSource, database, projectName, envFile)
-		errorhandler.CheckNilErr(err)
-
-		envFile = "/backend/.env.local"
-		err = hbs.ParseAndWriteToFile(mysqlLocalSource, database, projectName, envFile)
-		errorhandler.CheckNilErr(err)
-
-		envFile = "/backend/.env.development"
-		err = hbs.ParseAndWriteToFile(mysqlDevSource, database, projectName, envFile)
+		return nil
+	default:
+		return nil
 	}
-	errorhandler.CheckNilErr(err)
-
-	return nil
 }

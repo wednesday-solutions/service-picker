@@ -6,9 +6,11 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func ConvertDBConnection(dbFile, database, projectName string) error {
+func ConvertDBConnection(stack, dbFile, database, projectName string) error {
 
-	postgresSource := `module.exports = {
+	switch stack {
+	case constants.NODE_HAPI:
+		postgresSource := `module.exports = {
 	url: process.env.DB_URI,
 	logging: true,
 	options: {
@@ -26,7 +28,7 @@ func ConvertDBConnection(dbFile, database, projectName string) error {
 };
 `
 
-	mysqlSource := `const mysql2 = require('mysql2');
+		mysqlSource := `const mysql2 = require('mysql2');
 
 module.exports = {
 	url: process.env.DB_URI,
@@ -45,13 +47,16 @@ module.exports = {
 };
 `
 
-	var err error
-	if database == constants.POSTGRES {
-		err = hbs.ParseAndWriteToFile(postgresSource, database, projectName, dbFile)
-	} else if database == constants.MYSQL {
-		err = hbs.ParseAndWriteToFile(mysqlSource, database, projectName, dbFile)
-	}
-	errorhandler.CheckNilErr(err)
+		var err error
+		if database == constants.POSTGRES {
+			err = hbs.ParseAndWriteToFile(postgresSource, database, projectName, dbFile)
+		} else if database == constants.MYSQL {
+			err = hbs.ParseAndWriteToFile(mysqlSource, database, projectName, dbFile)
+		}
+		errorhandler.CheckNilErr(err)
 
-	return nil
+		return nil
+	default:
+		return nil
+	}
 }
