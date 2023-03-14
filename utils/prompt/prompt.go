@@ -152,6 +152,10 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.ConvertDBConnection(stack, file, database, projectName)
 			errorhandler.CheckNilErr(err)
 
+			file = "/backend/package.json"
+			err = helpers.UpdatePackageDotJson(stack, file, database, projectName)
+			errorhandler.CheckNilErr(err)
+
 			err = helpers.UpdateEnvFiles(stack, database, projectName)
 			errorhandler.CheckNilErr(err)
 
@@ -164,13 +168,13 @@ func PromptSelectInit(service, stack, database string) {
 			destination = currentDir + "/" + constants.BACKEND
 			status, _ := fileutils.IsExists(destination)
 			if status {
-				createDockerFile = true
+				createDockerFile = false // Make it to true if we want to generate docker-compose file.
 			}
 		} else if dirName == constants.BACKEND {
 			destination = currentDir + "/" + constants.FRONTEND
 			status, _ := fileutils.IsExists(destination)
 			if status {
-				createDockerFile = true
+				createDockerFile = false // Make it to true if we want to generate docker-compose file.
 			}
 		}
 		if createDockerFile {
