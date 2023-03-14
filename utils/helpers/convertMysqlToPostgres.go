@@ -8,7 +8,7 @@ import (
 
 func ConvertMysqlToPostgres(stack, projectName string) error {
 	switch stack {
-	case constants.NODE_HAPI:
+	case constants.NODE_HAPI_TEMPLATE:
 		oauth_clients_01 := `create sequence oauth_clients_seq;
 
 create type grant_type_enum as ENUM('CLIENT_CREDENTIALS');

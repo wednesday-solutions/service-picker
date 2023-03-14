@@ -9,7 +9,7 @@ import (
 func UpdateDBConfig(stack, dbFile, database, projectName string) error {
 
 	switch stack {
-	case constants.NODE_HAPI:
+	case constants.NODE_HAPI_TEMPLATE:
 		postgresSource := `const pg = require('pg');
 
 module.exports = {

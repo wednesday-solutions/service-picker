@@ -2,9 +2,7 @@ package prompt
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os/exec"
 	"strings"
 
@@ -36,58 +34,16 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 	cloudProviderConfigItems := []string{constants.CREATE_CD, constants.CREATE_INFRA}
 
 	selectedCloudConfig := PromptSelect(cloudProviderConfigLabel, cloudProviderConfigItems)
+
 	dirName := service
 	if dirName != constants.BACKEND {
 		dirName = constants.FRONTEND
 	}
 	if selectedCloudConfig == constants.CREATE_CD {
 
-		githubUrl := "https://raw.githubusercontent.com/wednesday-solutions/"
-		var cdFileUrl string
-		cdFile := "/.github/workflows/cd.yml"
+		err := helpers.CreateCDFile(stack, dirName, database)
+		errorhandler.CheckNilErr(err)
 
-		switch stack {
-		case constants.NODE_HAPI:
-			cdFileUrl = githubUrl + "nodejs-hapi-template/main" + cdFile
-		case constants.NODE_EXPRESS:
-			cdFileUrl = githubUrl + "node-express-graphql-template/develop" + cdFile
-		case constants.GOLANG:
-			if database == constants.POSTGRES {
-				cdFileUrl = githubUrl + "go-template/master" + cdFile
-			} else if database == constants.MYSQL {
-				cdFileUrl = githubUrl + "go-template-mysql/main" + cdFile
-			}
-		case constants.REACT:
-			cdFileUrl = githubUrl + "react-template/master" + cdFile
-		case constants.NEXT:
-			cdFileUrl = githubUrl + "nextjs-template/master" + cdFile
-		default:
-			cdFileUrl = ""
-		}
-
-		cdDestination := fileutils.CurrentDirectory() + "/" + dirName + cdFile
-		status, _ := fileutils.IsExists(cdDestination)
-		if !status {
-
-			// Accessing CD File which is present in the Github.
-			resp, err := http.Get(cdFileUrl)
-			errorhandler.CheckNilErr(err)
-			defer resp.Body.Close()
-
-			cdFileData, err := io.ReadAll(resp.Body)
-			errorhandler.CheckNilErr(err)
-
-			// Create CD File
-			err = fileutils.CreateFile(cdDestination)
-			errorhandler.CheckNilErr(err)
-
-			// Write CDFileData to CD File
-			err = fileutils.WriteToFile(cdDestination, string(cdFileData))
-			errorhandler.CheckNilErr(err)
-
-		} else {
-			fmt.Println("The", dirName, stack, "CD you are looking to create already exists")
-		}
 	} else if selectedCloudConfig == constants.CREATE_INFRA {
 		infraSource := "infrastructure/" + dirName
 		infraDestination := fileutils.CurrentDirectory() + "/"
@@ -118,7 +74,7 @@ func PromptSelectInit(service, stack, database string) {
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
 
-	if stack == constants.GOLANG {
+	if stack == constants.GOLANG_ECHO_TEMPLATE {
 		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
 	}
 
@@ -146,7 +102,7 @@ func PromptSelectInit(service, stack, database string) {
 		}
 
 		// Database conversion
-		if stack == constants.NODE_HAPI && database == constants.POSTGRES {
+		if stack == constants.NODE_HAPI_TEMPLATE && database == constants.POSTGRES {
 			// Convert DB Connection of Hapi template into Postgres.
 			file := "/backend/config/db.js"
 			err = helpers.UpdateDBConfig(stack, file, database, projectName)
@@ -210,13 +166,13 @@ func PromptSelectStackDatabase(service, stack string) {
 	label := "Choose a database"
 	if service == constants.BACKEND {
 		switch stack {
-		case constants.NODE_HAPI:
+		case constants.NODE_HAPI_TEMPLATE:
 			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
-		case constants.NODE_EXPRESS:
+		case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
 			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
 		case constants.NODE_EXPRESS_TS:
 			database = PromptSelect(label, []string{})
-		case constants.GOLANG:
+		case constants.GOLANG_ECHO_TEMPLATE:
 			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
 		default:
 			log.Fatalln("Something went wrong")

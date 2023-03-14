@@ -35,10 +35,10 @@ const (
 
 // Backend stacks
 const (
-	NODE_HAPI       = "Node (Hapi- REST API)"
-	NODE_EXPRESS    = "Node (Express- GraphQL API)"
-	NODE_EXPRESS_TS = "Node (Express- TypeScript)"
-	GOLANG          = "Golang (Echo- GraphQL API)"
+	NODE_HAPI_TEMPLATE            = "Node (Hapi- REST API)"
+	NODE_EXPRESS_GRAPHQL_TEMPLATE = "Node (Express- GraphQL API)"
+	NODE_EXPRESS_TS               = "Node (Express- TypeScript)"
+	GOLANG_ECHO_TEMPLATE          = "Golang (Echo- GraphQL API)"
 )
 
 // Databases
@@ -55,4 +55,16 @@ const (
 	AWS          = "AWS"
 	CREATE_CD    = "Create CD pipeline"
 	CREATE_INFRA = "Create Infra"
+)
+
+// Github download URL
+const (
+	GitHubURL                         = "https://raw.githubusercontent.com/wednesday-solutions/"
+	CDFilePath                        = "/.github/workflows/cd.yml"
+	NodeHapiTemplateMain              = "nodejs-hapi-template/main"
+	NodeExpressGraphqlTemplateDevelop = "node-express-graphql-template/develop"
+	GoEchoTemplatePostgresMaster      = "go-template/master"
+	GoEchoTemplateMysqlMain           = "go-template-mysql/main"
+	ReactTemplateMaster               = "react-template/master"
+	NextjsTemplateMaster              = "nextjs-template/master"
 )
