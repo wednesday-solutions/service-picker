@@ -161,6 +161,10 @@ func PromptSelectInit(service, stack, database string) {
 
 			err = helpers.ConvertMysqlToPostgres(stack, projectName)
 			errorhandler.CheckNilErr(err)
+
+			file = "/backend/lib/models/index.js"
+			err = helpers.UpdateDBIndexToPostgres(stack, file, database, projectName)
+			errorhandler.CheckNilErr(err)
 		}
 
 		// Docker-compose file
