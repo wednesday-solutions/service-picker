@@ -2,13 +2,13 @@ package constants
 
 var Repos = func() map[string]string {
 	return map[string]string{
-		"react":                      "https://github.com/wednesday-solutions/react-template",
-		"next":                       "https://github.com/wednesday-solutions/nextjs-template",
-		"Node-mysql":                 "https://github.com/wednesday-solutions/nodejs-hapi-template",
-		"Node-postgres":              "https://github.com/wednesday-solutions/node-express-graphql-template",
-		"Node (Express- TypeScript)": "",
-		"Golang-postgres":            "https://github.com/wednesday-solutions/go-template",
-		"Golang-mysql":               "https://github.com/wednesday-solutions/go-template-mysql",
+		"react":                       "https://github.com/wednesday-solutions/react-template",
+		"next":                        "https://github.com/wednesday-solutions/nextjs-template",
+		"Node (Hapi- REST API)":       "https://github.com/wednesday-solutions/nodejs-hapi-template",
+		"Node (Express- GraphQL API)": "https://github.com/wednesday-solutions/node-express-graphql-template",
+		"Node (Express- TypeScript)":  "",
+		"Golang-postgres":             "https://github.com/wednesday-solutions/go-template",
+		"Golang-mysql":                "https://github.com/wednesday-solutions/go-template-mysql",
 	}
 }
 

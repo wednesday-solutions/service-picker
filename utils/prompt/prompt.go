@@ -30,8 +30,8 @@ func PromptSelect(label string, items []string) string {
 }
 
 func PromptSelectCloudProviderConfig(service string, stack string) {
-	var cloudProviderConfigLabel string = "Choose a cloud provider config"
-	var cloudProviderConfigItems = []string{constants.CREATE_CD, constants.CREATE_INFRA}
+	cloudProviderConfigLabel := "Choose a cloud provider config"
+	cloudProviderConfigItems := []string{constants.CREATE_CD, constants.CREATE_INFRA}
 
 	selectedCloudConfig := PromptSelect(cloudProviderConfigLabel, cloudProviderConfigItems)
 	dirName := service
@@ -40,7 +40,10 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 	}
 	if selectedCloudConfig == constants.CREATE_CD {
 		cdSource := "workflows/" + dirName + "/cd/" + stack + ".yml"
-		cdDestination := fileutils.CurrentDirectory() + "/" + dirName + "/.github/workflows/cd.yml"
+		// cdDestination := fileutils.CurrentDirectory() + "/" + dirName + "/.github/workflows/cd.yml"
+
+		cdDestination := "github.com/wednesday-solutions/picky/" + cdSource
+		fmt.Println(cdDestination)
 
 		status, _ := fileutils.IsExists(cdDestination)
 		if !status {
@@ -49,7 +52,6 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 		} else {
 			fmt.Println("The", dirName, stack, "CD you are looking to create already exists")
 		}
-
 	} else if selectedCloudConfig == constants.CREATE_INFRA {
 		infraSource := "infrastructure/" + dirName
 		infraDestination := fileutils.CurrentDirectory() + "/"
@@ -64,8 +66,8 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 }
 
 func PromptSelectCloudProvider(service string, stack string) {
-	var cloudProviderLabel string = "Choose a cloud provider"
-	var cloudProviderItems = []string{constants.AWS}
+	cloudProviderLabel := "Choose a cloud provider"
+	cloudProviderItems := []string{constants.AWS}
 
 	selectedCloudProvider := PromptSelect(cloudProviderLabel, cloudProviderItems)
 	if selectedCloudProvider == constants.AWS {
@@ -80,7 +82,7 @@ func PromptSelectInit(service, stack, database string) {
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
 
-	if service == constants.BACKEND {
+	if stack == constants.GOLANG {
 		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
 	}
 
@@ -99,6 +101,29 @@ func PromptSelectInit(service, stack, database string) {
 		err := cmd.Run()
 		errorhandler.CheckNilErr(err)
 
+		// Delete cd.yml file from the cloned repo.
+		cdFilePatch := currentDir + "/" + dirName + "/.github/workflows/cd.yml"
+		status, _ := fileutils.IsExists(cdFilePatch)
+		if status {
+			err = fileutils.RemoveFile(cdFilePatch)
+			errorhandler.CheckNilErr(err)
+		}
+
+		// Database selection
+		if stack == constants.NODE_HAPI && database == constants.POSTGRES {
+			// Convert DB Connection of Hapi template into Postgres.
+			file := "/backend/config/db.js"
+			err = helpers.ConvertDBConnection(stack, file, database, projectName)
+			errorhandler.CheckNilErr(err)
+
+			err = helpers.UpdateEnvFiles(stack, database, projectName)
+			errorhandler.CheckNilErr(err)
+
+			err = helpers.ConvertMysqlToPostgres(stack, projectName)
+			errorhandler.CheckNilErr(err)
+		}
+
+		// Docker-compose file
 		if dirName == constants.FRONTEND {
 			destination = currentDir + "/" + constants.BACKEND
 			status, _ := fileutils.IsExists(destination)
@@ -128,9 +153,8 @@ func PromptSelectInit(service, stack, database string) {
 }
 
 func PromptSelectStackConfig(service, stack, database string) {
-
-	var configLabel string = "Choose the config to setup"
-	var configItems = []string{constants.INIT, constants.CLOUD_NATIVE}
+	configLabel := "Choose the config to setup"
+	configItems := []string{constants.INIT, constants.CLOUD_NATIVE}
 
 	selectedConfig := PromptSelect(configLabel, configItems)
 
@@ -143,13 +167,13 @@ func PromptSelectStackConfig(service, stack, database string) {
 
 func PromptSelectStackDatabase(service, stack string) {
 	var database string
-	var label string = "Choose a database"
+	label := "Choose a database"
 	if service == constants.BACKEND {
 		switch stack {
 		case constants.NODE_HAPI:
-			database = PromptSelect(label, []string{constants.MYSQL})
+			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
 		case constants.NODE_EXPRESS:
-			database = PromptSelect(label, []string{constants.POSTGRES})
+			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
 		case constants.NODE_EXPRESS_TS:
 			database = PromptSelect(label, []string{})
 		case constants.GOLANG:
@@ -181,7 +205,6 @@ func PromptSelectStack(service string, items []string) {
 	// Choose database
 	if status || service == constants.BACKEND {
 		PromptSelectStackDatabase(service, stack)
-
 	} else {
 		PromptSelectStackConfig(service, stack, "")
 	}
