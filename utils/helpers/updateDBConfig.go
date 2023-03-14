@@ -6,7 +6,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func ConvertDBConnection(stack, dbFile, database, projectName string) error {
+func UpdateDBConfig(stack, dbFile, database, projectName string) error {
 
 	switch stack {
 	case constants.NODE_HAPI:
