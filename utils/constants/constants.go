@@ -12,6 +12,13 @@ var Repos = func() map[string]string {
 	}
 }
 
+// CLI options
+const (
+	PICKY   = "picky"
+	SERVICE = "service"
+)
+
+// Services
 const (
 	WEB      = "web"
 	MOBILE   = "mobile"
@@ -20,11 +27,13 @@ const (
 	DATABASE = "database"
 )
 
+// Frontend stacks
 const (
 	REACT = "react"
 	NEXT  = "next"
 )
 
+// Backend stacks
 const (
 	NODE_HAPI       = "Node (Hapi- REST API)"
 	NODE_EXPRESS    = "Node (Express- GraphQL API)"
@@ -32,12 +41,14 @@ const (
 	GOLANG          = "Golang (Echo- GraphQL API)"
 )
 
+// Databases
 const (
 	POSTGRES = "postgres"
 	MYSQL    = "mysql"
 	MONGODB  = "mongoDB"
 )
 
+// Features
 const (
 	INIT         = "init"
 	CLOUD_NATIVE = "cloud native"

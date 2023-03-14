@@ -2,7 +2,9 @@ package prompt
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os/exec"
 	"strings"
 
@@ -29,7 +31,7 @@ func PromptSelect(label string, items []string) string {
 	return result
 }
 
-func PromptSelectCloudProviderConfig(service string, stack string) {
+func PromptSelectCloudProviderConfig(service, stack, database string) {
 	cloudProviderConfigLabel := "Choose a cloud provider config"
 	cloudProviderConfigItems := []string{constants.CREATE_CD, constants.CREATE_INFRA}
 
@@ -39,16 +41,50 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 		dirName = constants.FRONTEND
 	}
 	if selectedCloudConfig == constants.CREATE_CD {
-		cdSource := "workflows/" + dirName + "/cd/" + stack + ".yml"
-		// cdDestination := fileutils.CurrentDirectory() + "/" + dirName + "/.github/workflows/cd.yml"
 
-		cdDestination := "github.com/wednesday-solutions/picky/" + cdSource
-		fmt.Println(cdDestination)
+		githubUrl := "https://raw.githubusercontent.com/wednesday-solutions/"
+		var cdFileUrl string
+		cdFile := "/.github/workflows/cd.yml"
 
+		switch stack {
+		case constants.NODE_HAPI:
+			cdFileUrl = githubUrl + "nodejs-hapi-template/main" + cdFile
+		case constants.NODE_EXPRESS:
+			cdFileUrl = githubUrl + "node-express-graphql-template/develop" + cdFile
+		case constants.GOLANG:
+			if database == constants.POSTGRES {
+				cdFileUrl = githubUrl + "go-template/master" + cdFile
+			} else if database == constants.MYSQL {
+				cdFileUrl = githubUrl + "go-template-mysql/main" + cdFile
+			}
+		case constants.REACT:
+			cdFileUrl = githubUrl + "react-template/master" + cdFile
+		case constants.NEXT:
+			cdFileUrl = githubUrl + "nextjs-template/master" + cdFile
+		default:
+			cdFileUrl = ""
+		}
+
+		cdDestination := fileutils.CurrentDirectory() + "/" + dirName + cdFile
 		status, _ := fileutils.IsExists(cdDestination)
 		if !status {
-			err := cp.Copy(cdSource, cdDestination)
+
+			// Accessing CD File which is present in the Github.
+			resp, err := http.Get(cdFileUrl)
 			errorhandler.CheckNilErr(err)
+			defer resp.Body.Close()
+
+			cdFileData, err := io.ReadAll(resp.Body)
+			errorhandler.CheckNilErr(err)
+
+			// Create CD File
+			err = fileutils.CreateFile(cdDestination)
+			errorhandler.CheckNilErr(err)
+
+			// Write CDFileData to CD File
+			err = fileutils.WriteToFile(cdDestination, string(cdFileData))
+			errorhandler.CheckNilErr(err)
+
 		} else {
 			fmt.Println("The", dirName, stack, "CD you are looking to create already exists")
 		}
@@ -65,13 +101,13 @@ func PromptSelectCloudProviderConfig(service string, stack string) {
 	}
 }
 
-func PromptSelectCloudProvider(service string, stack string) {
+func PromptSelectCloudProvider(service, stack, database string) {
 	cloudProviderLabel := "Choose a cloud provider"
 	cloudProviderItems := []string{constants.AWS}
 
 	selectedCloudProvider := PromptSelect(cloudProviderLabel, cloudProviderItems)
 	if selectedCloudProvider == constants.AWS {
-		PromptSelectCloudProviderConfig(service, stack)
+		PromptSelectCloudProviderConfig(service, stack, database)
 	}
 }
 
@@ -109,7 +145,7 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 
-		// Database selection
+		// Database conversion
 		if stack == constants.NODE_HAPI && database == constants.POSTGRES {
 			// Convert DB Connection of Hapi template into Postgres.
 			file := "/backend/config/db.js"
@@ -161,7 +197,7 @@ func PromptSelectStackConfig(service, stack, database string) {
 	if selectedConfig == constants.INIT {
 		PromptSelectInit(service, stack, database)
 	} else {
-		PromptSelectCloudProvider(service, stack)
+		PromptSelectCloudProvider(service, stack, database)
 	}
 }
 

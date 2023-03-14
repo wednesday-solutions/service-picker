@@ -31,7 +31,7 @@ func RunService(*cobra.Command, []string) {
 func ServiceSelectionFn() *cobra.Command {
 
 	var ServiceSelection = &cobra.Command{
-		Use:   "service",
+		Use:   constants.SERVICE,
 		Short: "Pick a Service",
 		Long: `Pick a service for your:
 

@@ -1,6 +1,9 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+	"github.com/wednesday-solutions/picky/utils/constants"
+)
 
 // RootCmd is the command variable of root command negt.
 var RootCmd = RootCmdFn()
@@ -10,7 +13,7 @@ var version = "0.0.1"
 func RootCmdFn() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:     "picky",
+		Use:     constants.PICKY,
 		Version: version,
 		Short:   "Service Picker",
 		Long: `
