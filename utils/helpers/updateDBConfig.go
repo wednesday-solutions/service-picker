@@ -6,25 +6,26 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func ConvertDBConnection(stack, dbFile, database, projectName string) error {
+func UpdateDBConfig(stack, dbFile, database, projectName string) error {
 
 	switch stack {
 	case constants.NODE_HAPI:
-		postgresSource := `module.exports = {
+		postgresSource := `const pg = require('pg');
+
+module.exports = {
 	url: process.env.DB_URI,
-	logging: true,
-	options: {
-		dialect: 'postgres',
-		pool: {
-			min: 0,
-			max: 10,
-			idle: 10000
-		},
-		define: {
-			userscored: true,
-			timestamps: false
-		}
-	}
+	host: process.env.POSTGRES_HOST,
+	dialectModule: pg,
+	dialect: 'postgres',
+	pool: {
+		min: 0,
+		max: 10,
+		idle: 10000,
+	},
+	define: {
+		userscored: true,
+		timestamps: false,
+	},
 };
 `
 

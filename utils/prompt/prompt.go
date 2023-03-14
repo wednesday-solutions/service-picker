@@ -149,7 +149,7 @@ func PromptSelectInit(service, stack, database string) {
 		if stack == constants.NODE_HAPI && database == constants.POSTGRES {
 			// Convert DB Connection of Hapi template into Postgres.
 			file := "/backend/config/db.js"
-			err = helpers.ConvertDBConnection(stack, file, database, projectName)
+			err = helpers.UpdateDBConfig(stack, file, database, projectName)
 			errorhandler.CheckNilErr(err)
 
 			file = "/backend/package.json"
@@ -159,11 +159,8 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.UpdateEnvFiles(stack, database, projectName)
 			errorhandler.CheckNilErr(err)
 
+			// Convert mysql queries to postgres queries
 			err = helpers.ConvertMysqlToPostgres(stack, projectName)
-			errorhandler.CheckNilErr(err)
-
-			file = "/backend/lib/models/index.js"
-			err = helpers.UpdateDBIndexToPostgres(stack, file, database, projectName)
 			errorhandler.CheckNilErr(err)
 		}
 
