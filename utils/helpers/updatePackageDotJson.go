@@ -17,7 +17,6 @@ func UpdatePackageDotJson(stack, database string) error {
 	updateCommands := []string{}
 	err := exec.Command("yarn", "-v").Run()
 	if err != nil {
-		log.Fatal("Command ", err)
 		err = exec.Command("npm", "-v").Run()
 		if err != nil {
 			log.Fatal("Please install 'yarn' or 'npm' in your machine.")
