@@ -59,12 +59,12 @@ const (
 
 // Github download URL
 const (
-	GitHubURL                         = "https://raw.githubusercontent.com/wednesday-solutions/"
-	CDFilePath                        = "/.github/workflows/cd.yml"
-	NodeHapiTemplateMain              = "nodejs-hapi-template/main"
-	NodeExpressGraphqlTemplateDevelop = "node-express-graphql-template/develop"
-	GoEchoTemplatePostgresMaster      = "go-template/master"
-	GoEchoTemplateMysqlMain           = "go-template-mysql/main"
-	ReactTemplateMaster               = "react-template/master"
-	NextjsTemplateMaster              = "nextjs-template/master"
+	GitHubBaseURL                  = "https://raw.githubusercontent.com/wednesday-solutions/"
+	CDFilePathURL                  = "/.github/workflows/cd.yml"
+	NodeHapiTemplateRepo           = "nodejs-hapi-template/main"
+	NodeExpressGraphqlTemplateRepo = "node-express-graphql-template/develop"
+	GoEchoTemplatePostgresRepo     = "go-template/master"
+	GoEchoTemplateMysqlRepo        = "go-template-mysql/main"
+	ReactTemplateRepo              = "react-template/master"
+	NextjsTemplateRepo             = "nextjs-template/master"
 )
