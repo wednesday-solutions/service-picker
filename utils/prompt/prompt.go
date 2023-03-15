@@ -152,8 +152,7 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.UpdateDBConfig(stack, file, database, projectName)
 			errorhandler.CheckNilErr(err)
 
-			file = "/backend/package.json"
-			err = helpers.UpdatePackageDotJson(stack, file, database, projectName)
+			err = helpers.UpdatePackageDotJson(stack, database)
 			errorhandler.CheckNilErr(err)
 
 			err = helpers.UpdateEnvFiles(stack, database, projectName)
