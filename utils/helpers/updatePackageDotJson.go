@@ -5,6 +5,7 @@ import (
 	"log"
 	"os/exec"
 
+	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
@@ -12,7 +13,19 @@ import (
 func UpdatePackageDotJson(stack, database string) error {
 
 	var command string
-	updateCommands := []string{}
+	var dependencies []string
+	var updateCommands []string
+
+	switch stack {
+	case constants.NODE_HAPI_TEMPLATE:
+		// convert to postgres
+		dependencies = []string{"pg", "pg-native"}
+
+	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+		// convert to mysql
+		dependencies = []string{"mysql2"}
+	}
+
 	err := exec.Command("yarn", "-v").Run()
 	if err != nil {
 		err = exec.Command("npm", "-v").Run()
@@ -20,11 +33,13 @@ func UpdatePackageDotJson(stack, database string) error {
 			log.Fatal("Please install 'yarn' or 'npm' in your machine.")
 		} else {
 			command = "npm"
-			updateCommands = append(updateCommands, "install", "--legacy-peer-deps", "--save", "pg", "pg-native")
+			updateCommands = []string{"install", "--legacy-peer-deps", "--save"}
+			updateCommands = append(updateCommands, dependencies...)
 		}
 	} else {
 		command = "yarn"
-		updateCommands = append(updateCommands, "add", "pg", "pg-native")
+		updateCommands = []string{"add"}
+		updateCommands = append(updateCommands, dependencies...)
 	}
 
 	cmd := exec.Command(command, updateCommands...)
