@@ -10,7 +10,10 @@ import (
 var ServiceSelection = ServiceSelectionFn()
 
 func RunService(*cobra.Command, []string) {
-	selectedService := prompt.PromptSelect("Pick a service", []string{constants.WEB, constants.MOBILE, constants.BACKEND})
+	selectedService := prompt.PromptSelect("Pick a service", []string{constants.WEB,
+		constants.MOBILE,
+		constants.BACKEND},
+	)
 
 	switch selectedService {
 
@@ -18,7 +21,11 @@ func RunService(*cobra.Command, []string) {
 		prompt.PromptSelectStack(constants.WEB, []string{constants.REACT, constants.NEXT})
 
 	case constants.BACKEND:
-		prompt.PromptSelectStack(constants.BACKEND, []string{constants.NODE_HAPI, constants.NODE_EXPRESS, constants.NODE_EXPRESS_TS, constants.GOLANG})
+		prompt.PromptSelectStack(constants.BACKEND, []string{constants.NODE_HAPI_TEMPLATE,
+			constants.NODE_EXPRESS_GRAPHQL_TEMPLATE,
+			constants.NODE_EXPRESS_TS,
+			constants.GOLANG_ECHO_TEMPLATE},
+		)
 
 	case constants.MOBILE:
 

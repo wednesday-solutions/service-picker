@@ -9,7 +9,7 @@ import (
 func UpdateEnvFiles(stack, database, projectName string) error {
 
 	switch stack {
-	case constants.NODE_HAPI:
+	case constants.NODE_HAPI_TEMPLATE:
 		postgresDockerSource := `NAME=Node Template
 NODE_ENV=production
 ENVIRONMENT_NAME=docker
