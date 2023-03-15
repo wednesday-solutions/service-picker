@@ -8,23 +8,23 @@ import (
 func ConvertTemplateDatabase(stack, database, projectName string) error {
 
 	dbConfigFile := "/backend/config/db.js"
-	var convertTemplateDatabase bool
+	isDatabaseSupported := true
 
 	switch stack {
 	case constants.NODE_HAPI_TEMPLATE:
 		if database == constants.POSTGRES {
-			convertTemplateDatabase = true
+			isDatabaseSupported = false
 		}
 
 	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
 		if database == constants.MYSQL {
-			convertTemplateDatabase = true
+			isDatabaseSupported = false
 		}
 	default:
 		return nil
 	}
 
-	if convertTemplateDatabase {
+	if !isDatabaseSupported {
 		// Add new dependencies to package.json
 		err := UpdatePackageDotJson(stack, database)
 		errorhandler.CheckNilErr(err)
