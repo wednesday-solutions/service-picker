@@ -15,42 +15,42 @@ func CreateCDFile(stack, dirName, database string) error {
 
 	switch stack {
 	case constants.NODE_HAPI_TEMPLATE:
-		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubURL,
-			constants.NodeHapiTemplateMain,
-			constants.CDFilePath,
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.NodeHapiTemplateRepo,
+			constants.CDFilePathURL,
 		)
 	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
-		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubURL,
-			constants.NodeExpressGraphqlTemplateDevelop,
-			constants.CDFilePath,
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.NodeExpressGraphqlTemplateRepo,
+			constants.CDFilePathURL,
 		)
 	case constants.GOLANG_ECHO_TEMPLATE:
 		if database == constants.POSTGRES {
-			cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubURL,
-				constants.GoEchoTemplatePostgresMaster,
-				constants.CDFilePath,
+			cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+				constants.GoEchoTemplatePostgresRepo,
+				constants.CDFilePathURL,
 			)
 		} else if database == constants.MYSQL {
-			cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubURL,
-				constants.GoEchoTemplateMysqlMain,
-				constants.CDFilePath,
+			cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+				constants.GoEchoTemplateMysqlRepo,
+				constants.CDFilePathURL,
 			)
 		}
 	case constants.REACT:
-		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubURL,
-			constants.ReactTemplateMaster,
-			constants.CDFilePath,
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.ReactTemplateRepo,
+			constants.CDFilePathURL,
 		)
 	case constants.NEXT:
-		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubURL,
-			constants.NextjsTemplateMaster,
-			constants.CDFilePath,
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.NextjsTemplateRepo,
+			constants.CDFilePathURL,
 		)
 	default:
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	cdDestination := fileutils.CurrentDirectory() + "/" + dirName + constants.CDFilePath
+	cdDestination := fileutils.CurrentDirectory() + "/" + dirName + constants.CDFilePathURL
 	status, _ := fileutils.IsExists(cdDestination)
 	if !status {
 
