@@ -54,28 +54,28 @@ REDIS_HOST=redis`,
 
 	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
 
-		envFileSources = []string{`DB_URI=mysql://reporting_dashboard_role:reportingdashboard123@localhost:3306/reporting_dashboard_dev
+		envFileSources = []string{`DB_URI=mysql://root:password@localhost:3306/reporting_dashboard_dev
 MYSQL_HOST=0.0.0.0
 MYSQL_DB=reporting_dashboard_dev
-MYSQL_USER=reporting_dashboard_role
-MYSQL_PASSWORD=reportingdashboard123
+MYSQL_USER=root
+MYSQL_PASSWORD=password
 NODE_ENV=local
 ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa14b1bb195bbe9d72c9599ba0c6b556f9bd1607a8478be87e5a91b697c74032e0ae7af
 REDIS_DOMAIN=localhost
 REDIS_PORT=6379`,
 
-			`DB_URI=mysql://reporting_dashboard_role:reportingdashboard123@db_mysql:5432/reporting_dashboard_dev
+			`DB_URI=mysql://root:password@db_mysql:5432/reporting_dashboard_dev
 MYSQL_HOST=db_mysql
 MYSQL_DB=reporting_dashboard_dev
-MYSQL_USER=reporting_dashboard_role
-MYSQL_PASSWORD=reportingdashboard123
+MYSQL_USER=root
+MYSQL_PASSWORD=password
 ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa14b1bb195bbe9d72c9599ba0c6b556f9bd1607a8478be87e5a91b697c74032e0ae7af`,
 
-			`DB_URI=mysql://reporting_dashboard_role:reportingdashboard123@db_mysql:5432/reporting_dashboard_dev
+			`DB_URI=mysql://root:password@db_mysql:5432/reporting_dashboard_dev
 MYSQL_HOST=db_mysql
 MYSQL_DB=reporting_dashboard_dev
-MYSQL_USER=reporting_dashboard_role
-MYSQL_PASSWORD=reportingdashboard123
+MYSQL_USER=root
+MYSQL_PASSWORD=password
 MYSQL_PORT=5432
 NODE_ENV=production
 ENVIRONMENT_NAME=docker
