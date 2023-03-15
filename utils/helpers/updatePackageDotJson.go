@@ -11,8 +11,6 @@ import (
 
 func UpdatePackageDotJson(stack, database string) error {
 
-	fmt.Println("Loading... (please wait, this will take some time)")
-
 	var command string
 	updateCommands := []string{}
 	err := exec.Command("yarn", "-v").Run()

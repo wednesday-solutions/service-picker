@@ -87,6 +87,10 @@ func PromptSelectInit(service, stack, database string) {
 
 	status, _ := fileutils.IsExists(destination)
 	if !status {
+
+		done := make(chan bool)
+		go helpers.ProgressBar(500, "Downloading", done)
+
 		makeDirErr := fileutils.MakeDirectory(currentDir+"/", dirName)
 		errorhandler.CheckNilErr(makeDirErr)
 		cmd := exec.Command("git", "clone", constants.Repos()[stack], dirName)
@@ -143,6 +147,9 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.WriteDockerFile(dockerComposeFile, database, projectName)
 			errorhandler.CheckNilErr(err)
 		}
+
+		<-done
+
 	} else {
 		fmt.Println("The", service, "service already exists. You can initialize only one stack in a service")
 	}
