@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/manifoldco/promptui"
-	// cp "github.com/otiai10/copy"
 	"github.com/stoewer/go-strcase"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
