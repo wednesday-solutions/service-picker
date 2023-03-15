@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"fmt"
+
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/hbs"
@@ -8,9 +10,11 @@ import (
 
 func UpdateDBConfig(stack, dbFile, database, projectName string) error {
 
+	var dbConfigSource string
+
 	switch stack {
 	case constants.NODE_HAPI_TEMPLATE:
-		postgresSource := `const pg = require('pg');
+		dbConfigSource = `const pg = require('pg');
 
 module.exports = {
 	url: process.env.DB_URI,
@@ -30,36 +34,50 @@ module.exports = {
 };
 `
 
-		mysqlSource := `const mysql2 = require('mysql2');
+	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+		dbConfigSource = fmt.Sprintf(`const Sequelize = require('sequelize');
+const mysql2 = require('mysql2');
+const dotenv = require('dotenv');
+
+dotenv.config({ path: %s.env.${process.env.ENVIRONMENT_NAME}%s });
 
 module.exports = {
 	url: process.env.DB_URI,
 	host: process.env.MYSQL_HOST,
-	dialectModule: mysql2,
 	logging: true,
+	dialectModule: mysql2,
 	dialect: 'mysql',
 	pool: {
 		min: 0,
 		max: 10,
-		idle: 10000,
+		idle: 10000
 	},
 	define: {
 		userscored: true,
-		timestamps: false,
+		timestamps: false
 	},
-};
-`
-
-		var err error
-		if database == constants.POSTGRES {
-			err = hbs.ParseAndWriteToFile(postgresSource, database, projectName, dbFile)
-		} else if database == constants.MYSQL {
-			err = hbs.ParseAndWriteToFile(mysqlSource, database, projectName, dbFile)
-		}
-		errorhandler.CheckNilErr(err)
-
-		return nil
-	default:
-		return nil
+	retry: {
+		match: [
+			'unknown timed out',
+			Sequelize.TimeoutError,
+			'timed',
+			'timeout',
+			'TimeoutError',
+			'Operation timeout',
+			'refuse',
+			'SQLITE_BUSY'
+		],
+		max: 10 // maximum amount of tries
 	}
+};
+`, "`", "`")
+
+	default:
+		return fmt.Errorf("Selected stack is invalid")
+	}
+
+	err := hbs.ParseAndWriteToFile(dbConfigSource, database, projectName, dbFile)
+	errorhandler.CheckNilErr(err)
+
+	return nil
 }

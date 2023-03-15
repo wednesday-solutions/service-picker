@@ -47,7 +47,7 @@ func CreateCDFile(stack, dirName, database string) error {
 			constants.CDFilePath,
 		)
 	default:
-		cdFileUrl = ""
+		return fmt.Errorf("Selected stack is invalid")
 	}
 
 	cdDestination := fileutils.CurrentDirectory() + "/" + dirName + constants.CDFilePath
