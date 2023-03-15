@@ -16,6 +16,7 @@ module.exports = {
 	url: process.env.DB_URI,
 	host: process.env.POSTGRES_HOST,
 	dialectModule: pg,
+	logging: true,
 	dialect: 'postgres',
 	pool: {
 		min: 0,
@@ -35,6 +36,7 @@ module.exports = {
 	url: process.env.DB_URI,
 	host: process.env.MYSQL_HOST,
 	dialectModule: mysql2,
+	logging: true,
 	dialect: 'mysql',
 	pool: {
 		min: 0,
