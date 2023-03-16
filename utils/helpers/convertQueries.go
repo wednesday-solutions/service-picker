@@ -5,16 +5,16 @@ import (
 
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/hbs"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func ConvertQueries(stack, database, projectName string) error {
+func ConvertQueries(stack string) error {
 
 	var queries []string
 	var files []string
 
 	switch stack {
-	case constants.NODE_HAPI_TEMPLATE:
+	case constants.NodeHapiTemplate:
 
 		oauthClients := `create sequence oauth_clients_seq;
 
@@ -124,7 +124,7 @@ create table oauth_client_scopes (
 			"/backend/resources/v1/05_oauth_client_scopes.sql",
 		}
 
-	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+	case constants.NodeExpressGraphqlTemplate:
 
 		products := `CREATE TABLE products (
 	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
@@ -250,7 +250,7 @@ create table oauth_client_scopes (
 	}
 
 	for idx, file := range files {
-		err := hbs.ParseAndWriteToFile(queries[idx], constants.POSTGRES, projectName, file)
+		err := fileutils.WriteToFile(fileutils.CurrentDirectory()+file, queries[idx])
 		errorhandler.CheckNilErr(err)
 	}
 

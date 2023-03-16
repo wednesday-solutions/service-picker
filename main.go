@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/wednesday-solutions/picky/cmd"
 )
@@ -10,7 +9,6 @@ import (
 func main() {
 	err := cmd.Execute()
 	if err != nil {
-		fmt.Println("Something error happened: ", err)
-		os.Exit(1)
+		log.Fatalf("Something error happened: %v", err)
 	}
 }

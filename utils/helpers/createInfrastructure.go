@@ -8,16 +8,30 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateInfrastructure(stack, dirName, database string) error {
+func CreateInfrastructure(stack, service string) error {
 
-	path := fileutils.CurrentDirectory()
 	var infraFiles map[string]string
+	path := fileutils.CurrentDirectory()
+
+	files := []string{
+		constants.PackageDotJsonFile,
+		constants.EnvFile,
+		constants.SstConfigJsFile,
+		constants.FrontendStackJsFile,
+	}
+
+	for _, file := range files {
+		status, _ := fileutils.IsExists(path + "/" + file)
+		if status {
+			errorhandler.CheckNilErr(fmt.Errorf("%s file already exist", file))
+		}
+	}
 
 	switch stack {
-	case constants.REACT:
+	case constants.ReactJS:
 
 		packageDotJsonSource := fmt.Sprintf(`{
-	"name": "react-app",
+	"name": "app",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -40,9 +54,9 @@ func CreateInfrastructure(stack, dirName, database string) error {
 	"workspaces": [
 		"%s/*"
 	]
-}`, dirName)
+}`, service)
 
-		envSource := `APP_NAME=frontend-app
+		envSource := `APP_NAME=app
 WEB_AWS_REGION=us-east-1`
 
 		sstConfigSource := `const dotenv = require('dotenv');
@@ -59,12 +73,12 @@ export default {
 };
 `
 
-		frontendStackSource := `import { StaticSite } from "sst/constructs";
+		frontendStackSource := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 
 export function FrontendStack({ stack }) {
 	// Deploy our React app
 	const site = new StaticSite(stack, "ReactSite", {
-		path: "frontend",
+		path: "%s",
 		buildCommand: "yarn run build",
 		buildOutput: "build",
 	});
@@ -74,33 +88,35 @@ export function FrontendStack({ stack }) {
 		SiteUrl: site.url || "http://localhost:3000/",
 	});
 }
-`
+`, service)
 
 		infraFiles = map[string]string{
-			"package.json":     packageDotJsonSource,
-			".env":             envSource,
-			"sst.config.js":    sstConfigSource,
-			"FrontendStack.js": frontendStackSource,
+			constants.PackageDotJsonFile:  packageDotJsonSource,
+			constants.EnvFile:             envSource,
+			constants.SstConfigJsFile:     sstConfigSource,
+			constants.FrontendStackJsFile: frontendStackSource,
 		}
 	default:
 		return fmt.Errorf("Only react template is integrated now")
 	}
 
+	done := make(chan bool)
+	go ProgressBar(30, "Generating", done)
+
 	for fileName, fileSource := range infraFiles {
 
 		if fileName == "FrontendStack.js" {
-
 			err := fileutils.MakeDirectory(path, "stacks")
 			errorhandler.CheckNilErr(err)
-
 			path = fileutils.CurrentDirectory() + "/stacks"
+
 		} else {
 			path = fileutils.CurrentDirectory()
 		}
-
 		err := fileutils.TruncateAndWriteToFile(path, fileName, fileSource)
 		errorhandler.CheckNilErr(err)
-
 	}
+	<-done
+
 	return nil
 }

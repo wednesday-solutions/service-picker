@@ -2,7 +2,6 @@ package prompt
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 	"strings"
 
@@ -22,7 +21,6 @@ func PromptSelect(label string, items []string) string {
 	}
 
 	_, result, err := prompt.Run()
-
 	errorhandler.CheckNilErr(err)
 
 	return result
@@ -30,24 +28,19 @@ func PromptSelect(label string, items []string) string {
 
 func PromptSelectCloudProviderConfig(service, stack, database string) {
 	cloudProviderConfigLabel := "Choose a cloud provider config"
-	cloudProviderConfigItems := []string{constants.CREATE_CD, constants.CREATE_INFRA}
+	cloudProviderConfigItems := []string{constants.CreateCD, constants.CreateInfra}
 
 	selectedCloudConfig := PromptSelect(cloudProviderConfigLabel, cloudProviderConfigItems)
 
-	dirName := service
-	if dirName != constants.BACKEND {
-		dirName = constants.FRONTEND
-	}
-	if selectedCloudConfig == constants.CREATE_CD {
+	if selectedCloudConfig == constants.CreateCD {
 
-		err := helpers.CreateCDFile(stack, dirName, database)
+		err := helpers.CreateCDFile(stack, service, database)
 		errorhandler.CheckNilErr(err)
 
-	} else if selectedCloudConfig == constants.CREATE_INFRA {
+	} else if selectedCloudConfig == constants.CreateInfra {
 
-		err := helpers.CreateInfrastructure(stack, dirName, database)
+		err := helpers.CreateInfrastructure(stack, service)
 		errorhandler.CheckNilErr(err)
-
 	}
 }
 
@@ -68,16 +61,11 @@ func PromptSelectInit(service, stack, database string) {
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
 
-	if stack == constants.GOLANG_ECHO_TEMPLATE {
-		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
+	if stack == constants.GolangEchoTemplate {
+		stack = fmt.Sprintf("%s%s", strings.Split(stack, " ")[0], database)
 	}
 
-	var createDockerFile bool
-	dirName := service
-	if service != constants.BACKEND {
-		dirName = constants.FRONTEND
-	}
-	destination := currentDir + "/" + dirName
+	destination := currentDir + "/" + service
 
 	status, _ := fileutils.IsExists(destination)
 	if !status {
@@ -85,14 +73,17 @@ func PromptSelectInit(service, stack, database string) {
 		done := make(chan bool)
 		go helpers.ProgressBar(100, "Downloading", done)
 
-		makeDirErr := fileutils.MakeDirectory(currentDir, dirName)
+		// Create directory in the name of selected service
+		makeDirErr := fileutils.MakeDirectory(currentDir, service)
 		errorhandler.CheckNilErr(makeDirErr)
-		cmd := exec.Command("git", "clone", constants.Repos()[stack], dirName)
+
+		// Download the selected stack
+		cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
 		err := cmd.Run()
 		errorhandler.CheckNilErr(err)
 
 		// Delete cd.yml file from the cloned repo.
-		cdFilePatch := currentDir + "/" + dirName + "/.github/workflows/cd.yml"
+		cdFilePatch := currentDir + "/" + service + constants.CDFilePathURL
 		status, _ := fileutils.IsExists(cdFilePatch)
 		if status {
 			err = fileutils.RemoveFile(cdFilePatch)
@@ -100,26 +91,26 @@ func PromptSelectInit(service, stack, database string) {
 		}
 
 		// Database conversion
-		if service == constants.BACKEND {
-			err = helpers.ConvertTemplateDatabase(stack, database, projectName)
+		if service == constants.Backend {
+			err = helpers.ConvertTemplateDatabase(stack, database)
 			errorhandler.CheckNilErr(err)
 		}
 
 		// Docker-compose file
-		if dirName == constants.FRONTEND {
-			destination = currentDir + "/" + constants.BACKEND
-			status, _ := fileutils.IsExists(destination)
-			if status {
-				createDockerFile = false // Make it to true if we want to generate docker-compose file.
-			}
-		} else if dirName == constants.BACKEND {
-			destination = currentDir + "/" + constants.FRONTEND
-			status, _ := fileutils.IsExists(destination)
-			if status {
-				createDockerFile = false // Make it to true if we want to generate docker-compose file.
-			}
+		var webStatus, mobileStatus, backendStatus bool
+		if service == constants.Web || service == constants.Mobile {
+			destination = currentDir + "/" + constants.Backend
+			backendStatus, _ = fileutils.IsExists(destination)
+
+		} else if service == constants.Backend {
+			destination = currentDir + "/" + constants.Web
+			webStatus, _ = fileutils.IsExists(destination)
+
+			destination = currentDir + "/" + constants.Mobile
+			mobileStatus, _ = fileutils.IsExists(destination)
 		}
-		if createDockerFile {
+
+		if webStatus || mobileStatus || backendStatus {
 			// create Docker File
 			dockerComposeFile := "docker-compose.yml"
 			err = fileutils.MakeFile(currentDir, dockerComposeFile)
@@ -138,11 +129,11 @@ func PromptSelectInit(service, stack, database string) {
 
 func PromptSelectStackConfig(service, stack, database string) {
 	configLabel := "Choose the config to setup"
-	configItems := []string{constants.INIT, constants.CLOUD_NATIVE}
+	configItems := []string{constants.Init, constants.CloudNative}
 
 	selectedConfig := PromptSelect(configLabel, configItems)
 
-	if selectedConfig == constants.INIT {
+	if selectedConfig == constants.Init {
 		PromptSelectInit(service, stack, database)
 	} else {
 		PromptSelectCloudProvider(service, stack, database)
@@ -150,29 +141,35 @@ func PromptSelectStackConfig(service, stack, database string) {
 }
 
 func PromptSelectStackDatabase(service, stack string) {
-	var database string
 	label := "Choose a database"
-	if service == constants.BACKEND {
+	var database string
+	var items []string
+
+	if service == constants.Backend {
 		switch stack {
-		case constants.NODE_HAPI_TEMPLATE:
-			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
-		case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
-			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
-		case constants.NODE_EXPRESS_TS:
-			database = PromptSelect(label, []string{})
-		case constants.GOLANG_ECHO_TEMPLATE:
-			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL})
+		case constants.NodeHapiTemplate:
+			items = []string{constants.PostgreSQL, constants.MySQL}
+		case constants.NodeExpressGraphqlTemplate:
+			items = []string{constants.PostgreSQL, constants.MySQL}
+		case constants.NodeExpressTemplate:
+			items = []string{constants.MongoDB}
+		case constants.GolangEchoTemplate:
+			items = []string{constants.PostgreSQL, constants.MySQL}
 		default:
-			log.Fatalln("Something went wrong")
+			errorhandler.CheckNilErr(fmt.Errorf("Selected stack is invalid"))
 		}
 	} else {
 		switch stack {
-		case constants.REACT, constants.NEXT:
-			database = PromptSelect(label, []string{constants.POSTGRES, constants.MYSQL, constants.MONGODB})
+		case constants.ReactJS, constants.NextJS:
+			items = []string{constants.PostgreSQL, constants.MySQL, constants.MongoDB}
+		case constants.ReactNativeTemplate, constants.AndroidTemplate,
+			constants.IOSTemplate, constants.FlutterTemplate:
+			items = []string{constants.PostgreSQL, constants.MySQL, constants.MongoDB}
 		default:
-			log.Fatalln("Something went wrong")
+			errorhandler.CheckNilErr(fmt.Errorf("Selected stack is invalid"))
 		}
 	}
+	database = PromptSelect(label, items)
 	PromptSelectStackConfig(service, stack, database)
 }
 
@@ -181,13 +178,13 @@ func PromptSelectStack(service string, items []string) {
 
 	var status bool
 	var err error
-	if service != constants.BACKEND {
-		status, err = fileutils.IsExists(fileutils.CurrentDirectory() + "/" + constants.BACKEND)
+	if service != constants.Backend {
+		status, err = fileutils.IsExists(fileutils.CurrentDirectory() + "/" + constants.Backend)
 		errorhandler.CheckNilErr(err)
 	}
 
 	// Choose database
-	if status || service == constants.BACKEND {
+	if status || service == constants.Backend {
 		PromptSelectStackDatabase(service, stack)
 	} else {
 		PromptSelectStackConfig(service, stack, "")

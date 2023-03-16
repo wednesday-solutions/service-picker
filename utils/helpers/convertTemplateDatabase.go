@@ -5,19 +5,19 @@ import (
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 )
 
-func ConvertTemplateDatabase(stack, database, projectName string) error {
+func ConvertTemplateDatabase(stack, database string) error {
 
 	dbConfigFile := "/backend/config/db.js"
 	isDatabaseSupported := true
 
 	switch stack {
-	case constants.NODE_HAPI_TEMPLATE:
-		if database == constants.POSTGRES {
+	case constants.NodeHapiTemplate:
+		if database == constants.PostgreSQL {
 			isDatabaseSupported = false
 		}
 
-	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
-		if database == constants.MYSQL {
+	case constants.NodeExpressGraphqlTemplate:
+		if database == constants.MySQL {
 			isDatabaseSupported = false
 		}
 	default:
@@ -26,19 +26,19 @@ func ConvertTemplateDatabase(stack, database, projectName string) error {
 
 	if !isDatabaseSupported {
 		// Add new dependencies to package.json
-		err := UpdatePackageDotJson(stack, database)
+		err := UpdatePackageDotJson(stack)
 		errorhandler.CheckNilErr(err)
 
 		// Update env files with respect to new database
-		err = UpdateEnvFiles(stack, database, projectName)
+		err = UpdateEnvFiles(stack)
 		errorhandler.CheckNilErr(err)
 
 		// Convert DB Connection into MySQL.
-		err = UpdateDBConfig(stack, dbConfigFile, database, projectName)
+		err = UpdateDBConfig(stack, dbConfigFile)
 		errorhandler.CheckNilErr(err)
 
 		// Convert queries
-		err = ConvertQueries(stack, database, projectName)
+		err = ConvertQueries(stack)
 		errorhandler.CheckNilErr(err)
 	}
 

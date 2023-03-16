@@ -5,15 +5,15 @@ import (
 
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/hbs"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func UpdateDBConfig(stack, dbFile, database, projectName string) error {
+func UpdateDBConfig(stack, dbFile string) error {
 
 	var dbConfigSource string
 
 	switch stack {
-	case constants.NODE_HAPI_TEMPLATE:
+	case constants.NodeHapiTemplate:
 		dbConfigSource = `const pg = require('pg');
 
 module.exports = {
@@ -34,7 +34,7 @@ module.exports = {
 };
 `
 
-	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+	case constants.NodeExpressGraphqlTemplate:
 		dbConfigSource = fmt.Sprintf(`const Sequelize = require('sequelize');
 const mysql2 = require('mysql2');
 const dotenv = require('dotenv');
@@ -76,7 +76,7 @@ module.exports = {
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	err := hbs.ParseAndWriteToFile(dbConfigSource, database, projectName, dbFile)
+	err := fileutils.WriteToFile(fileutils.CurrentDirectory()+dbFile, dbConfigSource)
 	errorhandler.CheckNilErr(err)
 
 	return nil
