@@ -31,4 +31,5 @@ func ProgressBar(max int, description string, done chan bool) {
 		time.Sleep(200 * time.Millisecond)
 	}
 	done <- true
+	fmt.Println()
 }

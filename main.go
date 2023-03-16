@@ -9,6 +9,6 @@ import (
 func main() {
 	err := cmd.Execute()
 	if err != nil {
-		log.Fatalf("Something error happened: %v", err)
+		log.Fatalln("Something error happened: ", err)
 	}
 }

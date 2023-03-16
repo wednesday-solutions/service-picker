@@ -11,6 +11,6 @@ func CheckNilErr(err error) {
 		if err.Error() == "^C" {
 			err = fmt.Errorf("Program exited")
 		}
-		log.Fatal(err) // it will throw error and stop execution.
+		log.Fatalln(err) // it will throw error and stop execution.
 	}
 }

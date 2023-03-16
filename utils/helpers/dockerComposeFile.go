@@ -2,10 +2,21 @@ package helpers
 
 import (
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func WriteDockerFile(fileName, db, projectName string) error {
+func WriteDockerFile(database, projectName string) error {
+
+	dockerComposeFile := "docker-compose.yml"
+	status, _ := fileutils.IsExists(fileutils.CurrentDirectory() + dockerComposeFile)
+	if status {
+		return nil
+	}
+
+	// create Docker File
+	err := fileutils.MakeFile(fileutils.CurrentDirectory(), dockerComposeFile)
+	errorhandler.CheckNilErr(err)
 
 	// Don't make any changes in the below source string.
 	source := `version: '3'
@@ -54,7 +65,7 @@ volumes:
   {{projectName}}_db_volume:
 `
 
-	err := hbs.ParseAndWriteToFile(source, db, projectName, fileName)
+	err = hbs.ParseAndWriteToFile(source, database, projectName, dockerComposeFile)
 	errorhandler.CheckNilErr(err)
 
 	return nil

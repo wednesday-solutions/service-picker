@@ -96,13 +96,13 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 
-		// Docker-compose file
+		// Docker-compose and docker env files
 		var webStatus, mobileStatus, backendStatus bool
 		if service == constants.Web || service == constants.Mobile {
 			destination = currentDir + "/" + constants.Backend
 			backendStatus, _ = fileutils.IsExists(destination)
-
-		} else if service == constants.Backend {
+		}
+		if service == constants.Backend || backendStatus {
 			destination = currentDir + "/" + constants.Web
 			webStatus, _ = fileutils.IsExists(destination)
 
@@ -112,12 +112,11 @@ func PromptSelectInit(service, stack, database string) {
 
 		if webStatus || mobileStatus || backendStatus {
 			// create Docker File
-			dockerComposeFile := "docker-compose.yml"
-			err = fileutils.MakeFile(currentDir, dockerComposeFile)
+			err = helpers.WriteDockerFile(database, projectName)
 			errorhandler.CheckNilErr(err)
 
-			// write Docker File
-			err = helpers.WriteDockerFile(dockerComposeFile, database, projectName)
+			// create docker env file
+			err = helpers.CreateDockerEnvFile(webStatus, mobileStatus)
 			errorhandler.CheckNilErr(err)
 		}
 		<-done

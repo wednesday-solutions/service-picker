@@ -13,10 +13,10 @@ func init() {
 	raymond.RegisterHelper("portConnection", PortConnection)
 }
 
-func ParseAndWriteToFile(source, db, projectName, fileName string) error {
+func ParseAndWriteToFile(source, database, projectName, fileName string) error {
 
 	ctx := map[string]interface{}{
-		"database":    db,
+		"database":    database,
 		"redis":       "redis",
 		"frontend":    "frontend",
 		"web":         "web",
