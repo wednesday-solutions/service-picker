@@ -10,7 +10,7 @@ import (
 
 func CreateInfrastructure(stack, service string) error {
 
-	var infraFiles map[string]string
+	infraFiles := make(map[string]string)
 	path := fileutils.CurrentDirectory()
 
 	files := []string{
@@ -30,7 +30,7 @@ func CreateInfrastructure(stack, service string) error {
 	switch stack {
 	case constants.ReactJS:
 
-		packageDotJsonSource := fmt.Sprintf(`{
+		infraFiles[constants.PackageDotJsonFile] = fmt.Sprintf(`{
 	"name": "app",
 	"version": "0.0.0",
 	"private": true,
@@ -56,10 +56,10 @@ func CreateInfrastructure(stack, service string) error {
 	]
 }`, service)
 
-		envSource := `APP_NAME=app
+		infraFiles[constants.EnvFile] = `APP_NAME=app
 WEB_AWS_REGION=us-east-1`
 
-		sstConfigSource := `const dotenv = require('dotenv');
+		infraFiles[constants.SstConfigJsFile] = `const dotenv = require('dotenv');
 		
 dotenv.config({ path: ".env" });
 
@@ -73,7 +73,7 @@ export default {
 };
 `
 
-		frontendStackSource := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
+		infraFiles[constants.FrontendStackJsFile] = fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 
 export function FrontendStack({ stack }) {
 	// Deploy our React app
@@ -90,12 +90,6 @@ export function FrontendStack({ stack }) {
 }
 `, service)
 
-		infraFiles = map[string]string{
-			constants.PackageDotJsonFile:  packageDotJsonSource,
-			constants.EnvFile:             envSource,
-			constants.SstConfigJsFile:     sstConfigSource,
-			constants.FrontendStackJsFile: frontendStackSource,
-		}
 	default:
 		return fmt.Errorf("Only react template is integrated now")
 	}
@@ -105,7 +99,7 @@ export function FrontendStack({ stack }) {
 
 	for fileName, fileSource := range infraFiles {
 
-		if fileName == "FrontendStack.js" {
+		if fileName == constants.FrontendStackJsFile {
 			err := fileutils.MakeDirectory(path, "stacks")
 			errorhandler.CheckNilErr(err)
 			path = fileutils.CurrentDirectory() + "/stacks"
