@@ -8,7 +8,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateInfrastructure(stack, database string) error {
+func CreateInfrastructure(stack, dirName, database string) error {
 
 	path := fileutils.CurrentDirectory()
 	var infraFiles map[string]string
@@ -16,7 +16,7 @@ func CreateInfrastructure(stack, database string) error {
 	switch stack {
 	case constants.REACT:
 
-		packageDotJsonSource := `{
+		packageDotJsonSource := fmt.Sprintf(`{
 	"name": "react-app",
 	"version": "0.0.0",
 	"private": true,
@@ -37,9 +37,9 @@ func CreateInfrastructure(stack, database string) error {
 		"@tsconfig/node16": "^1.0.3"
 	},
 	"workspaces": [
-		"frontend/*"
+		"%s/*"
 	]
-}`
+}`, dirName)
 
 		sstConfigSource := `export default {
 	config(_input) {
@@ -71,7 +71,7 @@ export function FrontendStack({ stack }) {
 		infraFiles = map[string]string{
 			"package.json":     packageDotJsonSource,
 			"sst.config.js":    sstConfigSource,
-			"frontendStack.js": frontendStackSource,
+			"FrontendStack.js": frontendStackSource,
 		}
 	default:
 		return fmt.Errorf("Only react template is integrated now")
@@ -79,7 +79,7 @@ export function FrontendStack({ stack }) {
 
 	for fileName, fileSource := range infraFiles {
 
-		if fileName == "frontendStack.js" {
+		if fileName == "FrontendStack.js" {
 
 			err := fileutils.MakeDirectory(path, "stacks")
 			errorhandler.CheckNilErr(err)
