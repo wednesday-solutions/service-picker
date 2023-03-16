@@ -33,6 +33,7 @@ func CreateInfrastructure(stack, dirName, database string) error {
 		"sst": "^2.0.18",
 		"aws-cdk-lib": "2.62.2",
 		"constructs": "10.1.156",
+		"dotenv": "^10.0.0",
 		"typescript": "^4.9.5",
 		"@tsconfig/node16": "^1.0.3"
 	},
@@ -41,11 +42,18 @@ func CreateInfrastructure(stack, dirName, database string) error {
 	]
 }`, dirName)
 
-		sstConfigSource := `export default {
+		envSource := `APP_NAME=frontend-app
+WEB_AWS_REGION=us-east-1`
+
+		sstConfigSource := `const dotenv = require('dotenv');
+		
+dotenv.config({ path: ".env" });
+
+export default {
 	config(_input) {
 		return {
-			name: "react-app",
-			region: "us-east-1",
+			name: process.env.APP_NAME || "frontend-app",
+			region: process.env.WEB_AWS_REGION || "us-east-1",
 		};
 	},
 };
@@ -70,6 +78,7 @@ export function FrontendStack({ stack }) {
 
 		infraFiles = map[string]string{
 			"package.json":     packageDotJsonSource,
+			".env":             envSource,
 			"sst.config.js":    sstConfigSource,
 			"FrontendStack.js": frontendStackSource,
 		}
