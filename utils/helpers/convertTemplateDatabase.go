@@ -38,7 +38,7 @@ func ConvertTemplateDatabase(stack, database, projectName string) error {
 		errorhandler.CheckNilErr(err)
 
 		// Convert mysql queries to postgres queries
-		err = ConvertMysqlToPostgres(stack, database, projectName)
+		err = ConvertQueries(stack, database, projectName)
 		errorhandler.CheckNilErr(err)
 	}
 
