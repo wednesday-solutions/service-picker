@@ -45,7 +45,7 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 
 	} else if selectedCloudConfig == constants.CREATE_INFRA {
 
-		err := helpers.CreateInfrastructure(stack, database)
+		err := helpers.CreateInfrastructure(stack, dirName, database)
 		errorhandler.CheckNilErr(err)
 
 	}
