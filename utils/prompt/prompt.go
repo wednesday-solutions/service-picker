@@ -135,7 +135,6 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.WriteDockerFile(dockerComposeFile, database, projectName)
 			errorhandler.CheckNilErr(err)
 		}
-
 		<-done
 
 	} else {

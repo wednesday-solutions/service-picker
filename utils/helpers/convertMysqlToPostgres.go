@@ -119,9 +119,116 @@ create table oauth_client_scopes (
 		}
 
 	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
-		queries = []string{}
 
-		files = []string{}
+		queries = []string{`CREATE TABLE products (
+	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	category VARCHAR(50) NOT NULL,
+	amount BIGINT NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	INDEX(name),
+	INDEX(category)
+);`,
+
+			`CREATE TABLE addresses (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	address_1 VARCHAR(100) NOT NULL,
+	address_2 VARCHAR(100) NOT NULL,
+	city VARCHAR(50) NOT NULL,
+	country VARCHAR(50) NOT NULL,
+	latitude FLOAT NOT NULL,
+	longitude FLOAT NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	INDEX(latitude),
+	INDEX(longitude)
+);`,
+
+			`CREATE TABLE stores (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	address_id INT NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	CONSTRAINT stores_address_id FOREIGN KEY (address_id) REFERENCES addresses (id),
+	INDEX(name)
+);`,
+
+			`CREATE TABLE suppliers (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	address_id INT NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	CONSTRAINT suppliers_address_id FOREIGN KEY (address_id) REFERENCES addresses (id),
+	INDEX(name)
+);`,
+
+			`CREATE TABLE supplier_products (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	product_id INT NOT NULL,
+	supplier_id INT NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	CONSTRAINT suppliers_product_products_id FOREIGN KEY (product_id) REFERENCES products (id),
+	CONSTRAINT suppliers_product_supplier_id FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
+);`,
+
+			`CREATE TABLE store_products (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	product_id INT NOT NULL,
+	store_id INT NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	CONSTRAINT store_products_product_id FOREIGN KEY (product_id) REFERENCES products (id),
+	CONSTRAINT store_products_store_id FOREIGN KEY (store_id) REFERENCES stores (id)
+);`,
+
+			`CREATE TABLE purchased_products (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	product_id INT NOT NULL,
+	price INT NOT NULL,
+	discount INT NOT NULL,
+	store_id INT NOT NULL,
+	delivery_date DATETIME NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	CONSTRAINT purchased_products_product_id FOREIGN KEY (product_id) REFERENCES products (id),
+	CONSTRAINT purchased_products_store_id FOREIGN KEY (store_id) REFERENCES stores (id),
+	INDEX(delivery_date),
+	INDEX(store_id)
+);`,
+
+			`CREATE TABLE users (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	email VARCHAR(50) NOT NULL UNIQUE,
+	password VARCHAR(50) NOT NULL,
+	created_at DATETIME DEFAULT NOW(),
+	updated_at DATETIME,
+	deleted_at DATETIME,
+	INDEX(email)
+);`,
+		}
+
+		files = []string{"/backend/resources/v1/01_products.sql",
+			"/backend/resources/v1/02_addresses.sql",
+			"/backend/resources/v1/03_stores.sql",
+			"/backend/resources/v1/04_supplier.sql",
+			"/backend/resources/v1/05_supplier_products.sql",
+			"/backend/resources/v1/06_store_products.sql",
+			"/backend/resources/v1/07_purchased_products.sql",
+			"/backend/resources/v1/08_users.sql",
+		}
 
 	default:
 		return fmt.Errorf("Selected stack is invalid")
