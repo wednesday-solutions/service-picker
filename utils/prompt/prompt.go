@@ -83,7 +83,7 @@ func PromptSelectInit(service, stack, database string) {
 	if !status {
 
 		done := make(chan bool)
-		go helpers.ProgressBar(500, "Downloading", done)
+		go helpers.ProgressBar(100, "Downloading", done)
 
 		makeDirErr := fileutils.MakeDirectory(currentDir, dirName)
 		errorhandler.CheckNilErr(makeDirErr)
