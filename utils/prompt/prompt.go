@@ -26,6 +26,17 @@ func PromptSelect(label string, items []string) string {
 	return result
 }
 
+func PromptYesOrNoSelect(label string) bool {
+	items := []string{"Yes", "No"}
+
+	response := PromptSelect(label, items)
+	if response == "Yes" {
+		return true
+	} else {
+		return false
+	}
+}
+
 func PromptSelectCloudProviderConfig(service, stack, database string) {
 	cloudProviderConfigLabel := "Choose a cloud provider config"
 	cloudProviderConfigItems := []string{constants.CreateCD, constants.CreateInfra}
@@ -96,27 +107,25 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 
-		// Docker-compose and docker env files
-		var webStatus, mobileStatus, backendStatus bool
-		if service == constants.Web || service == constants.Mobile {
-			destination = currentDir + "/" + constants.Backend
-			backendStatus, _ = fileutils.IsExists(destination)
+		stackDestination := map[string]string{
+			"webStatus":     currentDir + "/" + constants.Web,
+			"mobileStatus":  currentDir + "/" + constants.Mobile,
+			"backendStatus": currentDir + "/" + constants.Backend,
 		}
-		if service == constants.Backend || backendStatus {
-			destination = currentDir + "/" + constants.Web
-			webStatus, _ = fileutils.IsExists(destination)
+		stackStatus := make(map[string]bool)
 
-			destination = currentDir + "/" + constants.Mobile
-			mobileStatus, _ = fileutils.IsExists(destination)
+		for status, destination := range stackDestination {
+			stackStatus[status], _ = fileutils.IsExists(destination)
 		}
 
-		if webStatus || mobileStatus || backendStatus {
+		if stackStatus["backendStatus"] &&
+			(stackStatus["webStatus"] || stackStatus["mobileStatus"]) {
 			// create Docker File
-			err = helpers.WriteDockerFile(database, projectName)
+			err = helpers.CreateDockerComposeFile(database, projectName, stackStatus)
 			errorhandler.CheckNilErr(err)
 
-			// create docker env file
-			err = helpers.CreateDockerEnvFile(webStatus, mobileStatus)
+			// create docker files
+			err = helpers.CreateDockerFiles(stackStatus)
 			errorhandler.CheckNilErr(err)
 		}
 		<-done

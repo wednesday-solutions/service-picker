@@ -6,7 +6,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func WriteDockerFile(database, projectName string) error {
+func CreateDockerComposeFile(database, projectName string, stackStatus map[string]bool) error {
 
 	dockerComposeFile := "docker-compose.yml"
 	status, _ := fileutils.IsExists(fileutils.CurrentDirectory() + dockerComposeFile)
@@ -50,22 +50,43 @@ services:
       - {{portConnection backend}}
     env_file:
       - ./backend/.env.docker
-
-  # Setup {{projectName}} frontend
+{{#if webStatus}}
+ 
+  # Setup {{projectName}} web
   {{projectName}}_web:
     build:
-      context: './frontend'
+      context: './web'
     ports:
-      - {{portConnection frontend}}
+      - {{portConnection web}}
     env_file:
-      - ./frontend/.env.docker
+      - ./web/.env.docker
+{{/if}}
+{{#if mobileStatus}}
+
+  # Setup {{projectName}} mobile
+  {{projectName}}_mobile:
+    build:
+      context: './mobile'
+    ports:
+      - {{portConnection mobile}}
+    env_file:
+      - ./mobile/.env.docker
+{{/if}}
 
 # Setup Volumes
 volumes:
   {{projectName}}_db_volume:
 `
 
-	err = hbs.ParseAndWriteToFile(source, database, projectName, dockerComposeFile)
+	sourceValues := map[string]interface{}{
+		"database":      database,
+		"projectName":   projectName,
+		"webStatus":     stackStatus["webStatus"],
+		"mobileStatus":  stackStatus["mobileStatus"],
+		"backendStatus": stackStatus["backendStatus"],
+	}
+
+	err = hbs.ParseAndWriteToFile(source, dockerComposeFile, sourceValues)
 	errorhandler.CheckNilErr(err)
 
 	return nil

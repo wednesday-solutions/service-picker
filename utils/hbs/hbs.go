@@ -13,18 +13,21 @@ func init() {
 	raymond.RegisterHelper("portConnection", PortConnection)
 }
 
-func ParseAndWriteToFile(source, database, projectName, fileName string) error {
+func ParseAndWriteToFile(source, fileName string, sourceValues map[string]interface{}) error {
 
 	ctx := map[string]interface{}{
-		"database":    database,
-		"redis":       "redis",
-		"frontend":    "frontend",
-		"web":         "web",
-		"mobile":      "mobile",
-		"backend":     "backend",
-		"postgres":    "postgres",
-		"mysql":       "mysql",
-		"projectName": projectName,
+		"database":         sourceValues["database"],
+		"redis":            "redis",
+		constants.Frontend: constants.Frontend,
+		constants.Web:      constants.Web,
+		constants.Mobile:   constants.Mobile,
+		constants.Backend:  constants.Backend,
+		"postgres":         "postgres",
+		"mysql":            "mysql",
+		"projectName":      sourceValues["projectName"],
+		"webStatus":        sourceValues["webStatus"],
+		"mobileStatus":     sourceValues["mobileStatus"],
+		"backendStatus":    sourceValues["backendStatus"],
 	}
 
 	// Parse the source string into template
