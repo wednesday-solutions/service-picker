@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 
 	"github.com/wednesday-solutions/picky/utils/constants"
@@ -10,18 +9,18 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func UpdatePackageDotJson(stack, database string) error {
+func UpdatePackageDotJson(stack string) error {
 
 	var command string
 	var dependencies []string
 	var updateCommands []string
 
 	switch stack {
-	case constants.NODE_HAPI_TEMPLATE:
+	case constants.NodeHapiTemplate:
 		// convert to postgres
 		dependencies = []string{"pg", "pg-native"}
 
-	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+	case constants.NodeExpressGraphqlTemplate:
 		// convert to mysql
 		dependencies = []string{"mysql2"}
 	}
@@ -30,7 +29,7 @@ func UpdatePackageDotJson(stack, database string) error {
 	if err != nil {
 		err = exec.Command("npm", "-v").Run()
 		if err != nil {
-			log.Fatal("Please install 'yarn' or 'npm' in your machine.")
+			errorhandler.CheckNilErr(fmt.Errorf("Please install 'yarn' or 'npm' in your machine."))
 		} else {
 			command = "npm"
 			updateCommands = []string{"install", "--legacy-peer-deps", "--save"}
@@ -43,7 +42,7 @@ func UpdatePackageDotJson(stack, database string) error {
 	}
 
 	cmd := exec.Command(command, updateCommands...)
-	cmd.Dir = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), "backend")
+	cmd.Dir = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.Backend)
 	err = cmd.Run()
 	errorhandler.CheckNilErr(err)
 

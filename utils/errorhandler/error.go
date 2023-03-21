@@ -1,10 +1,16 @@
 package errorhandler
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 func CheckNilErr(err error) {
 	if err != nil {
-		// log.Fatal(err) will stop execution and throw error
-		log.Fatal(err)
+		// Check if the user clicks the Control + C button for exiting.
+		if err.Error() == "^C" {
+			err = fmt.Errorf("Program exited")
+		}
+		log.Fatal(err) // it will throw error and stop execution.
 	}
 }

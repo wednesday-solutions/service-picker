@@ -19,15 +19,19 @@ func ParseAndWriteToFile(source, db, projectName, fileName string) error {
 		"database":    db,
 		"redis":       "redis",
 		"frontend":    "frontend",
+		"web":         "web",
+		"mobile":      "mobile",
 		"backend":     "backend",
-		"postgres":    constants.POSTGRES,
-		"mysql":       constants.MYSQL,
+		"postgres":    "postgres",
+		"mysql":       "mysql",
 		"projectName": projectName,
 	}
 
+	// Parse the source string into template
 	tpl, err := raymond.Parse(source)
 	errorhandler.CheckNilErr(err)
 
+	// Execute the template into string
 	executedTemplate, err := tpl.Exec(ctx)
 	errorhandler.CheckNilErr(err)
 
@@ -38,37 +42,40 @@ func ParseAndWriteToFile(source, db, projectName, fileName string) error {
 }
 
 func DatabaseName(db string) string {
-	if db == constants.POSTGRES {
+	if db == constants.PostgreSQL {
 		return "postgresql"
-	} else if db == constants.MYSQL {
+	} else if db == constants.MySQL {
 		return "mysql"
+	} else {
+		return ""
 	}
-	return ""
 }
 
 func DBVersion(db string) string {
-	if db == constants.POSTGRES {
+	if db == constants.PostgreSQL {
 		return "postgres:15"
-	} else if db == constants.MYSQL {
+	} else if db == constants.MySQL {
 		return "mysql:8"
+	} else {
+		return ""
 	}
-	return ""
 }
 
 func PortConnection(stack string) string {
 	switch stack {
-	case constants.POSTGRES:
+	case constants.PostgreSQL:
 		return "5432:5432"
-	case constants.MYSQL:
+	case constants.MySQL:
 		return "3306:3306"
-	case constants.MONGODB:
+	case constants.MongoDB:
 		return "27017:27017"
-	case constants.FRONTEND:
+	case constants.Web, constants.Mobile:
 		return "3000:3000"
-	case constants.BACKEND:
+	case constants.Backend:
 		return "9000:9000"
 	case "redis":
 		return "6379:6379"
+	default:
+		return ""
 	}
-	return ""
 }

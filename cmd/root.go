@@ -5,7 +5,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/constants"
 )
 
-// RootCmd is the command variable of root command negt.
+// RootCmd is the command variable of root command picky.
 var RootCmd = RootCmdFn()
 var version = "0.0.1"
 
@@ -13,7 +13,7 @@ var version = "0.0.1"
 func RootCmdFn() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:     constants.PICKY,
+		Use:     constants.Picky,
 		Version: version,
 		Short:   "Service Picker",
 		Long: `

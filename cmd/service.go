@@ -1,44 +1,53 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/wednesday-solutions/picky/utils/constants"
+	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/prompt"
 )
 
 // ServiceCmd is the command variable of ServiceSelection.
 var ServiceSelection = ServiceSelectionFn()
 
-func RunService(*cobra.Command, []string) {
-	selectedService := prompt.PromptSelect("Pick a service", []string{constants.WEB,
-		constants.MOBILE,
-		constants.BACKEND},
+func RunService(*cobra.Command, []string) error {
+	selectedService := prompt.PromptSelect("Pick a service", []string{constants.Web,
+		constants.Mobile,
+		constants.Backend},
 	)
 
 	switch selectedService {
 
-	case constants.WEB:
-		prompt.PromptSelectStack(constants.WEB, []string{constants.REACT, constants.NEXT})
+	case constants.Web:
+		prompt.PromptSelectStack(constants.Web, []string{constants.ReactJS, constants.NextJS})
 
-	case constants.BACKEND:
-		prompt.PromptSelectStack(constants.BACKEND, []string{constants.NODE_HAPI_TEMPLATE,
-			constants.NODE_EXPRESS_GRAPHQL_TEMPLATE,
-			constants.NODE_EXPRESS_TS,
-			constants.GOLANG_ECHO_TEMPLATE},
+	case constants.Backend:
+		prompt.PromptSelectStack(constants.Backend, []string{constants.NodeHapiTemplate,
+			constants.NodeExpressGraphqlTemplate,
+			constants.NodeExpressTemplate,
+			constants.GolangEchoTemplate},
 		)
 
-	case constants.MOBILE:
+	case constants.Mobile:
+		prompt.PromptSelectStack(constants.Mobile, []string{constants.ReactNativeTemplate,
+			constants.AndroidTemplate,
+			constants.IOSTemplate,
+			constants.FlutterTemplate,
+		})
 
 	default:
-
+		errorhandler.CheckNilErr(fmt.Errorf("Selected stack is invalid"))
 	}
+	return nil
 }
 
 // ServiceSelectionFn represents the ServiceSelection command
 func ServiceSelectionFn() *cobra.Command {
 
 	var ServiceSelection = &cobra.Command{
-		Use:   constants.SERVICE,
+		Use:   constants.Service,
 		Short: "Pick a Service",
 		Long: `Pick a service for your:
 
@@ -48,7 +57,7 @@ func ServiceSelectionFn() *cobra.Command {
 
 		from the list of @wednesday-solutions's open source projects.
 `,
-		Run: RunService,
+		RunE: RunService,
 	}
 	return ServiceSelection
 }

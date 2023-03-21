@@ -5,16 +5,16 @@ import (
 
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/hbs"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func UpdateEnvFiles(stack, database, projectName string) error {
+func UpdateEnvFiles(stack string) error {
 
 	var envFileSources []string
 	envFiles := []string{"/backend/.env.local", "/backend/.env.development", "/backend/.env.docker"}
 
 	switch stack {
-	case constants.NODE_HAPI_TEMPLATE:
+	case constants.NodeHapiTemplate:
 
 		envFileSources = []string{`NAME=Node Template
 NODE_ENV=development
@@ -52,7 +52,7 @@ POSTGRES_PORT=5432
 REDIS_HOST=redis`,
 		}
 
-	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+	case constants.NodeExpressGraphqlTemplate:
 
 		envFileSources = []string{`DB_URI=mysql://root:password@localhost:3306/reporting_dashboard_dev
 MYSQL_HOST=0.0.0.0
@@ -89,7 +89,7 @@ REDIS_PORT=6379`,
 	}
 
 	for idx, envFile := range envFiles {
-		err := hbs.ParseAndWriteToFile(envFileSources[idx], database, projectName, envFile)
+		err := fileutils.WriteToFile(fileutils.CurrentDirectory()+envFile, envFileSources[idx])
 		errorhandler.CheckNilErr(err)
 	}
 

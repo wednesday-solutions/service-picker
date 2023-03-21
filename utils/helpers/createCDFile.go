@@ -10,38 +10,38 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateCDFile(stack, dirName, database string) error {
+func CreateCDFile(stack, service, database string) error {
 	var cdFileUrl string
 
 	switch stack {
-	case constants.NODE_HAPI_TEMPLATE:
+	case constants.NodeHapiTemplate:
 		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
 			constants.NodeHapiTemplateRepo,
 			constants.CDFilePathURL,
 		)
-	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
+	case constants.NodeExpressGraphqlTemplate:
 		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
 			constants.NodeExpressGraphqlTemplateRepo,
 			constants.CDFilePathURL,
 		)
-	case constants.GOLANG_ECHO_TEMPLATE:
-		if database == constants.POSTGRES {
+	case constants.GolangEchoTemplate:
+		if database == constants.PostgreSQL {
 			cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
 				constants.GoEchoTemplatePostgresRepo,
 				constants.CDFilePathURL,
 			)
-		} else if database == constants.MYSQL {
+		} else if database == constants.MySQL {
 			cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
 				constants.GoEchoTemplateMysqlRepo,
 				constants.CDFilePathURL,
 			)
 		}
-	case constants.REACT:
+	case constants.ReactJS:
 		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
 			constants.ReactTemplateRepo,
 			constants.CDFilePathURL,
 		)
-	case constants.NEXT:
+	case constants.NextJS:
 		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
 			constants.NextjsTemplateRepo,
 			constants.CDFilePathURL,
@@ -50,9 +50,12 @@ func CreateCDFile(stack, dirName, database string) error {
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	cdDestination := fileutils.CurrentDirectory() + "/" + dirName + constants.CDFilePathURL
+	cdDestination := fileutils.CurrentDirectory() + "/" + service + constants.CDFilePathURL
 	status, _ := fileutils.IsExists(cdDestination)
 	if !status {
+
+		done := make(chan bool)
+		go ProgressBar(20, "Generating", done)
 
 		// Access CD File which is present in the Github.
 		resp, err := http.Get(cdFileUrl)
@@ -71,8 +74,10 @@ func CreateCDFile(stack, dirName, database string) error {
 		err = fileutils.WriteToFile(cdDestination, string(cdFileData))
 		errorhandler.CheckNilErr(err)
 
+		<-done
+
 	} else {
-		fmt.Println("The", dirName, stack, "CD you are looking to create already exists")
+		fmt.Println("The", service, stack, "CD you are looking to create already exists")
 	}
 	return nil
 }

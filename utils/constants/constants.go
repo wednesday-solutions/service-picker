@@ -2,69 +2,91 @@ package constants
 
 var Repos = func() map[string]string {
 	return map[string]string{
-		"react":                       "https://github.com/wednesday-solutions/react-template",
-		"next":                        "https://github.com/wednesday-solutions/nextjs-template",
+		"ReactJS":                     "https://github.com/wednesday-solutions/react-template",
+		"NextJS":                      "https://github.com/wednesday-solutions/nextjs-template",
 		"Node (Hapi- REST API)":       "https://github.com/wednesday-solutions/nodejs-hapi-template",
 		"Node (Express- GraphQL API)": "https://github.com/wednesday-solutions/node-express-graphql-template",
-		"Node (Express- TypeScript)":  "",
-		"Golang-postgres":             "https://github.com/wednesday-solutions/go-template",
-		"Golang-mysql":                "https://github.com/wednesday-solutions/go-template-mysql",
+		"Node (Express- REST API)":    "https://github.com/wednesday-solutions/node-mongo-express",
+		"GolangPostgreSQL":            "https://github.com/wednesday-solutions/go-template",
+		"GolangMySQL":                 "https://github.com/wednesday-solutions/go-template-mysql",
+		"React Native":                "https://github.com/wednesday-solutions/react-native-template",
+		"Android":                     "https://github.com/wednesday-solutions/android-template",
+		"IOS":                         "https://github.com/wednesday-solutions/ios-template",
+		"Flutter":                     "https://github.com/wednesday-solutions/flutter_template",
 	}
 }
 
 // CLI options
 const (
-	PICKY   = "picky"
-	SERVICE = "service"
+	Picky   = "picky"
+	Service = "service"
+	Test    = "test"
 )
 
 // Services
 const (
-	WEB      = "web"
-	MOBILE   = "mobile"
-	BACKEND  = "backend"
-	FRONTEND = "frontend"
-	DATABASE = "database"
+	Web      = "web"
+	Mobile   = "mobile"
+	Backend  = "backend"
+	Frontend = "frontend"
+	Database = "database"
 )
 
 // Frontend stacks
 const (
-	REACT = "react"
-	NEXT  = "next"
+	ReactJS = "ReactJS"
+	NextJS  = "NextJS"
 )
 
 // Backend stacks
 const (
-	NODE_HAPI_TEMPLATE            = "Node (Hapi- REST API)"
-	NODE_EXPRESS_GRAPHQL_TEMPLATE = "Node (Express- GraphQL API)"
-	NODE_EXPRESS_TS               = "Node (Express- TypeScript)"
-	GOLANG_ECHO_TEMPLATE          = "Golang (Echo- GraphQL API)"
+	NodeHapiTemplate           = "Node (Hapi- REST API)"
+	NodeExpressGraphqlTemplate = "Node (Express- GraphQL API)"
+	NodeExpressTemplate        = "Node (Express- REST API)"
+	GolangEchoTemplate         = "Golang (Echo- GraphQL API)"
+)
+
+// Mobile stacks
+const (
+	ReactNativeTemplate = "React Native"
+	AndroidTemplate     = "Android"
+	IOSTemplate         = "IOS"
+	FlutterTemplate     = "Flutter"
 )
 
 // Databases
 const (
-	POSTGRES = "postgres"
-	MYSQL    = "mysql"
-	MONGODB  = "mongoDB"
+	PostgreSQL = "PostgreSQL"
+	MySQL      = "MySQL"
+	MongoDB    = "MongoDB"
 )
 
 // Features
 const (
-	INIT         = "init"
-	CLOUD_NATIVE = "cloud native"
-	AWS          = "AWS"
-	CREATE_CD    = "Create CD pipeline"
-	CREATE_INFRA = "Create Infra"
+	Init        = "init"
+	CloudNative = "cloud native"
+	AWS         = "AWS"
+	CreateCD    = "create CD pipeline"
+	CreateInfra = "create Infra"
 )
 
-// Github download URL
+// Github Repo download URL
 const (
 	GitHubBaseURL                  = "https://raw.githubusercontent.com/wednesday-solutions/"
 	CDFilePathURL                  = "/.github/workflows/cd.yml"
 	NodeHapiTemplateRepo           = "nodejs-hapi-template/main"
 	NodeExpressGraphqlTemplateRepo = "node-express-graphql-template/develop"
+	NodeExpressTemplateRepo        = "node-mongo-express/main"
 	GoEchoTemplatePostgresRepo     = "go-template/master"
 	GoEchoTemplateMysqlRepo        = "go-template-mysql/main"
 	ReactTemplateRepo              = "react-template/master"
 	NextjsTemplateRepo             = "nextjs-template/master"
+)
+
+// Infra Files
+const (
+	PackageDotJsonFile  = "package.json"
+	EnvFile             = ".env"
+	SstConfigJsFile     = "sst.config.js"
+	FrontendStackJsFile = "FrontendStack.js"
 )

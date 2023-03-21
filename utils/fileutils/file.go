@@ -65,7 +65,7 @@ func RemoveFile(path string) error {
 	}
 }
 
-// TruncateAndWriteToFile will write input data into the file.
+// TruncateAndWriteToFile will delete all the existing data and write input data into the file.
 func TruncateAndWriteToFile(path, file, data string) error {
 	// Opens file with read and write permissions.
 	openFile, err := os.OpenFile(fmt.Sprintf("%s/%s", path, file), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
@@ -86,7 +86,7 @@ func TruncateAndWriteToFile(path, file, data string) error {
 	return nil
 }
 
-// WriteToFile will write input data into the file.
+// WriteToFile will delete all the existing data and write input data into the file.
 func WriteToFile(file, data string) error {
 	// Opens file with read and write permissions.
 	openFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
