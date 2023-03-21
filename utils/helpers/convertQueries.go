@@ -8,7 +8,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func ConvertMysqlToPostgres(stack, database, projectName string) error {
+func ConvertQueries(stack, database, projectName string) error {
 
 	var queries []string
 	var files []string
@@ -16,7 +16,7 @@ func ConvertMysqlToPostgres(stack, database, projectName string) error {
 	switch stack {
 	case constants.NODE_HAPI_TEMPLATE:
 
-		queries = []string{`create sequence oauth_clients_seq;
+		oauthClients := `create sequence oauth_clients_seq;
 
 create type grant_type_enum as ENUM('CLIENT_CREDENTIALS');
 
@@ -31,9 +31,9 @@ create table oauth_clients (
 );
 
 CREATE INDEX oauth_clients_client_id_idx ON oauth_clients(client_id);
-CREATE INDEX oauth_clients_client_secret_idx ON oauth_clients(client_secret);`,
+CREATE INDEX oauth_clients_client_secret_idx ON oauth_clients(client_secret);`
 
-			`CREATE SEQUENCE users_seq;
+		users := `CREATE SEQUENCE users_seq;
 
 CREATE TABLE users 
 	( 
@@ -45,9 +45,9 @@ CREATE TABLE users
 		created_at      TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP NOT NULL, 
 		CONSTRAINT users_oauth_clients_id_fk FOREIGN KEY (oauth_client_id) 
 		REFERENCES oauth_clients (id) ON UPDATE CASCADE 
-	);`,
+	);`
 
-			`create sequence oauth_access_tokens_seq;
+		oauthAccessTokens := `create sequence oauth_access_tokens_seq;
 
 CREATE OR REPLACE FUNCTION public.is_json_valid(json_data json)
 RETURNS boolean
@@ -78,9 +78,9 @@ create table oauth_access_tokens (
 	CONSTRAINT oauth_access_tokens_access_token_uindex UNIQUE (access_token), 
 	CONSTRAINT oauth_access_tokens_oauth_clients_id_fk FOREIGN KEY (oauth_client_id) REFERENCES oauth_clients (id) ON UPDATE CASCADE,
 	CONSTRAINT oauth_access_tokens_check_metadata CHECK(is_json_valid(metadata))
-);`,
+);`
 
-			`create sequence oauth_client_resources_seq;
+		oauthClientResources := `create sequence oauth_client_resources_seq;
 
 create table oauth_client_resources (
 	id INT NOT NULL PRIMARY KEY DEFAULT NEXTVAL ('oauth_client_resources_seq'), 
@@ -96,9 +96,9 @@ create table oauth_client_resources (
 );
 
 CREATE INDEX oauth_client_resources_resource_type ON oauth_client_resources(resource_type);
-CREATE INDEX oauth_client_resources_resource_id ON oauth_client_resources(resource_id);`,
+CREATE INDEX oauth_client_resources_resource_id ON oauth_client_resources(resource_id);`
 
-			`create sequence oauth_client_scopes_seq;
+		oauthClientScopes := `create sequence oauth_client_scopes_seq;
 
 create table oauth_client_scopes (
 	id INT NOT NULL DEFAULT NEXTVAL ('oauth_client_scopes_seq') PRIMARY KEY, 
@@ -108,7 +108,13 @@ create table oauth_client_scopes (
 	updated_at TIMESTAMP(0) NULL, 
 	constraint oauth_client_scopes_uindex UNIQUE (oauth_client_id),
 	constraint oauth_client_scopes_oauth_clients_id_fk FOREIGN KEY (oauth_client_id) REFERENCES oauth_clients (id) ON UPDATE CASCADE
-);`,
+);`
+
+		queries = []string{oauthClients,
+			users,
+			oauthAccessTokens,
+			oauthClientResources,
+			oauthClientScopes,
 		}
 
 		files = []string{"/backend/resources/v1/01_oauth_clients.sql",
@@ -120,78 +126,78 @@ create table oauth_client_scopes (
 
 	case constants.NODE_EXPRESS_GRAPHQL_TEMPLATE:
 
-		queries = []string{`CREATE TABLE products (
+		products := `CREATE TABLE products (
 	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
-	category VARCHAR(50) NOT NULL,
+	name VARCHAR(255) NOT NULL,
+	category VARCHAR(255) NOT NULL,
 	amount BIGINT NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	INDEX(name),
 	INDEX(category)
-);`,
+);`
 
-			`CREATE TABLE addresses (
+		addresses := `CREATE TABLE addresses (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	address_1 VARCHAR(100) NOT NULL,
-	address_2 VARCHAR(100) NOT NULL,
-	city VARCHAR(50) NOT NULL,
-	country VARCHAR(50) NOT NULL,
+	address_1 VARCHAR(255) NOT NULL,
+	address_2 VARCHAR(255) NOT NULL,
+	city VARCHAR(255) NOT NULL,
+	country VARCHAR(255) NOT NULL,
 	latitude FLOAT NOT NULL,
 	longitude FLOAT NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	INDEX(latitude),
 	INDEX(longitude)
-);`,
+);`
 
-			`CREATE TABLE stores (
+		stores := `CREATE TABLE stores (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
+	name VARCHAR(255) NOT NULL,
 	address_id INT NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	CONSTRAINT stores_address_id FOREIGN KEY (address_id) REFERENCES addresses (id),
 	INDEX(name)
-);`,
+);`
 
-			`CREATE TABLE suppliers (
+		suppliers := `CREATE TABLE suppliers (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
+	name VARCHAR(255) NOT NULL,
 	address_id INT NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	CONSTRAINT suppliers_address_id FOREIGN KEY (address_id) REFERENCES addresses (id),
 	INDEX(name)
-);`,
+);`
 
-			`CREATE TABLE supplier_products (
+		supplierProducts := `CREATE TABLE supplier_products (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	product_id INT NOT NULL,
 	supplier_id INT NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	CONSTRAINT suppliers_product_products_id FOREIGN KEY (product_id) REFERENCES products (id),
 	CONSTRAINT suppliers_product_supplier_id FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
-);`,
+);`
 
-			`CREATE TABLE store_products (
+		storeProducts := `CREATE TABLE store_products (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	product_id INT NOT NULL,
 	store_id INT NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	CONSTRAINT store_products_product_id FOREIGN KEY (product_id) REFERENCES products (id),
 	CONSTRAINT store_products_store_id FOREIGN KEY (store_id) REFERENCES stores (id)
-);`,
+);`
 
-			`CREATE TABLE purchased_products (
+		purchasedProducts := `CREATE TABLE purchased_products (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	product_id INT NOT NULL,
 	price INT NOT NULL,
@@ -199,25 +205,34 @@ create table oauth_client_scopes (
 	store_id INT NOT NULL,
 	delivery_date DATETIME NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	CONSTRAINT purchased_products_product_id FOREIGN KEY (product_id) REFERENCES products (id),
 	CONSTRAINT purchased_products_store_id FOREIGN KEY (store_id) REFERENCES stores (id),
 	INDEX(delivery_date),
 	INDEX(store_id)
-);`,
+);`
 
-			`CREATE TABLE users (
+		users := `CREATE TABLE users (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	first_name VARCHAR(50) NOT NULL,
-	last_name VARCHAR(50) NOT NULL,
-	email VARCHAR(50) NOT NULL UNIQUE,
-	password VARCHAR(50) NOT NULL,
+	first_name VARCHAR(255) NOT NULL,
+	last_name VARCHAR(255) NOT NULL,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
 	created_at DATETIME DEFAULT NOW(),
-	updated_at DATETIME,
+	updated_at DATETIME NULL on UPDATE NOW(),
 	deleted_at DATETIME,
 	INDEX(email)
-);`,
+);`
+
+		queries = []string{products,
+			addresses,
+			stores,
+			suppliers,
+			supplierProducts,
+			storeProducts,
+			purchasedProducts,
+			users,
 		}
 
 		files = []string{"/backend/resources/v1/01_products.sql",
