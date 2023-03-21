@@ -2,13 +2,16 @@ package helpers
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
 
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func CreateDockerFiles(stackStatus map[string]bool) error {
+func CreateDockerFiles(stackData map[string]interface{}) error {
 
 	var (
 		path      string
@@ -18,8 +21,9 @@ func CreateDockerFiles(stackStatus map[string]bool) error {
 	)
 	dockerfile := "Dockerfile"
 	dockerEnvFile := ".env.docker"
+	dockerIgnoreFile := ".dockerignore"
 
-	if stackStatus["webStatus"] {
+	if stackData["webStatus"].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
@@ -30,12 +34,12 @@ func CreateDockerFiles(stackStatus map[string]bool) error {
 			source = `FROM node:14-alpine as baseimage
 RUN mkdir app/
 ADD . app/
-WORKDIR app/
+WORKDIR /app
 
-# RUN npm install
+RUN npm install
 
 FROM baseimage
-CMD [ "yarn", "start:docker" ]
+CMD ["yarn", "start"]
 EXPOSE 3000`
 
 			err = fileutils.WriteToFile(path, source)
@@ -47,51 +51,60 @@ EXPOSE 3000`
 		)
 		fileFound, _ = fileutils.IsExists(path)
 		if !fileFound {
-			source = `REACT_APP_GOOGLE_LOGIN_CLIENT_ID=775156772157-nlfs5bn4skllfemcvhr6kbphp61achn7.apps.googleusercontent.com
-REACT_APP_GRAPHQL_URL=http://localhost:9000/graphql`
+			source = `GITHUB_URL=https://api.github.com/`
 
+			err = fileutils.WriteToFile(path, source)
+			errorhandler.CheckNilErr(err)
+		}
+		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+			constants.Web,
+			dockerIgnoreFile,
+		)
+		fileFound, _ = fileutils.IsExists(path)
+		if !fileFound {
+			source = "node_modules\n.git\nbadges"
 			err = fileutils.WriteToFile(path, source)
 			errorhandler.CheckNilErr(err)
 		}
 	}
 
-	if stackStatus["mobileStatus"] {
+	// Add mobile related files.
+	// if stackData["mobileStatus"].(bool) {}
+
+	if stackData["backendStatus"].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Mobile,
-			dockerfile,
-		)
-		fileFound, _ = fileutils.IsExists(path)
-		if !fileFound {
-			source = `FROM baseimage
-RUN mkdir app/
-ADD . app/
-WORKDIR app/
-
-# RUN install
-
-FROM baseimage
-CMD [ "yarn", "start:docker" ]
-EXPOSE 3000
-`
-
-			err = fileutils.WriteToFile(path, source)
-			errorhandler.CheckNilErr(err)
-		}
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Mobile,
+			constants.Backend,
 			dockerEnvFile,
 		)
+
+		input, err := ioutil.ReadFile(path)
+		errorhandler.CheckNilErr(err)
+
+		lines := strings.Split(string(input), "\n")
+		for idx, line := range lines {
+			if strings.Contains(line, "NODE_ENV") {
+				lines[idx] = "NODE_ENV=local"
+			}
+			if idx == len(lines)-1 {
+				lines[idx] = fmt.Sprintf("%s\n%s", line, "APP_NAME=app")
+			}
+		}
+		output := strings.Join(lines, "\n")
+
+		err = fileutils.WriteToFile(path, output)
+		errorhandler.CheckNilErr(err)
+
+		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+			constants.Web,
+			dockerIgnoreFile,
+		)
 		fileFound, _ = fileutils.IsExists(path)
 		if !fileFound {
-			source = ""
-
+			source = "node_modules\n.git\nbadges"
 			err = fileutils.WriteToFile(path, source)
 			errorhandler.CheckNilErr(err)
 		}
-	}
-
-	if stackStatus["backendStatus"] {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Backend,
@@ -99,24 +112,33 @@ EXPOSE 3000
 		)
 		fileFound, _ = fileutils.IsExists(path)
 		if fileFound {
-			source = ``
-			err = fileutils.AppendToFile(path, source)
-			errorhandler.CheckNilErr(err)
-		}
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Backend,
-			dockerEnvFile,
-		)
-		fileFound, _ = fileutils.IsExists(path)
-		if fileFound {
-			source = `
-APP_NAME=app
-APP_API_DOCKER_CLUSTER_SECRET='{"username": "admin", "password":"password", "host": "app_db", "port": 5432, "dbname": "app_db"}'`
+			source = `FROM node:14
+ARG ENVIRONMENT_NAME
+RUN mkdir -p /app-build
+ADD . /app-build
+WORKDIR /app-build
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn --frozen-lockfile
+RUN yarn
+RUN yarn {{runBuildEnvironment stack}}
 
-			err = fileutils.AppendToFile(path, source)
+FROM node:14-alpine
+ARG ENVIRONMENT_NAME
+ENV ENVIRONMENT_NAME $ENVIRONMENT_NAME
+RUN mkdir -p /dist
+RUN apk add yarn
+RUN yarn global add {{globalAddDependencies database}}
+RUN yarn add {{addDependencies database}}
+ADD scripts/migrate-and-run.sh /
+ADD package.json /
+ADD . /
+COPY --from=0 /app-build/dist ./dist
+
+CMD ["sh", "./migrate-and-run.sh"]
+EXPOSE 9000`
+
+			err = hbs.ParseAndWriteToFile(source, path, stackData)
 			errorhandler.CheckNilErr(err)
 		}
 	}
-
 	return nil
 }

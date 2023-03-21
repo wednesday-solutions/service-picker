@@ -1,15 +1,18 @@
 package helpers
 
 import (
+	"fmt"
+
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func CreateDockerComposeFile(database, projectName string, stackStatus map[string]bool) error {
+func CreateDockerComposeFile(stackData map[string]interface{}) error {
 
 	dockerComposeFile := "docker-compose.yml"
-	status, _ := fileutils.IsExists(fileutils.CurrentDirectory() + dockerComposeFile)
+	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dockerComposeFile)
+	status, _ := fileutils.IsExists(filePath)
 	if status {
 		return nil
 	}
@@ -22,23 +25,23 @@ func CreateDockerComposeFile(database, projectName string, stackStatus map[strin
 	source := `version: '3'
 services:
   # Setup {{database}}
-  {{projectName}}_db:
+  {{dbServiceName database}}:
     image: '{{dbVersion database}}' 
     ports:
       - {{portConnection database}} 
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
-      - ./backend/.env.docker
+      - {{envFileBackend database}}
     volumes:
-      - {{projectName}}_db_volume:/var/lib/{{databaseName database}}/data
+      - {{projectName}}_db_volume:/var/lib/{{databaseVolume database}}
 
   # Setup Redis
-  {{projectName}}_redis:
+  redis:
     image: 'redis'
     ports:
       - {{portConnection redis}}
     # Default command that redis will execute at start
-    command: [ 'redis-server' ]
+    command: ['redis-server']
 
   # Setup {{projectName}} API
   {{projectName}}_api:
@@ -49,7 +52,7 @@ services:
     ports:
       - {{portConnection backend}}
     env_file:
-      - ./backend/.env.docker
+      - {{envFileBackend database}}
 {{#if webStatus}}
  
   # Setup {{projectName}} web
@@ -78,15 +81,7 @@ volumes:
   {{projectName}}_db_volume:
 `
 
-	sourceValues := map[string]interface{}{
-		"database":      database,
-		"projectName":   projectName,
-		"webStatus":     stackStatus["webStatus"],
-		"mobileStatus":  stackStatus["mobileStatus"],
-		"backendStatus": stackStatus["backendStatus"],
-	}
-
-	err = hbs.ParseAndWriteToFile(source, dockerComposeFile, sourceValues)
+	err = hbs.ParseAndWriteToFile(source, filePath, stackData)
 	errorhandler.CheckNilErr(err)
 
 	return nil

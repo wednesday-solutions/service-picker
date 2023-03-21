@@ -8,28 +8,33 @@ import (
 )
 
 func init() {
-	raymond.RegisterHelper("databaseName", DatabaseName)
+	raymond.RegisterHelper("databaseVolume", DatabaseVolume)
 	raymond.RegisterHelper("dbVersion", DBVersion)
 	raymond.RegisterHelper("portConnection", PortConnection)
+	raymond.RegisterHelper("dbServiceName", DBServiceName)
+	raymond.RegisterHelper("globalAddDependencies", GlobalAddDependencies)
+	raymond.RegisterHelper("addDependencies", AddDependencies)
+	raymond.RegisterHelper("envFileBackend", EnvFileBackend)
+	raymond.RegisterHelper("runBuildEnvironment", RunBuildEnvironment)
 }
 
-func ParseAndWriteToFile(source, fileName string, sourceValues map[string]interface{}) error {
+func ParseAndWriteToFile(source, filePath string, stackData map[string]interface{}) error {
 
 	ctx := map[string]interface{}{
-		"database":         sourceValues["database"],
-		"redis":            "redis",
 		constants.Frontend: constants.Frontend,
 		constants.Web:      constants.Web,
 		constants.Mobile:   constants.Mobile,
 		constants.Backend:  constants.Backend,
-		"postgres":         "postgres",
-		"mysql":            "mysql",
-		"projectName":      sourceValues["projectName"],
-		"webStatus":        sourceValues["webStatus"],
-		"mobileStatus":     sourceValues["mobileStatus"],
-		"backendStatus":    sourceValues["backendStatus"],
+		constants.Redis:    constants.Redis,
+		constants.Postgres: constants.Postgres,
+		constants.Mysql:    constants.Mysql,
+		"stack":            stackData["stack"].(string),
+		"database":         stackData["database"].(string),
+		"projectName":      stackData["projectName"].(string),
+		"webStatus":        stackData["webStatus"].(bool),
+		"mobileStatus":     stackData["mobileStatus"].(bool),
+		"backendStatus":    stackData["backendStatus"].(bool),
 	}
-
 	// Parse the source string into template
 	tpl, err := raymond.Parse(source)
 	errorhandler.CheckNilErr(err)
@@ -38,15 +43,15 @@ func ParseAndWriteToFile(source, fileName string, sourceValues map[string]interf
 	executedTemplate, err := tpl.Exec(ctx)
 	errorhandler.CheckNilErr(err)
 
-	err = fileutils.TruncateAndWriteToFile(fileutils.CurrentDirectory(), fileName, executedTemplate)
+	err = fileutils.WriteToFile(filePath, executedTemplate)
 	errorhandler.CheckNilErr(err)
 
 	return nil
 }
 
-func DatabaseName(db string) string {
+func DatabaseVolume(db string) string {
 	if db == constants.PostgreSQL {
-		return "postgresql"
+		return "postgresql/data"
 	} else if db == constants.MySQL {
 		return "mysql"
 	} else {
@@ -58,7 +63,7 @@ func DBVersion(db string) string {
 	if db == constants.PostgreSQL {
 		return "postgres:15"
 	} else if db == constants.MySQL {
-		return "mysql:8"
+		return "mysql:5.7"
 	} else {
 		return ""
 	}
@@ -78,6 +83,57 @@ func PortConnection(stack string) string {
 		return "9000:9000"
 	case "redis":
 		return "6379:6379"
+	default:
+		return ""
+	}
+}
+
+func DBServiceName(stack string) string {
+	switch stack {
+	case constants.PostgreSQL:
+		return "db_postgres"
+	case constants.MySQL:
+		return "db_mysql"
+	default:
+		return "db"
+	}
+}
+
+func GlobalAddDependencies(database string) string {
+	switch database {
+	case constants.PostgreSQL, constants.MySQL:
+		return "sequelize-cli@6.2.0"
+	default:
+		return ""
+	}
+}
+
+func AddDependencies(database string) string {
+	switch database {
+	case constants.PostgreSQL:
+		return "shelljs bull dotenv pg sequelize@6.6.5"
+	case constants.MySQL:
+		return "shelljs dotenv mysql2 sequelize@6.6.5"
+	default:
+		return ""
+	}
+}
+
+func EnvFileBackend(database string) string {
+	switch database {
+	case constants.PostgreSQL, constants.MySQL:
+		return "./backend/.env.docker"
+	default:
+		return ""
+	}
+}
+
+func RunBuildEnvironment(stack string) string {
+	switch stack {
+	case constants.NodeExpressGraphqlTemplate:
+		return "build:docker"
+	case constants.NodeHapiTemplate:
+		return "build:env"
 	default:
 		return ""
 	}

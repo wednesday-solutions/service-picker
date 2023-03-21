@@ -90,3 +90,10 @@ const (
 	SstConfigJsFile     = "sst.config.js"
 	FrontendStackJsFile = "FrontendStack.js"
 )
+
+// helpers
+const (
+	Redis    = "redis"
+	Postgres = "postgres"
+	Mysql    = "mysql"
+)

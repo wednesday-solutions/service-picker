@@ -112,20 +112,23 @@ func PromptSelectInit(service, stack, database string) {
 			"mobileStatus":  currentDir + "/" + constants.Mobile,
 			"backendStatus": currentDir + "/" + constants.Backend,
 		}
-		stackStatus := make(map[string]bool)
+		stackData := make(map[string]interface{})
 
 		for status, destination := range stackDestination {
-			stackStatus[status], _ = fileutils.IsExists(destination)
+			stackData[status], _ = fileutils.IsExists(destination)
 		}
+		stackData["stack"] = stack
+		stackData["database"] = database
+		stackData["projectName"] = projectName
 
-		if stackStatus["backendStatus"] &&
-			(stackStatus["webStatus"] || stackStatus["mobileStatus"]) {
-			// create Docker File
-			err = helpers.CreateDockerComposeFile(database, projectName, stackStatus)
+		if stackData["backendStatus"].(bool) &&
+			(stackData["webStatus"].(bool) || stackData["mobileStatus"].(bool)) {
+			// create docker-compose File
+			err = helpers.CreateDockerComposeFile(stackData)
 			errorhandler.CheckNilErr(err)
 
 			// create docker files
-			err = helpers.CreateDockerFiles(stackStatus)
+			err = helpers.CreateDockerFiles(stackData)
 			errorhandler.CheckNilErr(err)
 		}
 		<-done
