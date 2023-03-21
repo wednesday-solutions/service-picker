@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/manifoldco/promptui"
-	cp "github.com/otiai10/copy"
 	"github.com/stoewer/go-strcase"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
@@ -45,15 +44,10 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 		errorhandler.CheckNilErr(err)
 
 	} else if selectedCloudConfig == constants.CREATE_INFRA {
-		infraSource := "infrastructure/" + dirName
-		infraDestination := fileutils.CurrentDirectory() + "/"
-		status, _ := fileutils.IsExists(infraDestination + "/stacks")
-		if !status {
-			err := cp.Copy(infraSource, infraDestination)
-			errorhandler.CheckNilErr(err)
-		} else {
-			fmt.Println("The", dirName, stack, "infrastructure you are looking to create already exists")
-		}
+
+		err := helpers.CreateInfrastructure(stack, dirName, database)
+		errorhandler.CheckNilErr(err)
+
 	}
 }
 
@@ -89,9 +83,9 @@ func PromptSelectInit(service, stack, database string) {
 	if !status {
 
 		done := make(chan bool)
-		go helpers.ProgressBar(500, "Downloading", done)
+		go helpers.ProgressBar(100, "Downloading", done)
 
-		makeDirErr := fileutils.MakeDirectory(currentDir+"/", dirName)
+		makeDirErr := fileutils.MakeDirectory(currentDir, dirName)
 		errorhandler.CheckNilErr(makeDirErr)
 		cmd := exec.Command("git", "clone", constants.Repos()[stack], dirName)
 		err := cmd.Run()
