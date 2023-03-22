@@ -2,8 +2,6 @@ package helpers
 
 import (
 	"fmt"
-	"io/ioutil"
-	"strings"
 
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
@@ -72,28 +70,6 @@ EXPOSE 3000`
 	// if stackData["mobileStatus"].(bool) {}
 
 	if stackData["backendStatus"].(bool) {
-
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Backend,
-			dockerEnvFile,
-		)
-
-		input, err := ioutil.ReadFile(path)
-		errorhandler.CheckNilErr(err)
-
-		lines := strings.Split(string(input), "\n")
-		for idx, line := range lines {
-			if strings.Contains(line, "NODE_ENV") {
-				lines[idx] = "NODE_ENV=local"
-			}
-			if idx == len(lines)-1 {
-				lines[idx] = fmt.Sprintf("%s\n%s", line, "APP_NAME=app")
-			}
-		}
-		output := strings.Join(lines, "\n")
-
-		err = fileutils.WriteToFile(path, output)
-		errorhandler.CheckNilErr(err)
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
