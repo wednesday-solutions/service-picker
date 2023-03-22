@@ -71,24 +71,27 @@ EXPOSE 3000`
 
 	if stackData["backendStatus"].(bool) {
 
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Web,
-			dockerIgnoreFile,
-		)
-		fileFound, _ = fileutils.IsExists(path)
-		if !fileFound {
-			source = "node_modules\n.git\nbadges"
-			err = fileutils.WriteToFile(path, source)
-			errorhandler.CheckNilErr(err)
-		}
+		switch stackData["stack"] {
+		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Backend,
-			dockerfile,
-		)
-		fileFound, _ = fileutils.IsExists(path)
-		if fileFound {
-			source = `FROM node:14
+			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+				constants.Web,
+				dockerIgnoreFile,
+			)
+			fileFound, _ = fileutils.IsExists(path)
+			if !fileFound {
+				source = "node_modules\n.git\nbadges"
+				err = fileutils.WriteToFile(path, source)
+				errorhandler.CheckNilErr(err)
+			}
+
+			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+				constants.Backend,
+				dockerfile,
+			)
+			fileFound, _ = fileutils.IsExists(path)
+			if fileFound {
+				source = `FROM node:14
 ARG ENVIRONMENT_NAME
 RUN mkdir -p /app-build
 ADD . /app-build
@@ -112,8 +115,9 @@ COPY --from=0 /app-build/dist ./dist
 CMD ["sh", "./migrate-and-run.sh"]
 EXPOSE 9000`
 
-			err = hbs.ParseAndWriteToFile(source, path, stackData)
-			errorhandler.CheckNilErr(err)
+				err = hbs.ParseAndWriteToFile(source, path, stackData)
+				errorhandler.CheckNilErr(err)
+			}
 		}
 	}
 	return nil
