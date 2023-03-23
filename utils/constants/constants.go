@@ -99,3 +99,11 @@ const (
 	GolangPostgreSQLTemplate = "GolangPostgreSQL"
 	GolangMySQLTemplate      = "GolangMySQL"
 )
+
+// Files
+const (
+	DockerComposeFile = "docker-compose.yml"
+	DockerFile        = "Dockerfile"
+	DockerEnvFile     = ".env.docker"
+	DockerIgnoreFile  = ".dockerignore"
+)

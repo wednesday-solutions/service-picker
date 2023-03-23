@@ -17,15 +17,12 @@ func CreateDockerFiles(stackInfo map[string]interface{}) error {
 		fileFound bool
 		err       error
 	)
-	dockerfile := "Dockerfile"
-	dockerEnvFile := ".env.docker"
-	dockerIgnoreFile := ".dockerignore"
 
 	if stackInfo["webStatus"].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
-			dockerfile,
+			constants.DockerFile,
 		)
 		fileFound, _ = fileutils.IsExists(path)
 		if !fileFound {
@@ -45,7 +42,7 @@ EXPOSE 3000`
 		}
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
-			dockerEnvFile,
+			constants.DockerEnvFile,
 		)
 		fileFound, _ = fileutils.IsExists(path)
 		if !fileFound {
@@ -56,7 +53,7 @@ EXPOSE 3000`
 		}
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
-			dockerIgnoreFile,
+			constants.DockerIgnoreFile,
 		)
 		fileFound, _ = fileutils.IsExists(path)
 		if !fileFound {
@@ -75,8 +72,8 @@ EXPOSE 3000`
 		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
 			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-				constants.Web,
-				dockerIgnoreFile,
+				constants.Backend,
+				constants.DockerIgnoreFile,
 			)
 			fileFound, _ = fileutils.IsExists(path)
 			if !fileFound {
@@ -87,7 +84,7 @@ EXPOSE 3000`
 
 			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 				constants.Backend,
-				dockerfile,
+				constants.DockerFile,
 			)
 			fileFound, _ = fileutils.IsExists(path)
 			if fileFound {
@@ -103,7 +100,6 @@ RUN yarn {{runBuildEnvironment stack}}
 FROM node:14-alpine
 ARG ENVIRONMENT_NAME
 ENV ENVIRONMENT_NAME $ENVIRONMENT_NAME
-RUN mkdir -p /dist
 RUN apk add yarn
 RUN yarn global add {{globalAddDependencies database}}
 RUN yarn add {{addDependencies database}}

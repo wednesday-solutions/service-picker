@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 	"github.com/wednesday-solutions/picky/utils/hbs"
@@ -10,15 +11,16 @@ import (
 
 func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 
-	dockerComposeFile := "docker-compose.yml"
-	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dockerComposeFile)
+	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(),
+		constants.DockerComposeFile,
+	)
 	status, _ := fileutils.IsExists(filePath)
 	if status {
 		return nil
 	}
 
 	// create Docker File
-	err := fileutils.MakeFile(fileutils.CurrentDirectory(), dockerComposeFile)
+	err := fileutils.MakeFile(fileutils.CurrentDirectory(), constants.DockerComposeFile)
 	errorhandler.CheckNilErr(err)
 
 	// Don't make any changes in the below source string.
@@ -77,7 +79,6 @@ services:
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
-
 {{#if webStatus}} 
   # Setup {{projectName}} web
   {{projectName}}_web:

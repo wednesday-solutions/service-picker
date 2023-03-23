@@ -101,12 +101,6 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 
-		// Database conversion
-		if service == constants.Backend {
-			err = helpers.ConvertTemplateDatabase(stack, database)
-			errorhandler.CheckNilErr(err)
-		}
-
 		stackDestination := map[string]string{
 			"webStatus":     currentDir + "/" + constants.Web,
 			"mobileStatus":  currentDir + "/" + constants.Mobile,
@@ -121,14 +115,19 @@ func PromptSelectInit(service, stack, database string) {
 		stackInfo["database"] = database
 		stackInfo["projectName"] = projectName
 
+		// Database conversion
+		if service == constants.Backend {
+			err = helpers.ConvertTemplateDatabase(stack, database, stackInfo)
+			errorhandler.CheckNilErr(err)
+		}
+		// create docker files
+		err = helpers.CreateDockerFiles(stackInfo)
+		errorhandler.CheckNilErr(err)
+
 		if stackInfo["backendStatus"].(bool) &&
 			(stackInfo["webStatus"].(bool) || stackInfo["mobileStatus"].(bool)) {
 			// create docker-compose File
 			err = helpers.CreateDockerComposeFile(stackInfo)
-			errorhandler.CheckNilErr(err)
-
-			// create docker files
-			err = helpers.CreateDockerFiles(stackInfo)
 			errorhandler.CheckNilErr(err)
 		}
 		<-done
