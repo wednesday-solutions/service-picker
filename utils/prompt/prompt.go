@@ -2,7 +2,6 @@ package prompt
 
 import (
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/manifoldco/promptui"
@@ -77,29 +76,15 @@ func PromptSelectInit(service, stack, database string) {
 	}
 
 	destination := currentDir + "/" + service
-
 	status, _ := fileutils.IsExists(destination)
 	if !status {
 
 		done := make(chan bool)
 		go helpers.ProgressBar(100, "Downloading", done)
 
-		// Create directory in the name of selected service
-		makeDirErr := fileutils.MakeDirectory(currentDir, service)
-		errorhandler.CheckNilErr(makeDirErr)
-
-		// Download the selected stack
-		cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
-		err := cmd.Run()
+		// Clone the selected repo into service directory.
+		err := helpers.CloneRepo(stack, service, currentDir)
 		errorhandler.CheckNilErr(err)
-
-		// Delete cd.yml file from the cloned repo.
-		cdFilePatch := currentDir + "/" + service + constants.CDFilePathURL
-		status, _ := fileutils.IsExists(cdFilePatch)
-		if status {
-			err = fileutils.RemoveFile(cdFilePatch)
-			errorhandler.CheckNilErr(err)
-		}
 
 		stackDestination := map[string]string{
 			"webStatus":     currentDir + "/" + constants.Web,
@@ -120,13 +105,13 @@ func PromptSelectInit(service, stack, database string) {
 			err = helpers.ConvertTemplateDatabase(stack, database, stackInfo)
 			errorhandler.CheckNilErr(err)
 		}
-		// create docker files
+		// create and update docker files
 		err = helpers.CreateDockerFiles(stackInfo)
 		errorhandler.CheckNilErr(err)
 
 		if stackInfo["backendStatus"].(bool) &&
 			(stackInfo["webStatus"].(bool) || stackInfo["mobileStatus"].(bool)) {
-			// create docker-compose File
+			// create docker-compose file
 			err = helpers.CreateDockerComposeFile(stackInfo)
 			errorhandler.CheckNilErr(err)
 		}
