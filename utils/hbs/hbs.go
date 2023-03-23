@@ -1,6 +1,8 @@
 package hbs
 
 import (
+	"fmt"
+
 	"github.com/aymerick/raymond"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
@@ -16,24 +18,28 @@ func init() {
 	raymond.RegisterHelper("addDependencies", AddDependencies)
 	raymond.RegisterHelper("envFileBackend", EnvFileBackend)
 	raymond.RegisterHelper("runBuildEnvironment", RunBuildEnvironment)
+	raymond.RegisterHelper("waitForDBService", WaitForDBService)
+	raymond.RegisterHelper("dependsOnFieldOfGo", DependsOnFieldOfGo)
 }
 
-func ParseAndWriteToFile(source, filePath string, stackData map[string]interface{}) error {
+func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface{}) error {
 
 	ctx := map[string]interface{}{
-		constants.Frontend: constants.Frontend,
-		constants.Web:      constants.Web,
-		constants.Mobile:   constants.Mobile,
-		constants.Backend:  constants.Backend,
-		constants.Redis:    constants.Redis,
-		constants.Postgres: constants.Postgres,
-		constants.Mysql:    constants.Mysql,
-		"stack":            stackData["stack"].(string),
-		"database":         stackData["database"].(string),
-		"projectName":      stackData["projectName"].(string),
-		"webStatus":        stackData["webStatus"].(bool),
-		"mobileStatus":     stackData["mobileStatus"].(bool),
-		"backendStatus":    stackData["backendStatus"].(bool),
+		constants.Frontend:                 constants.Frontend,
+		constants.Web:                      constants.Web,
+		constants.Mobile:                   constants.Mobile,
+		constants.Backend:                  constants.Backend,
+		constants.Redis:                    constants.Redis,
+		constants.Postgres:                 constants.Postgres,
+		constants.Mysql:                    constants.Mysql,
+		constants.GolangMySQLTemplate:      constants.GolangMySQLTemplate,
+		constants.GolangPostgreSQLTemplate: constants.GolangPostgreSQLTemplate,
+		"stack":                            stackInfo["stack"].(string),
+		"database":                         stackInfo["database"].(string),
+		"projectName":                      stackInfo["projectName"].(string),
+		"webStatus":                        stackInfo["webStatus"].(bool),
+		"mobileStatus":                     stackInfo["mobileStatus"].(bool),
+		"backendStatus":                    stackInfo["backendStatus"].(bool),
 	}
 	// Parse the source string into template
 	tpl, err := raymond.Parse(source)
@@ -63,7 +69,7 @@ func DBVersion(db string) string {
 	if db == constants.PostgreSQL {
 		return "postgres:15"
 	} else if db == constants.MySQL {
-		return "mysql:5.7"
+		return "mysql:8"
 	} else {
 		return ""
 	}
@@ -88,15 +94,18 @@ func PortConnection(stack string) string {
 	}
 }
 
-func DBServiceName(stack string) string {
+func DBServiceName(stack, database string) string {
 	switch stack {
-	case constants.PostgreSQL:
-		return "db_postgres"
-	case constants.MySQL:
-		return "db_mysql"
-	default:
+	case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
+		if database == constants.PostgreSQL {
+			return "db_postgres"
+		} else if database == constants.MySQL {
+			return "db_mysql"
+		}
+	case constants.GolangPostgreSQLTemplate, constants.GolangMySQLTemplate:
 		return "db"
 	}
+	return "db"
 }
 
 func GlobalAddDependencies(database string) string {
@@ -135,6 +144,31 @@ func RunBuildEnvironment(stack string) string {
 	case constants.NodeHapiTemplate:
 		return "build:env"
 	default:
+		return ""
+	}
+}
+
+func WaitForDBService(database string) string {
+	var portNumber string
+	if database == constants.PostgreSQL {
+		portNumber = "5432"
+	} else if database == constants.MySQL {
+		portNumber = "3306"
+	}
+	return fmt.Sprintf(`  wait-for-db:
+    image: atkrad/wait4x
+    depends_on:
+      - db
+    command: tcp db:%s -t 30s -i 250ms`, portNumber)
+}
+
+func DependsOnFieldOfGo(stack string) string {
+	output := `    depends_on:
+      wait-for-db:
+        condition: service_completed_successfully`
+	if stack == constants.GolangPostgreSQLTemplate || stack == constants.GolangMySQLTemplate {
+		return output
+	} else {
 		return ""
 	}
 }

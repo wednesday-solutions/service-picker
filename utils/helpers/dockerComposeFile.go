@@ -8,7 +8,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func CreateDockerComposeFile(stackData map[string]interface{}) error {
+func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 
 	dockerComposeFile := "docker-compose.yml"
 	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dockerComposeFile)
@@ -25,7 +25,7 @@ func CreateDockerComposeFile(stackData map[string]interface{}) error {
 	source := `version: '3'
 services:
   # Setup {{database}}
-  {{dbServiceName database}}:
+  {{dbServiceName stack database}}:
     image: '{{dbVersion database}}' 
     ports:
       - {{portConnection database}} 
@@ -34,15 +34,36 @@ services:
       - {{envFileBackend database}}
     volumes:
       - {{projectName}}_db_volume:/var/lib/{{databaseVolume database}}
+{{#equal stack GolangPostgreSQL}}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_PORT: ${PSQL_PORT}
+{{/equal}}
+{{#equal stack GolangMySQL}}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DBNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+{{/equal}}
 
   # Setup Redis
   redis:
-    image: 'redis'
+    image: 'redis:6-alpine'
     ports:
       - {{portConnection redis}}
     # Default command that redis will execute at start
     command: ['redis-server']
 
+{{#equal stack GolangPostgreSQL}}
+{{{waitForDBService database}}}
+
+{{/equal}}
+{{#equal stack GolangMySQL}}
+{{{waitForDBService database}}}
+
+{{/equal}}
   # Setup {{projectName}} API
   {{projectName}}_api:
     build:
@@ -53,8 +74,11 @@ services:
       - {{portConnection backend}}
     env_file:
       - {{envFileBackend database}}
-{{#if webStatus}}
- 
+    environment:
+      ENVIRONMENT_NAME: docker
+{{dependsOnFieldOfGo stack}}
+
+{{#if webStatus}} 
   # Setup {{projectName}} web
   {{projectName}}_web:
     build:
@@ -81,7 +105,7 @@ volumes:
   {{projectName}}_db_volume:
 `
 
-	err = hbs.ParseAndWriteToFile(source, filePath, stackData)
+	err = hbs.ParseAndWriteToFile(source, filePath, stackInfo)
 	errorhandler.CheckNilErr(err)
 
 	return nil

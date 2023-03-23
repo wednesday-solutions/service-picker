@@ -91,9 +91,11 @@ const (
 
 // helpers
 const (
-	Mysql    = "mysql"
-	Redis    = "redis"
-	Postgres = "postgres"
-	Frontend = "frontend"
-	Database = "database"
+	Mysql                    = "mysql"
+	Redis                    = "redis"
+	Postgres                 = "postgres"
+	Frontend                 = "frontend"
+	Database                 = "database"
+	GolangPostgreSQLTemplate = "GolangPostgreSQL"
+	GolangMySQLTemplate      = "GolangMySQL"
 )

@@ -9,7 +9,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func CreateDockerFiles(stackData map[string]interface{}) error {
+func CreateDockerFiles(stackInfo map[string]interface{}) error {
 
 	var (
 		path      string
@@ -21,7 +21,7 @@ func CreateDockerFiles(stackData map[string]interface{}) error {
 	dockerEnvFile := ".env.docker"
 	dockerIgnoreFile := ".dockerignore"
 
-	if stackData["webStatus"].(bool) {
+	if stackInfo["webStatus"].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
@@ -67,11 +67,11 @@ EXPOSE 3000`
 	}
 
 	// Add mobile related files.
-	// if stackData["mobileStatus"].(bool) {}
+	// if stackInfo["mobileStatus"].(bool) {}
 
-	if stackData["backendStatus"].(bool) {
+	if stackInfo["backendStatus"].(bool) {
 
-		switch stackData["stack"] {
+		switch stackInfo["stack"] {
 		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
 			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
@@ -115,7 +115,7 @@ COPY --from=0 /app-build/dist ./dist
 CMD ["sh", "./migrate-and-run.sh"]
 EXPOSE 9000`
 
-				err = hbs.ParseAndWriteToFile(source, path, stackData)
+				err = hbs.ParseAndWriteToFile(source, path, stackInfo)
 				errorhandler.CheckNilErr(err)
 			}
 		}
