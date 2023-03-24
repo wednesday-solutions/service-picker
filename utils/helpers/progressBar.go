@@ -30,6 +30,5 @@ func ProgressBar(max int, description string, done chan bool) {
 
 		time.Sleep(200 * time.Millisecond)
 	}
-	fmt.Printf("\nCompleted.\n")
 	done <- true
 }

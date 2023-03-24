@@ -34,7 +34,7 @@ WORKDIR /app
 RUN npm install
 
 FROM baseimage
-CMD {{cmdDockerfile stack}}
+CMD {{{cmdDockerfile stack}}}
 EXPOSE 3000`
 
 			err = hbs.ParseAndWriteToFile(source, path, stackInfo)
