@@ -17,7 +17,7 @@ func CreateInfrastructure(stack, service string) error {
 		constants.PackageDotJsonFile,
 		constants.EnvFile,
 		constants.SstConfigJsFile,
-		constants.FrontendStackJsFile,
+		constants.WebStackJsFile,
 	}
 
 	for _, file := range files {
@@ -66,16 +66,16 @@ dotenv.config({ path: ".env" });
 export default {
 	config(_input) {
 		return {
-			name: process.env.APP_NAME || "frontend-app",
+			name: process.env.APP_NAME || "web-app",
 			region: process.env.WEB_AWS_REGION || "us-east-1",
 		};
 	},
 };
 `
 
-		infraFiles[constants.FrontendStackJsFile] = fmt.Sprintf(`import { StaticSite } from "sst/constructs";
+		infraFiles[constants.WebStackJsFile] = fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 
-export function FrontendStack({ stack }) {
+export function WebStack({ stack }) {
 	// Deploy our React app
 	const site = new StaticSite(stack, "ReactSite", {
 		path: "%s",
@@ -99,7 +99,7 @@ export function FrontendStack({ stack }) {
 
 	for fileName, fileSource := range infraFiles {
 
-		if fileName == constants.FrontendStackJsFile {
+		if fileName == constants.WebStackJsFile {
 			err := fileutils.MakeDirectory(path, "stacks")
 			errorhandler.CheckNilErr(err)
 			path = fileutils.CurrentDirectory() + "/stacks"

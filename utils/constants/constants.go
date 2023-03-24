@@ -25,11 +25,9 @@ const (
 
 // Services
 const (
-	Web      = "web"
-	Mobile   = "mobile"
-	Backend  = "backend"
-	Frontend = "frontend"
-	Database = "database"
+	Web     = "web"
+	Mobile  = "mobile"
+	Backend = "backend"
 )
 
 // Frontend stacks
@@ -85,8 +83,19 @@ const (
 
 // Infra Files
 const (
-	PackageDotJsonFile  = "package.json"
-	EnvFile             = ".env"
-	SstConfigJsFile     = "sst.config.js"
-	FrontendStackJsFile = "FrontendStack.js"
+	PackageDotJsonFile = "package.json"
+	EnvFile            = ".env"
+	SstConfigJsFile    = "sst.config.js"
+	WebStackJsFile     = "WebStack.js"
+)
+
+// helpers
+const (
+	Mysql                    = "mysql"
+	Redis                    = "redis"
+	Postgres                 = "postgres"
+	Frontend                 = "frontend"
+	Database                 = "database"
+	GolangPostgreSQLTemplate = "GolangPostgreSQL"
+	GolangMySQLTemplate      = "GolangMySQL"
 )

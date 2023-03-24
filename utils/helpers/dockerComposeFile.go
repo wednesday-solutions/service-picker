@@ -1,34 +1,69 @@
 package helpers
 
 import (
+	"fmt"
+
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func WriteDockerFile(fileName, db, projectName string) error {
+func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
+
+	dockerComposeFile := "docker-compose.yml"
+	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dockerComposeFile)
+	status, _ := fileutils.IsExists(filePath)
+	if status {
+		return nil
+	}
+
+	// create Docker File
+	err := fileutils.MakeFile(fileutils.CurrentDirectory(), dockerComposeFile)
+	errorhandler.CheckNilErr(err)
 
 	// Don't make any changes in the below source string.
 	source := `version: '3'
 services:
   # Setup {{database}}
-  {{projectName}}_db:
+  {{dbServiceName stack database}}:
     image: '{{dbVersion database}}' 
     ports:
       - {{portConnection database}} 
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
-      - ./backend/.env.docker
+      - {{envFileBackend database}}
     volumes:
-      - {{projectName}}_db_volume:/var/lib/{{databaseName database}}/data
+      - {{projectName}}_db_volume:/var/lib/{{databaseVolume database}}
+{{#equal stack GolangPostgreSQL}}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_PORT: ${PSQL_PORT}
+{{/equal}}
+{{#equal stack GolangMySQL}}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DBNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+{{/equal}}
 
   # Setup Redis
-  {{projectName}}_redis:
-    image: 'redis'
+  redis:
+    image: 'redis:6-alpine'
     ports:
       - {{portConnection redis}}
     # Default command that redis will execute at start
-    command: [ 'redis-server' ]
+    command: ['redis-server']
 
+{{#equal stack GolangPostgreSQL}}
+{{{waitForDBService database}}}
+
+{{/equal}}
+{{#equal stack GolangMySQL}}
+{{{waitForDBService database}}}
+
+{{/equal}}
   # Setup {{projectName}} API
   {{projectName}}_api:
     build:
@@ -38,23 +73,39 @@ services:
     ports:
       - {{portConnection backend}}
     env_file:
-      - ./backend/.env.docker
+      - {{envFileBackend database}}
+    environment:
+      ENVIRONMENT_NAME: docker
+{{dependsOnFieldOfGo stack}}
 
-  # Setup {{projectName}} frontend
+{{#if webStatus}} 
+  # Setup {{projectName}} web
   {{projectName}}_web:
     build:
-      context: './frontend'
+      context: './web'
     ports:
-      - {{portConnection frontend}}
+      - {{portConnection web}}
     env_file:
-      - ./frontend/.env.docker
+      - ./web/.env.docker
+{{/if}}
+{{#if mobileStatus}}
+
+  # Setup {{projectName}} mobile
+  {{projectName}}_mobile:
+    build:
+      context: './mobile'
+    ports:
+      - {{portConnection mobile}}
+    env_file:
+      - ./mobile/.env.docker
+{{/if}}
 
 # Setup Volumes
 volumes:
   {{projectName}}_db_volume:
 `
 
-	err := hbs.ParseAndWriteToFile(source, db, projectName, fileName)
+	err = hbs.ParseAndWriteToFile(source, filePath, stackInfo)
 	errorhandler.CheckNilErr(err)
 
 	return nil

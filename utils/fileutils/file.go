@@ -108,8 +108,8 @@ func WriteToFile(file, data string) error {
 }
 
 // AppendToFile will append given string to existing file.
-func AppendToFile(path, file, data string) error {
-	openFile, err := os.OpenFile(fmt.Sprintf("%s/%s", path, file), os.O_RDWR, 0644)
+func AppendToFile(path, data string) error {
+	openFile, err := os.OpenFile(path, os.O_APPEND|os.O_RDWR, 0644)
 	errorhandler.CheckNilErr(err)
 
 	defer openFile.Close()

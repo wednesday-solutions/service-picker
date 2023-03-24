@@ -26,6 +26,17 @@ func PromptSelect(label string, items []string) string {
 	return result
 }
 
+func PromptYesOrNoSelect(label string) bool {
+	items := []string{"Yes", "No"}
+
+	response := PromptSelect(label, items)
+	if response == "Yes" {
+		return true
+	} else {
+		return false
+	}
+}
+
 func PromptSelectCloudProviderConfig(service, stack, database string) {
 	cloudProviderConfigLabel := "Choose a cloud provider config"
 	cloudProviderConfigItems := []string{constants.CreateCD, constants.CreateInfra}
@@ -96,28 +107,28 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 
-		// Docker-compose file
-		var webStatus, mobileStatus, backendStatus bool
-		if service == constants.Web || service == constants.Mobile {
-			destination = currentDir + "/" + constants.Backend
-			backendStatus, _ = fileutils.IsExists(destination)
-
-		} else if service == constants.Backend {
-			destination = currentDir + "/" + constants.Web
-			webStatus, _ = fileutils.IsExists(destination)
-
-			destination = currentDir + "/" + constants.Mobile
-			mobileStatus, _ = fileutils.IsExists(destination)
+		stackDestination := map[string]string{
+			"webStatus":     currentDir + "/" + constants.Web,
+			"mobileStatus":  currentDir + "/" + constants.Mobile,
+			"backendStatus": currentDir + "/" + constants.Backend,
 		}
+		stackInfo := make(map[string]interface{})
 
-		if webStatus || mobileStatus || backendStatus {
-			// create Docker File
-			dockerComposeFile := "docker-compose.yml"
-			err = fileutils.MakeFile(currentDir, dockerComposeFile)
+		for status, destination := range stackDestination {
+			stackInfo[status], _ = fileutils.IsExists(destination)
+		}
+		stackInfo["stack"] = stack
+		stackInfo["database"] = database
+		stackInfo["projectName"] = projectName
+
+		if stackInfo["backendStatus"].(bool) &&
+			(stackInfo["webStatus"].(bool) || stackInfo["mobileStatus"].(bool)) {
+			// create docker-compose File
+			err = helpers.CreateDockerComposeFile(stackInfo)
 			errorhandler.CheckNilErr(err)
 
-			// write Docker File
-			err = helpers.WriteDockerFile(dockerComposeFile, database, projectName)
+			// create docker files
+			err = helpers.CreateDockerFiles(stackInfo)
 			errorhandler.CheckNilErr(err)
 		}
 		<-done
