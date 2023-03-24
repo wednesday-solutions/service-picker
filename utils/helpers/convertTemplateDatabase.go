@@ -5,7 +5,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 )
 
-func ConvertTemplateDatabase(stack, database string) error {
+func ConvertTemplateDatabase(stack, database string, stackInfo map[string]interface{}) error {
 
 	dbConfigFile := "/backend/config/db.js"
 	isDatabaseSupported := true
@@ -39,6 +39,10 @@ func ConvertTemplateDatabase(stack, database string) error {
 
 		// Convert queries
 		err = ConvertQueries(stack)
+		errorhandler.CheckNilErr(err)
+
+		// Update docker-compose file
+		err = UpdateDockerCompose(stack, stackInfo)
 		errorhandler.CheckNilErr(err)
 	}
 

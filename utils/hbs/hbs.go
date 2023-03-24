@@ -165,7 +165,8 @@ func WaitForDBService(database string) string {
 func DependsOnFieldOfGo(stack string) string {
 	output := `    depends_on:
       wait-for-db:
-        condition: service_completed_successfully`
+        condition: service_completed_successfully
+`
 	if stack == constants.GolangPostgreSQLTemplate || stack == constants.GolangMySQLTemplate {
 		return output
 	} else {
