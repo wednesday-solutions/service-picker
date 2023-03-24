@@ -18,7 +18,7 @@ func CreateDockerFiles(stackInfo map[string]interface{}) error {
 		err       error
 	)
 
-	if stackInfo["webStatus"].(bool) {
+	if stackInfo[constants.WebStatus].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 			constants.Web,
@@ -34,10 +34,10 @@ WORKDIR /app
 RUN npm install
 
 FROM baseimage
-CMD ["yarn", "start"]
+CMD {{cmdDockerfile stack}}
 EXPOSE 3000`
 
-			err = fileutils.WriteToFile(path, source)
+			err = hbs.ParseAndWriteToFile(source, path, stackInfo)
 			errorhandler.CheckNilErr(err)
 		}
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
@@ -64,11 +64,11 @@ EXPOSE 3000`
 	}
 
 	// Add mobile related files.
-	// if stackInfo["mobileStatus"].(bool) {}
+	// if stackInfo[constants.MobileStatus].(bool) {}
 
-	if stackInfo["backendStatus"].(bool) {
+	if stackInfo[constants.BackendStatus].(bool) {
 
-		switch stackInfo["stack"] {
+		switch stackInfo[constants.Stack] {
 		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
 			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
@@ -100,6 +100,7 @@ RUN yarn {{runBuildEnvironment stack}}
 FROM node:14-alpine
 ARG ENVIRONMENT_NAME
 ENV ENVIRONMENT_NAME $ENVIRONMENT_NAME
+RUN mkdir -p /dist
 RUN apk add yarn
 RUN yarn global add {{globalAddDependencies database}}
 RUN yarn add {{addDependencies database}}

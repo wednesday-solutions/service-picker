@@ -89,17 +89,6 @@ services:
     env_file:
       - ./web/.env.docker
 {{/if}}
-{{#if mobileStatus}}
-
-  # Setup {{projectName}} mobile
-  {{projectName}}_mobile:
-    build:
-      context: './mobile'
-    ports:
-      - {{portConnection mobile}}
-    env_file:
-      - ./mobile/.env.docker
-{{/if}}
 
 # Setup Volumes
 volumes:

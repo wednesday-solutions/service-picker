@@ -91,16 +91,23 @@ const (
 
 // helpers
 const (
+	Yes                      = "Yes"
+	No                       = "No"
+	Stack                    = "stack"
 	Mysql                    = "mysql"
 	Redis                    = "redis"
 	Postgres                 = "postgres"
 	Frontend                 = "frontend"
 	Database                 = "database"
+	ProjectName              = "projectName"
+	WebStatus                = "webStatus"
+	MobileStatus             = "mobileStatus"
+	BackendStatus            = "backendStatus"
 	GolangPostgreSQLTemplate = "GolangPostgreSQL"
 	GolangMySQLTemplate      = "GolangMySQL"
 )
 
-// Files
+// Docker related files
 const (
 	DockerComposeFile = "docker-compose.yml"
 	DockerFile        = "Dockerfile"
