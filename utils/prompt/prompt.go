@@ -49,7 +49,7 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 
 	} else if selectedCloudConfig == constants.CreateInfra {
 
-		err := helpers.CreateInfrastructure(stack, service)
+		err := helpers.CreateInfra(stack, service)
 		errorhandler.CheckNilErr(err)
 	}
 }
@@ -116,6 +116,7 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 		<-done
+		fmt.Printf("\nDownloading completed.\n")
 
 	} else {
 		fmt.Println("The", service, "service already exists. You can initialize only one stack in a service")

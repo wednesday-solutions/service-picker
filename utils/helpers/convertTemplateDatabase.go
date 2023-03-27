@@ -34,7 +34,7 @@ func ConvertTemplateDatabase(stack, database string, stackInfo map[string]interf
 		errorhandler.CheckNilErr(err)
 
 		// Convert DB Connection into MySQL.
-		err = UpdateDBConfig(stack, dbConfigFile)
+		err = UpdateDBConfig(stack, dbConfigFile, stackInfo)
 		errorhandler.CheckNilErr(err)
 
 		// Convert queries

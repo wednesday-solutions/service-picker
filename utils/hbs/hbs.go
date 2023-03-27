@@ -21,6 +21,7 @@ func init() {
 	raymond.RegisterHelper("waitForDBService", WaitForDBService)
 	raymond.RegisterHelper("dependsOnFieldOfGo", DependsOnFieldOfGo)
 	raymond.RegisterHelper("cmdDockerfile", CmdDockerfile)
+	raymond.RegisterHelper("envEnvironmentName", EnvEnvironmentName)
 }
 
 func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface{}) error {
@@ -184,4 +185,8 @@ func CmdDockerfile(stack string) string {
 	default:
 		return ""
 	}
+}
+
+func EnvEnvironmentName() string {
+	return "`.env.${process.env.ENVIRONMENT_NAME}`"
 }

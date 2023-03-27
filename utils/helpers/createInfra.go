@@ -8,7 +8,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateInfrastructure(stack, service string) error {
+func CreateInfra(stack, service string) error {
 
 	infraFiles := make(map[string]string)
 	path := fileutils.CurrentDirectory()
@@ -49,7 +49,6 @@ func CreateInfrastructure(stack, service string) error {
 		"constructs": "10.1.156",
 		"dotenv": "^10.0.0",
 		"typescript": "^4.9.5",
-		"@tsconfig/node16": "^1.0.3"
 	},
 	"workspaces": [
 		"%s/*"
@@ -59,8 +58,9 @@ func CreateInfrastructure(stack, service string) error {
 		infraFiles[constants.EnvFile] = `APP_NAME=app
 WEB_AWS_REGION=us-east-1`
 
-		infraFiles[constants.SstConfigJsFile] = `const dotenv = require('dotenv');
-		
+		infraFiles[constants.SstConfigJsFile] = `import dotenv from "dotenv";
+import { WebStack } from "./stacks/WebStack";
+
 dotenv.config({ path: ".env" });
 
 export default {
@@ -69,6 +69,10 @@ export default {
 			name: process.env.APP_NAME || "web-app",
 			region: process.env.WEB_AWS_REGION || "us-east-1",
 		};
+	},
+	stacks(app) {
+		// deploy stacks
+		app.stack(WebStack);
 	},
 };
 `
@@ -111,6 +115,7 @@ export function WebStack({ stack }) {
 		errorhandler.CheckNilErr(err)
 	}
 	<-done
+	fmt.Printf("\nGenerating completed\n")
 
 	return nil
 }
