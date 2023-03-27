@@ -22,6 +22,7 @@ func init() {
 	raymond.RegisterHelper("dependsOnFieldOfGo", DependsOnFieldOfGo)
 	raymond.RegisterHelper("cmdDockerfile", CmdDockerfile)
 	raymond.RegisterHelper("envEnvironmentName", EnvEnvironmentName)
+	raymond.RegisterHelper("deployStacks", DeployStacks)
 }
 
 func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface{}) error {
@@ -71,7 +72,7 @@ func DBVersion(db string) string {
 	if db == constants.PostgreSQL {
 		return "postgres:15"
 	} else if db == constants.MySQL {
-		return "mysql:8"
+		return "mysql:5.7"
 	} else {
 		return ""
 	}
@@ -189,4 +190,16 @@ func CmdDockerfile(stack string) string {
 
 func EnvEnvironmentName() string {
 	return "`.env.${process.env.ENVIRONMENT_NAME}`"
+}
+
+func DeployStacks(webStatus, backendStatus bool) string {
+	var source string
+	if webStatus && backendStatus {
+		source = `app.stack(WebStack).stack(BackendStack);`
+	} else if webStatus {
+		source = `app.stack(WebStack);`
+	} else if backendStatus {
+		source = `app.stack(BackendStack);`
+	}
+	return source
 }

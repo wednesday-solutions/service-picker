@@ -6,9 +6,11 @@ import (
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/utils/hbs"
+	"github.com/wednesday-solutions/picky/utils/helpers/sources"
 )
 
-func CreateInfra(stack, service string) error {
+func CreateInfra(stack, service string, stackInfo map[string]interface{}) error {
 
 	infraFiles := make(map[string]string)
 	path := fileutils.CurrentDirectory()
@@ -18,6 +20,7 @@ func CreateInfra(stack, service string) error {
 		constants.EnvFile,
 		constants.SstConfigJsFile,
 		constants.WebStackJsFile,
+		constants.BackendStackJsFile,
 	}
 
 	for _, file := range files {
@@ -27,93 +30,58 @@ func CreateInfra(stack, service string) error {
 		}
 	}
 
-	switch stack {
-	case constants.ReactJS:
+	infraFiles[constants.PackageDotJsonFile] = sources.PackageDotJsonSource()
 
-		infraFiles[constants.PackageDotJsonFile] = fmt.Sprintf(`{
-	"name": "app",
-	"version": "0.0.0",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"dev": "sst dev",
-		"build": "sst build",
-		"deploy": "sst deploy",
-		"remove": "sst remove",
-		"console": "sst console",
-		"typecheck": "tsc --noEmit"
-	},
-	"devDependencies": {
-		"sst": "^2.0.18",
-		"aws-cdk-lib": "2.62.2",
-		"constructs": "10.1.156",
-		"dotenv": "^10.0.0",
-		"typescript": "^4.9.5",
-	},
-	"workspaces": [
-		"%s/*"
-	]
-}`, service)
+	infraFiles[constants.EnvFile] = sources.EnvFileSource()
 
-		infraFiles[constants.EnvFile] = `APP_NAME=app
-WEB_AWS_REGION=us-east-1`
+	// SST config file for backend and web.
+	infraFiles[constants.SstConfigJsFile] = sources.SstConfigJsSource()
 
-		infraFiles[constants.SstConfigJsFile] = `import dotenv from "dotenv";
-import { WebStack } from "./stacks/WebStack";
+	if stackInfo[constants.WebStatus].(bool) {
+		// AWS config file for web.
+		infraFiles[constants.WebStackJsFile] = sources.WebStackJsSource()
+	}
 
-dotenv.config({ path: ".env" });
-
-export default {
-	config(_input) {
-		return {
-			name: process.env.APP_NAME || "web-app",
-			region: process.env.WEB_AWS_REGION || "us-east-1",
-		};
-	},
-	stacks(app) {
-		// deploy stacks
-		app.stack(WebStack);
-	},
-};
-`
-
-		infraFiles[constants.WebStackJsFile] = fmt.Sprintf(`import { StaticSite } from "sst/constructs";
-
-export function WebStack({ stack }) {
-	// Deploy our React app
-	const site = new StaticSite(stack, "ReactSite", {
-		path: "%s",
-		buildCommand: "yarn run build",
-		buildOutput: "build",
-	});
-
-	// Show the URLs in the output
-	stack.addOutputs({
-		SiteUrl: site.url || "http://localhost:3000/",
-	});
-}
-`, service)
-
-	default:
-		return fmt.Errorf("Only react template is integrated now")
+	if stackInfo[constants.BackendStatus].(bool) {
+		// AWS config file for backend.
+		infraFiles[constants.BackendStackJsFile] = sources.BackendStackJsSource()
 	}
 
 	done := make(chan bool)
 	go ProgressBar(30, "Generating", done)
 
+	stacksFileExist, _ := fileutils.IsExists(fmt.Sprintf("%s/%s", path, constants.Stacks))
 	for fileName, fileSource := range infraFiles {
 
-		if fileName == constants.WebStackJsFile {
-			err := fileutils.MakeDirectory(path, "stacks")
-			errorhandler.CheckNilErr(err)
-			path = fileutils.CurrentDirectory() + "/stacks"
+		if fileName == constants.WebStackJsFile || fileName == constants.BackendStackJsFile {
+			if !stacksFileExist {
+				err := fileutils.MakeDirectory(path, "stacks")
+				errorhandler.CheckNilErr(err)
+				stacksFileExist = true
+			}
+			path = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.Stacks)
 
 		} else {
 			path = fileutils.CurrentDirectory()
 		}
-		err := fileutils.TruncateAndWriteToFile(path, fileName, fileSource)
+		var err error
+		if fileName == constants.SstConfigJsFile {
+			filePath := fmt.Sprintf("%s/%s", path, fileName)
+			err = hbs.ParseAndWriteToFile(fileSource, filePath, stackInfo)
+		} else {
+			err = fileutils.TruncateAndWriteToFile(path, fileName, fileSource)
+		}
 		errorhandler.CheckNilErr(err)
 	}
+
+	// Update backend/.env.development file.
+	path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+		constants.Backend,
+		constants.EnvDevFile,
+	)
+	err := fileutils.WriteToFile(path, sources.EnvDevSource())
+	errorhandler.CheckNilErr(err)
+
 	<-done
 	fmt.Printf("\nGenerating completed\n")
 
