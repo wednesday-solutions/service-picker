@@ -26,10 +26,10 @@ func PromptSelect(label string, items []string) string {
 }
 
 func PromptYesOrNoSelect(label string) bool {
-	items := []string{"Yes", "No"}
+	items := []string{constants.Yes, constants.No}
 
 	response := PromptSelect(label, items)
-	if response == "Yes" {
+	if response == constants.Yes {
 		return true
 	} else {
 		return false
@@ -87,18 +87,18 @@ func PromptSelectInit(service, stack, database string) {
 		errorhandler.CheckNilErr(err)
 
 		stackDestination := map[string]string{
-			"webStatus":     currentDir + "/" + constants.Web,
-			"mobileStatus":  currentDir + "/" + constants.Mobile,
-			"backendStatus": currentDir + "/" + constants.Backend,
+			constants.WebStatus:     currentDir + "/" + constants.Web,
+			constants.MobileStatus:  currentDir + "/" + constants.Mobile,
+			constants.BackendStatus: currentDir + "/" + constants.Backend,
 		}
 		stackInfo := make(map[string]interface{})
 
 		for status, destination := range stackDestination {
 			stackInfo[status], _ = fileutils.IsExists(destination)
 		}
-		stackInfo["stack"] = stack
-		stackInfo["database"] = database
-		stackInfo["projectName"] = projectName
+		stackInfo[constants.Stack] = stack
+		stackInfo[constants.Database] = database
+		stackInfo[constants.ProjectName] = projectName
 
 		// Database conversion
 		if service == constants.Backend {
@@ -109,8 +109,8 @@ func PromptSelectInit(service, stack, database string) {
 		err = helpers.CreateDockerFiles(stackInfo)
 		errorhandler.CheckNilErr(err)
 
-		if stackInfo["backendStatus"].(bool) &&
-			(stackInfo["webStatus"].(bool) || stackInfo["mobileStatus"].(bool)) {
+		if stackInfo[constants.BackendStatus].(bool) &&
+			(stackInfo[constants.WebStatus].(bool) || stackInfo[constants.MobileStatus].(bool)) {
 			// create docker-compose file
 			err = helpers.CreateDockerComposeFile(stackInfo)
 			errorhandler.CheckNilErr(err)

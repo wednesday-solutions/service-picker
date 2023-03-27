@@ -20,6 +20,7 @@ func init() {
 	raymond.RegisterHelper("runBuildEnvironment", RunBuildEnvironment)
 	raymond.RegisterHelper("waitForDBService", WaitForDBService)
 	raymond.RegisterHelper("dependsOnFieldOfGo", DependsOnFieldOfGo)
+	raymond.RegisterHelper("cmdDockerfile", CmdDockerfile)
 }
 
 func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface{}) error {
@@ -34,12 +35,12 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 		constants.Mysql:                    constants.Mysql,
 		constants.GolangMySQLTemplate:      constants.GolangMySQLTemplate,
 		constants.GolangPostgreSQLTemplate: constants.GolangPostgreSQLTemplate,
-		"stack":                            stackInfo["stack"].(string),
-		"database":                         stackInfo["database"].(string),
-		"projectName":                      stackInfo["projectName"].(string),
-		"webStatus":                        stackInfo["webStatus"].(bool),
-		"mobileStatus":                     stackInfo["mobileStatus"].(bool),
-		"backendStatus":                    stackInfo["backendStatus"].(bool),
+		constants.Stack:                    stackInfo[constants.Stack].(string),
+		constants.Database:                 stackInfo[constants.Database].(string),
+		constants.ProjectName:              stackInfo[constants.ProjectName].(string),
+		constants.WebStatus:                stackInfo[constants.WebStatus].(bool),
+		constants.MobileStatus:             stackInfo[constants.MobileStatus].(bool),
+		constants.BackendStatus:            stackInfo[constants.BackendStatus].(bool),
 	}
 	// Parse the source string into template
 	tpl, err := raymond.Parse(source)
@@ -170,6 +171,17 @@ func DependsOnFieldOfGo(stack string) string {
 	if stack == constants.GolangPostgreSQLTemplate || stack == constants.GolangMySQLTemplate {
 		return output
 	} else {
+		return ""
+	}
+}
+
+func CmdDockerfile(stack string) string {
+	switch stack {
+	case constants.ReactJS:
+		return `["yarn", "start"]`
+	case constants.NextJS:
+		return `["yarn", "start:dev"]`
+	default:
 		return ""
 	}
 }
