@@ -8,7 +8,7 @@ import (
 func main() {
 	err := cmd.Execute()
 	if err != nil {
-		if err == errorhandler.ErrInterrupt {
+		if err.Error() == errorhandler.ErrInterrupt.Error() {
 			err = errorhandler.ExitMessage
 		}
 		errorhandler.CheckNilErr(err)

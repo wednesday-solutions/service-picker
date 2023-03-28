@@ -59,7 +59,7 @@ func PromptSelectInit(service, stack, database string) {
 			(stackInfo[constants.WebStatus].(bool) || stackInfo[constants.MobileStatus].(bool)) {
 			// create docker-compose file
 			err = pickyhelpers.CreateDockerComposeFile(stackInfo, dockerComposeFileExist)
-			if err == errorhandler.ErrExist {
+			if err.Error() == errorhandler.ErrExist.Error() {
 				dockerComposeFileExist = true
 			} else {
 				errorhandler.CheckNilErr(err)

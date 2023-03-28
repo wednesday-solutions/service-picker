@@ -43,8 +43,12 @@ func PromptSelect(label string, items []string) string {
 	}
 
 	_, result, err := prompt.Run()
-	errorhandler.CheckNilErr(err)
-
+	if err != nil {
+		if err.Error() == errorhandler.ErrInterrupt.Error() {
+			err = errorhandler.ExitMessage
+		}
+		errorhandler.CheckNilErr(err)
+	}
 	return result
 }
 
@@ -69,7 +73,12 @@ func PromptGetInput(label string) string {
 		IsVimMode: true,
 	}
 	result, err := prompt.Run()
-	errorhandler.CheckNilErr(err)
+	if err != nil {
+		if err.Error() == errorhandler.ErrInterrupt.Error() {
+			err = errorhandler.ExitMessage
+		}
+		errorhandler.CheckNilErr(err)
+	}
 	return result
 }
 

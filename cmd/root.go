@@ -61,7 +61,7 @@ func Execute() error {
 
 	err := RootCmd.Execute()
 	if err != nil {
-		if err == errorhandler.ErrInterrupt {
+		if err.Error() == errorhandler.ErrInterrupt.Error() {
 			err = errorhandler.ExitMessage
 		}
 		errorhandler.CheckNilErr(err)
