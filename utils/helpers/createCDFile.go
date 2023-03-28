@@ -75,7 +75,7 @@ func CreateCDFile(stack, service, database string) error {
 		errorhandler.CheckNilErr(err)
 
 		<-done
-		fmt.Printf("\n%s%s", "Generating", errorhandler.CompleteMessage)
+		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 
 	} else {
 		fmt.Println("The", service, stack, "CD you are looking to create already exists")

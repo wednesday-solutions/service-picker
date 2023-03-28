@@ -85,7 +85,7 @@ func CreateInfra(stack, service string, stackInfo map[string]interface{}, forceC
 	errorhandler.CheckNilErr(err)
 
 	<-done
-	fmt.Printf("\n%s%s", "Generating", errorhandler.CompleteMessage)
+	fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 
 	return nil
 }

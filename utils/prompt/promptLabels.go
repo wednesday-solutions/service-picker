@@ -27,15 +27,19 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 
 		var fileExist bool
 		err := helpers.CreateInfra(stack, service, stackInfo, fileExist)
-		if strings.Contains(err.Error(), errorhandler.ErrExist.Error()) {
-			fileExist = true
-			label := fmt.Sprintf("Some files already exist%s, do you want to rewrite it?", errorhandler.Exclamation)
-			response := PromptYesOrNoSelect(label)
-			if response {
-				err = helpers.CreateInfra(stack, service, stackInfo, fileExist)
+		if err != nil {
+			if strings.Contains(err.Error(), errorhandler.ErrExist.Error()) {
+				fileExist = true
+				label := fmt.Sprintf("Some files are already exist%s, do you want to rewrite it?", errorhandler.Exclamation)
+				response := PromptYesOrNoSelect(label)
+				if response {
+					err = helpers.CreateInfra(stack, service, stackInfo, fileExist)
+				} else {
+					err = errorhandler.ExitMessage
+				}
 			}
+			errorhandler.CheckNilErr(err)
 		}
-		errorhandler.CheckNilErr(err)
 	}
 }
 
