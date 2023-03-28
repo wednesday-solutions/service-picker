@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wednesday-solutions/picky/pickyhelpers"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/helpers"
 )
 
 func PromptSelectCloudProviderConfig(service, stack, database string) {
@@ -18,22 +18,22 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 
 	if selectedCloudConfig == constants.CreateCD {
 
-		err := helpers.CreateCDFile(stack, service, database)
+		err := pickyhelpers.CreateCDFile(stack, service, database)
 		errorhandler.CheckNilErr(err)
 
 	} else if selectedCloudConfig == constants.CreateInfra {
 
-		stackInfo := helpers.GetStackInfo(stack, database)
+		stackInfo := pickyhelpers.GetStackInfo(stack, database)
 
 		var fileExist bool
-		err := helpers.CreateInfra(stack, service, stackInfo, fileExist)
+		err := pickyhelpers.CreateInfra(stack, service, stackInfo, fileExist)
 		if err != nil {
 			if strings.Contains(err.Error(), errorhandler.ErrExist.Error()) {
 				fileExist = true
 				label := fmt.Sprintf("Some files are already exist%s, do you want to rewrite it?", errorhandler.Exclamation)
 				response := PromptYesOrNoSelect(label)
 				if response {
-					err = helpers.CreateInfra(stack, service, stackInfo, fileExist)
+					err = pickyhelpers.CreateInfra(stack, service, stackInfo, fileExist)
 				} else {
 					err = errorhandler.ExitMessage
 				}

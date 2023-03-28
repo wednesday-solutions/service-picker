@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wednesday-solutions/picky/pickyhelpers"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/helpers"
 )
 
 func PromptSelectInit(service, stack, database string) {
@@ -36,14 +36,14 @@ func PromptSelectInit(service, stack, database string) {
 	}
 	if !status || response {
 		done := make(chan bool)
-		go helpers.ProgressBar(100, "Downloading", done)
+		go pickyhelpers.ProgressBar(100, "Downloading", done)
 
 		// Clone the selected repo into service directory.
-		err := helpers.CloneRepo(stack, service, currentDir)
+		err := pickyhelpers.CloneRepo(stack, service, currentDir)
 		errorhandler.CheckNilErr(err)
 
 		// stackInfo gives the information about the stacks which is present in the root.
-		stackInfo := helpers.GetStackInfo(stack, database)
+		stackInfo := pickyhelpers.GetStackInfo(stack, database)
 
 		// Database conversion
 		if service == constants.Backend {
@@ -51,14 +51,14 @@ func PromptSelectInit(service, stack, database string) {
 			errorhandler.CheckNilErr(err)
 		}
 		// create and update docker files
-		err = helpers.CreateDockerFiles(stackInfo)
+		err = pickyhelpers.CreateDockerFiles(stackInfo)
 		errorhandler.CheckNilErr(err)
 
 		var dockerComposeFileExist bool
 		if stackInfo[constants.BackendStatus].(bool) &&
 			(stackInfo[constants.WebStatus].(bool) || stackInfo[constants.MobileStatus].(bool)) {
 			// create docker-compose file
-			err = helpers.CreateDockerComposeFile(stackInfo, dockerComposeFileExist)
+			err = pickyhelpers.CreateDockerComposeFile(stackInfo, dockerComposeFileExist)
 			if err == errorhandler.ErrExist {
 				dockerComposeFileExist = true
 			} else {
@@ -72,7 +72,7 @@ func PromptSelectInit(service, stack, database string) {
 			label := fmt.Sprintf("%s already exist, do you want to rewrite it?", constants.DockerComposeFile)
 			response = PromptYesOrNoSelect(label)
 			if response {
-				err = helpers.CreateDockerComposeFile(stackInfo, dockerComposeFileExist)
+				err = pickyhelpers.CreateDockerComposeFile(stackInfo, dockerComposeFileExist)
 				errorhandler.CheckNilErr(err)
 				fmt.Print(errorhandler.DoneMessage)
 			} else {

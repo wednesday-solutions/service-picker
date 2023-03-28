@@ -1,13 +1,13 @@
-package helpers
+package pickyhelpers
 
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/hbs"
+	"github.com/wednesday-solutions/picky/pickyhelpers/sources"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/hbs"
-	"github.com/wednesday-solutions/picky/utils/helpers/sources"
 )
 
 func CreateInfra(stack, service string, stackInfo map[string]interface{}, forceCreate bool) error {
