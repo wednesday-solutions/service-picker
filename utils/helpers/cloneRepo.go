@@ -10,13 +10,9 @@ import (
 
 func CloneRepo(stack, service, path string) error {
 
-	// Create directory in the name of selected service.
-	err := fileutils.MakeDirectory(path, service)
-	errorhandler.CheckNilErr(err)
-
 	// Download the selected stack.
 	cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
-	err = cmd.Run()
+	err := cmd.Run()
 	errorhandler.CheckNilErr(err)
 
 	// Delete cd.yml file from the cloned repo.

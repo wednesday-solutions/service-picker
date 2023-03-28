@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/wednesday-solutions/picky/utils/constants"
+	"github.com/wednesday-solutions/picky/utils/errorhandler"
 )
 
 // RootCmd is the command variable of root command picky.
@@ -16,8 +19,9 @@ func RootCmdFn() *cobra.Command {
 		Use:     constants.Picky,
 		Version: version,
 		Short:   "Service Picker",
-		Long: `
-Service Picker.
+		Long: fmt.Sprintf(`
+Hello%s
+Welcome to Service Picker.
 
 It contains a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosystem.
 
@@ -45,7 +49,7 @@ This repo will have support for production applications using the following tech
   - Redis
   - Kafka
 
-Wednesday Solutions`,
+Wednesday Solutions`, errorhandler.WaveMessage),
 	}
 	return cmd
 }
@@ -57,7 +61,10 @@ func Execute() error {
 
 	err := RootCmd.Execute()
 	if err != nil {
-		return err
+		if err == errorhandler.ErrInterrupt {
+			err = errorhandler.ExitMessage
+		}
+		errorhandler.CheckNilErr(err)
 	}
 	return nil
 }

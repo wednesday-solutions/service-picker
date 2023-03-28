@@ -1,8 +1,9 @@
-package helpers
+package prompt
 
 import (
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/helpers"
 )
 
 func ConvertTemplateDatabase(stack, database string, stackInfo map[string]interface{}) error {
@@ -26,23 +27,23 @@ func ConvertTemplateDatabase(stack, database string, stackInfo map[string]interf
 
 	if !isDatabaseSupported {
 		// Add new dependencies to package.json
-		err := UpdatePackageDotJson(stack)
+		err := helpers.UpdatePackageDotJson(stack)
 		errorhandler.CheckNilErr(err)
 
 		// Update env files with respect to new database
-		err = UpdateEnvFiles(stack)
+		err = helpers.UpdateEnvFiles(stack)
 		errorhandler.CheckNilErr(err)
 
 		// Convert DB Connection into MySQL.
-		err = UpdateDBConfig(stack, dbConfigFile, stackInfo)
+		err = helpers.UpdateDBConfig(stack, dbConfigFile, stackInfo)
 		errorhandler.CheckNilErr(err)
 
 		// Convert queries
-		err = ConvertQueries(stack)
+		err = helpers.ConvertQueries(stack)
 		errorhandler.CheckNilErr(err)
 
 		// Update docker-compose file
-		err = UpdateDockerCompose(stack, stackInfo)
+		err = helpers.UpdateDockerCompose(stack, stackInfo)
 		errorhandler.CheckNilErr(err)
 	}
 
