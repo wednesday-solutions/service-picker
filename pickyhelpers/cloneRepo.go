@@ -8,20 +8,19 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CloneRepo(stack, service, path string) error {
+func CloneRepo(stack, dirName, path string) error {
 
 	// Download the selected stack.
-	cmd := exec.Command("git", "clone", constants.Repos()[stack], service)
+	cmd := exec.Command("git", "clone", constants.Repos()[stack], dirName)
 	err := cmd.Run()
 	errorhandler.CheckNilErr(err)
 
 	// Delete cd.yml file from the cloned repo.
-	cdFilePatch := path + "/" + service + constants.CDFilePathURL
+	cdFilePatch := path + "/" + dirName + constants.CDFilePathURL
 	status, _ := fileutils.IsExists(cdFilePatch)
 	if status {
 		err = fileutils.RemoveFile(cdFilePatch)
 		errorhandler.CheckNilErr(err)
 	}
-
 	return nil
 }

@@ -23,6 +23,7 @@ func CreateDockerComposeFile(stackInfo map[string]interface{}, forceCreate bool)
 	// Don't make any changes in the below source string.
 	source := `version: '3'
 services:
+{{#if backendStatus}}
   # Setup {{database}}
   {{dbServiceName stack database}}:
     image: '{{dbVersion database}}' 
@@ -76,6 +77,7 @@ services:
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
+{{/if}}
 {{#if webStatus}} 
   # Setup {{projectName}} web
   {{projectName}}_web:

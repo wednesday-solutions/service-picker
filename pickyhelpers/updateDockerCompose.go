@@ -9,7 +9,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func UpdateDockerCompose(stack string, stackInfo map[string]interface{}) error {
+func UpdateDockerCompose(stack, dirName string, stackInfo map[string]interface{}) error {
 	var updateDockerCompose bool
 	source := `version: '3'
 services:
@@ -42,16 +42,14 @@ services:
       - .env.docker
 `
 	switch stack {
-	case constants.NodeExpressGraphqlTemplate:
-		updateDockerCompose = true
-	case constants.NodeHapiTemplate:
+	case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 		updateDockerCompose = true
 	default:
 		updateDockerCompose = false
 	}
 	if updateDockerCompose {
 		path := fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Backend,
+			dirName,
 			constants.DockerComposeFile,
 		)
 		err := hbs.ParseAndWriteToFile(source, path, stackInfo)
