@@ -43,6 +43,9 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 		constants.WebStatus:                stackInfo[constants.WebStatus].(bool),
 		constants.MobileStatus:             stackInfo[constants.MobileStatus].(bool),
 		constants.BackendStatus:            stackInfo[constants.BackendStatus].(bool),
+		constants.WebDirName:               stackInfo[constants.WebDirName].(string),
+		constants.MobileDirName:            stackInfo[constants.MobileDirName].(string),
+		constants.BackendDirName:           stackInfo[constants.BackendDirName].(string),
 	}
 	// Parse the source string into template
 	tpl, err := raymond.Parse(source)

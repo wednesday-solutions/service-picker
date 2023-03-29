@@ -53,6 +53,9 @@ func GetStackInfo(stack, database string) map[string]interface{} {
 	stackInfo[constants.Stack] = stack
 	stackInfo[constants.Database] = database
 	stackInfo[constants.ProjectName] = projectName
+	stackInfo[constants.WebDirName] = webDir
+	stackInfo[constants.MobileDirName] = mobileDir
+	stackInfo[constants.BackendDirName] = backendDir
 
 	return stackInfo
 }

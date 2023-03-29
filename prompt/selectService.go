@@ -16,12 +16,14 @@ func PromptSelectService() {
 	var initNewService, setupInfra bool
 	if len(services) > 0 && len(services) != 3 {
 		label = "Pick an option"
-		items := []string{"Init new Service", "Setup Infra"}
+		items := []string{"Init new Service", "Setup Infra", "Create docker-compose"}
 		response := PromptSelect(label, items)
 		if response == "Init new Service" {
 			initNewService = true
-		} else {
+		} else if response == "Setup Infra" {
 			setupInfra = true
+		} else if response == "Create docker-compose" {
+			PromptDockerCompose()
 		}
 	}
 	if len(services) == 3 || initNewService {

@@ -61,10 +61,13 @@ func PromptCloudProviderConfig() {
 		for i, dirName := range directories {
 			if services[i] == constants.Backend {
 				backendDir = dirName
+				label = fmt.Sprintf("Please select stack of `%s`", constants.Backend)
+				items = AvailableStacks(constants.Backend)
+				stack = PromptSelect(label, items)
 			}
 		}
 		database = PromptAllDatabases()
-		stackInfo := pickyhelpers.GetStackInfo("", database)
+		stackInfo := pickyhelpers.GetStackInfo(stack, database)
 		var fileExist bool
 		err := pickyhelpers.CreateInfra(stackInfo, fileExist, backendDir)
 		if err != nil {

@@ -31,7 +31,7 @@ services:
       - {{portConnection database}} 
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
-      - {{envFileBackend database}}
+      - ./{{backendDirName}}/.env.docker
     volumes:
       - {{projectName}}_db_volume:/var/lib/{{databaseVolume database}}
 {{#equal stack GolangPostgreSQL}}
@@ -67,13 +67,13 @@ services:
   # Setup {{projectName}} API
   {{projectName}}_api:
     build:
-      context: './backend'
+      context: './{{backendDirName}}'
       args:
         ENVIRONMENT_NAME: docker
     ports:
       - {{portConnection backend}}
     env_file:
-      - {{envFileBackend database}}
+      - ./{{backendDirName}}/.env.docker
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
@@ -82,11 +82,11 @@ services:
   # Setup {{projectName}} web
   {{projectName}}_web:
     build:
-      context: './web'
+      context: './{{webDirName}}'
     ports:
       - {{portConnection web}}
     env_file:
-      - ./web/.env.docker
+      - ./{{webDirName}}/.env.docker
 {{/if}}
 
 # Setup Volumes
