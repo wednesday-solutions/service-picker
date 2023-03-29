@@ -22,7 +22,7 @@ func PromptSelectInit(service, stack, database, dirName string) {
 	status, _ := fileutils.IsExists(destination)
 	var response bool
 	if status {
-		label = fmt.Sprintf("The `%s` already exists, do you want to rewrite it", dirName)
+		label = fmt.Sprintf("The `%s` already exists, do you want to update it", dirName)
 		response = PromptYesOrNoSelect(label)
 		if response {
 			// Delete all contents of existing directory.

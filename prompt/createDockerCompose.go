@@ -26,7 +26,7 @@ func GenerateDockerCompose() {
 	response := true
 	status, _ := fileutils.IsExists(filepath.Join(fileutils.CurrentDirectory(), constants.DockerComposeFile))
 	if status {
-		label = fmt.Sprintf("%s already exist, do you want to rewrite it", constants.DockerComposeFile)
+		label = fmt.Sprintf("%s already exist, do you want to update it", constants.DockerComposeFile)
 		response = PromptYesOrNoSelect(label)
 	}
 	if response {
@@ -57,7 +57,7 @@ func PromptCreateDockerCompose(service, stack, database string, stackInfo map[st
 			}
 			status, _ := fileutils.IsExists(filepath.Join(fileutils.CurrentDirectory(), constants.DockerComposeFile))
 			if status {
-				label = fmt.Sprintf("%s already exist, do you want to rewrite it", constants.DockerComposeFile)
+				label = fmt.Sprintf("%s already exist, do you want to update it", constants.DockerComposeFile)
 				response = PromptYesOrNoSelect(label)
 			}
 			if response {
