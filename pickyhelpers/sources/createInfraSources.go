@@ -45,7 +45,7 @@ func SstConfigJsSource() string {
 import { WebStack } from "./stacks/WebStack";
 {{/if}}
 {{#if backendStatus}}
-import { BackendStack } from "./stack/BackendStack";
+import { BackendStack } from "./stacks/BackendStack";
 {{/if}}
 
 dotenv.config({ path: ".env" });

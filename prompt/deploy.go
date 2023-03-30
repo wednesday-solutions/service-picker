@@ -2,6 +2,12 @@ package prompt
 
 import "fmt"
 
-func DeployToAWS() {
-	fmt.Println("Work in progress...!")
+func PromptDeploy() {
+	label := "Do you want to deploy your project"
+	response := PromptYesOrNoSelect(label)
+	if response {
+		_ = PromptCloudProvider()
+	}
+	fmt.Println("Work in progress. Please stay tuned..!")
+	PromptHome()
 }

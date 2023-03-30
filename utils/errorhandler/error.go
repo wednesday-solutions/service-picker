@@ -1,7 +1,8 @@
 package errorhandler
 
 import (
-	"log"
+	"fmt"
+	"os"
 )
 
 func CheckNilErr(err error) {
@@ -10,6 +11,7 @@ func CheckNilErr(err error) {
 		if err.Error() == ErrInterrupt.Error() {
 			err = ExitMessage
 		}
-		log.Fatal(err) // it will throw error and stop execution.
+		fmt.Print(err)
+		os.Exit(1)
 	}
 }

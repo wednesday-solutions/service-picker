@@ -2,62 +2,19 @@ package prompt
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/wednesday-solutions/picky/utils"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func AvailableServices() []string {
-	var items []string
-	serviceStatuses, _ := utils.ServicesExist()
-	if len(serviceStatuses) != 0 {
-		if _, ok := serviceStatuses[constants.WebStatus]; !ok {
-			items = append(items, constants.Web)
-		}
-		if _, ok := serviceStatuses[constants.MobileStatus]; !ok {
-			items = append(items, constants.Mobile)
-		}
-		if _, ok := serviceStatuses[constants.BackendStatus]; !ok {
-			items = append(items, constants.Backend)
-		}
-	} else {
-		items = []string{constants.Web, constants.Mobile, constants.Backend}
-	}
-	return items
+func AllServices() []string {
+	return []string{constants.Web, constants.Mobile, constants.Backend}
 }
 
-func ExistingServices() []string {
-	var items []string
-	serviceStatuses, _ := utils.ServicesExist()
-	if len(serviceStatuses) != 0 {
-		if _, ok := serviceStatuses[constants.WebStatus]; ok {
-			items = append(items, constants.Web)
-		}
-		if _, ok := serviceStatuses[constants.MobileStatus]; ok {
-			items = append(items, constants.Mobile)
-		}
-		if _, ok := serviceStatuses[constants.BackendStatus]; ok {
-			items = append(items, constants.Backend)
-		}
-	}
-	return items
-}
-
-func ExistingServicesAndDirName() ([]string, []string) {
-	var services []string
-	var directories []string
-	_, serviceDirectories := utils.ServicesExist()
-	if len(serviceDirectories) != 0 {
-		for service, dirName := range serviceDirectories {
-			services = append(services, service)
-			directories = append(directories, dirName)
-		}
-	}
-	return services, directories
-}
-
-func AvailableStacks(service string) []string {
+func AllStacksOfService(service string) []string {
 	var items []string
 	switch service {
 	case constants.Web:
@@ -69,10 +26,10 @@ func AvailableStacks(service string) []string {
 			constants.GolangEchoTemplate,
 		}
 	case constants.Mobile:
-		items = []string{constants.ReactNativeTemplate,
-			constants.AndroidTemplate,
-			constants.IOSTemplate,
-			constants.FlutterTemplate,
+		items = []string{constants.ReactNative,
+			constants.Android,
+			constants.IOS,
+			constants.Flutter,
 		}
 	default:
 		errorhandler.CheckNilErr(fmt.Errorf("Selected stack is invalid"))
@@ -80,15 +37,52 @@ func AvailableStacks(service string) []string {
 	return items
 }
 
-func PromptSelectStackConfig(service, stack, database, dirName string) {
-	configLabel := "Choose the config to setup"
-	configItems := []string{constants.Init, constants.CloudNative}
+func GetDirectoryName(stack, database string) string {
+	suffix := "(will add suffix)"
+	label := fmt.Sprintf("Please enter a name for the '%s'%s", stack, suffix)
+	dirName := PromptGetInput(label)
+	dirName = utils.DirectoryName(dirName, stack, database)
+	status := true
+	var err error
+	for status {
+		status, err = fileutils.IsExists(filepath.Join(fileutils.CurrentDirectory(), dirName))
+		errorhandler.CheckNilErr(err)
+		if status {
+			label = "Entered name already exists. Please enter another name"
+			dirName = PromptGetInput(label)
+			dirName = utils.DirectoryName(dirName, stack, database)
+		}
+	}
+	return dirName
+}
 
-	selectedConfig := PromptSelect(configLabel, configItems)
-
-	if selectedConfig == constants.Init {
-		PromptSelectInit(service, stack, database, dirName)
+func PromptExit() {
+	response := PromptConfirm()
+	if response {
+		Exit()
 	} else {
-		PromptSetupInfra()
+		PromptHome()
+	}
+}
+
+func PromptConfirm() bool {
+	label := "Are you sure?"
+	return PromptYesOrNoSelect(label)
+}
+
+func Exit() {
+	errorhandler.CheckNilErr(errorhandler.ErrInterrupt)
+}
+
+func PromptSelectExistingDirectories() []string {
+	label := "Select existing service"
+	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
+	items := directories
+	items = append(items, "All")
+	response := PromptSelect(label, items)
+	if response == "All" {
+		return directories
+	} else {
+		return []string{response}
 	}
 }

@@ -12,22 +12,42 @@ import (
 )
 
 func PromptSelectInit(service, stack, database, dirName string) {
+	response := true
+	for response {
+		label := fmt.Sprintf("Do you want to initialize '%s' as '%s'", stack, dirName)
+		response = PromptYesOrNoSelect(label)
+		if response {
+			Init(service, stack, database, dirName)
+		} else {
+			response = PromptConfirm()
+			if response {
+				PromptHome()
+			} else {
+				response = true
+			}
+		}
+	}
+}
+
+func Init(service, stack, database, dirName string) {
 
 	var label string
 	currentDir := fileutils.CurrentDirectory()
 	if stack == constants.GolangEchoTemplate {
-		stack = fmt.Sprintf("%s%s", strings.Split(stack, " ")[0], database)
+		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
 	}
 	destination := filepath.Join(currentDir, dirName)
 	status, _ := fileutils.IsExists(destination)
 	var response bool
-	if status {
-		label = fmt.Sprintf("The `%s` already exists, do you want to update it", dirName)
+	for status {
+		label = fmt.Sprintf("The '%s' already exists, do you want to update it", dirName)
 		response = PromptYesOrNoSelect(label)
 		if response {
 			// Delete all contents of existing directory.
 			err := fileutils.RemoveAllContents(destination)
 			errorhandler.CheckNilErr(err)
+		} else {
+			PromptHome()
 		}
 	}
 	if !status {
@@ -58,15 +78,12 @@ func PromptSelectInit(service, stack, database, dirName string) {
 
 		<-done
 		fmt.Printf("\nDownloading %s", errorhandler.CompleteMessage)
-
-		err = PromptCreateDockerCompose(service, stack, database, stackInfo)
-		errorhandler.CheckNilErr(err)
 	}
 	label = "Do you want to initialize another service"
 	response = PromptYesOrNoSelect(label)
 	if response {
 		PromptSelectService()
 	} else {
-		PromptSetupInfra()
+		PromptHome()
 	}
 }

@@ -14,32 +14,14 @@ func PromptSelect(label string, items []string) string {
 		Active:   "{{ . | green }}",
 		Selected: "{{ . | cyan }}",
 	}
-	keys := &promptui.SelectKeys{
-		Next: promptui.Key{
-			Code:    promptui.KeyNext,
-			Display: promptui.KeyNextDisplay,
-		},
-		Prev: promptui.Key{
-			Code:    promptui.KeyPrev,
-			Display: promptui.KeyPrevDisplay,
-		},
-		PageUp: promptui.Key{
-			Code:    promptui.KeyBackward,
-			Display: promptui.KeyBackwardDisplay,
-		},
-		PageDown: promptui.Key{
-			Code:    promptui.KeyForward,
-			Display: promptui.KeyForwardDisplay,
-		},
-	}
 
 	prompt := promptui.Select{
 		Label:     label,
 		Items:     items,
 		Templates: templates,
 		IsVimMode: false,
-		Keys:      keys,
 		Pointer:   promptui.DefaultCursor,
+		Size:      constants.SizeOfPromptSelect,
 	}
 
 	_, result, err := prompt.Run()
@@ -55,8 +37,8 @@ func PromptSelect(label string, items []string) string {
 func PromptGetInput(label string) string {
 
 	validate := func(input string) error {
-		if len(input) <= 2 {
-			return fmt.Errorf("Length should be greater than 2%s\n", errorhandler.Exclamation)
+		if len(input) <= 1 {
+			return fmt.Errorf("Length should be greater than 1%s\n", errorhandler.Exclamation)
 		}
 		return nil
 	}

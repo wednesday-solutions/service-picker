@@ -7,8 +7,8 @@ var Repos = func() map[string]string {
 		"Node (Hapi- REST API)":       "https://github.com/wednesday-solutions/nodejs-hapi-template",
 		"Node (Express- GraphQL API)": "https://github.com/wednesday-solutions/node-express-graphql-template",
 		"Node (Express- REST API)":    "https://github.com/wednesday-solutions/node-mongo-express",
-		"GolangPostgreSQL":            "https://github.com/wednesday-solutions/go-template",
-		"GolangMySQL":                 "https://github.com/wednesday-solutions/go-template-mysql",
+		"Golang-PostgreSQL":           "https://github.com/wednesday-solutions/go-template",
+		"Golang-MySQL":                "https://github.com/wednesday-solutions/go-template-mysql",
 		"React Native":                "https://github.com/wednesday-solutions/react-native-template",
 		"Android":                     "https://github.com/wednesday-solutions/android-template",
 		"IOS":                         "https://github.com/wednesday-solutions/ios-template",
@@ -46,10 +46,10 @@ const (
 
 // Mobile stacks
 const (
-	ReactNativeTemplate = "React Native"
-	AndroidTemplate     = "Android"
-	IOSTemplate         = "IOS"
-	FlutterTemplate     = "Flutter"
+	ReactNative = "React Native"
+	Android     = "Android"
+	IOS         = "IOS"
+	Flutter     = "Flutter"
 )
 
 // Databases
@@ -106,11 +106,12 @@ const (
 	WebStatus                = "webStatus"
 	MobileStatus             = "mobileStatus"
 	BackendStatus            = "backendStatus"
-	GolangPostgreSQLTemplate = "GolangPostgreSQL"
-	GolangMySQLTemplate      = "GolangMySQL"
+	GolangPostgreSQLTemplate = "Golang-PostgreSQL"
+	GolangMySQLTemplate      = "Golang-MySQL"
 	WebDirName               = "webDirName"
 	MobileDirName            = "mobileDirName"
 	BackendDirName           = "backendDirName"
+	SizeOfPromptSelect       = 8
 )
 
 // Docker related files
@@ -119,4 +120,21 @@ const (
 	DockerFile        = "Dockerfile"
 	DockerEnvFile     = ".env.docker"
 	DockerIgnoreFile  = ".dockerignore"
+)
+
+// Template directory name
+const (
+	NodeHapiPgTemplate       = "node-hapi-pg"
+	NodeHapiMySqlTemplate    = "node-hapi-mysql"
+	NodeGraphqlPgTemplate    = "node-graphql-pg"
+	NodeGraphqlMySqlTemplate = "node-graphql-mysql"
+	NodeExpressMongoTemplate = "node-express-mongo"
+	GolangPgTemplate         = "golang-pg"
+	GolangMySqlTemplate      = "golang-mysql"
+	ReactTemplate            = "react-web"
+	NextTemplate             = "next-web"
+	ReactNativeTemplate      = "reactnative-mobile"
+	AndroidTemplate          = "android-mobile"
+	IOSTemplate              = "ios-mobile"
+	FlutterTemplate          = "flutter-mobile"
 )
