@@ -6,6 +6,7 @@ import (
 
 	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/pickyhelpers/sources"
+	"github.com/wednesday-solutions/picky/utils"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
@@ -21,14 +22,14 @@ func IsInfraFilesExist() bool {
 	}
 	for _, file := range files {
 		status, _ := fileutils.IsExists(filepath.Join(path, file))
-		if status {
-			return true
+		if !status {
+			return false
 		}
 	}
-	return false
+	return true
 }
 
-func CreateInfraSetup(stackInfo map[string]interface{}) error {
+func CreateInfraSetup() error {
 
 	infraFiles := make(map[string]string)
 	// package.json file
@@ -40,49 +41,50 @@ func CreateInfraSetup(stackInfo map[string]interface{}) error {
 	var path string
 	for file, source := range infraFiles {
 		path = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), file)
-		if file == constants.SstConfigJsFile {
-			err = hbs.ParseAndWriteToFile(source, path, stackInfo)
-		} else {
-			err = fileutils.WriteToFile(path, source)
-		}
+		err = fileutils.WriteToFile(path, source)
 		errorhandler.CheckNilErr(err)
 	}
 	return nil
 }
 
-func CreateInfraStacks(service, stack, database, dirName string, stackInfo map[string]interface{}) error {
+func CreateInfraStacks(service, stack, dirName string) error {
 	var err error
+	var stackFileName string
 	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.Stacks)
 	folderExist, _ := fileutils.IsExists(path)
 	if !folderExist {
 		err = fileutils.MakeDirectory(fileutils.CurrentDirectory(), constants.Stacks)
 		errorhandler.CheckNilErr(err)
 	}
-	dirName = fmt.Sprintf("%s%s", dirName, ".js")
-	path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), constants.Stacks, dirName)
+	stackFileName = fmt.Sprintf("%s%s", dirName, ".js")
+	path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), constants.Stacks, stackFileName)
 	var source string
-	status, _ := fileutils.IsExists(path)
-	if !status {
-		switch service {
-		case constants.Web:
-			source = sources.WebStackJsSource()
-		case constants.Mobile:
-			// not implemented
-		case constants.Backend:
-			source = sources.BackendStackJsSource()
-		}
-		err = fileutils.WriteToFile(path, source)
-		errorhandler.CheckNilErr(err)
 
-		// SST config file for backend and web.
-		sstConfigSource := sources.SstConfigJsSource()
-		path = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigJsFile)
-		err = hbs.ParseAndWriteToFile(sstConfigSource, path, stackInfo)
-		errorhandler.CheckNilErr(err)
-	} else {
-		return errorhandler.ErrExist
+	switch service {
+	case constants.Web:
+		source = sources.WebStackJsSource(dirName)
+	case constants.Mobile:
+		// not implemented
+	case constants.Backend:
+		source = sources.BackendStackJsSource(dirName)
 	}
-	return nil
+	err = fileutils.WriteToFile(path, source)
+	return err
+}
+
+func CreateSstConfigFile(stackInfo map[string]interface{},
+	all bool, dirName string, directories []string,
+) error {
+	sstConfigSource := sources.SstConfigJsSource()
+	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigJsFile)
+	stackInfo[constants.SstConfigStack] = dirName
+	if all {
+		// SST config file for all existing stacks.
+		camelCaseDirectories := utils.ToCamelCase(directories)
+		stackInfo[constants.ExistingDirectories] = camelCaseDirectories
+	}
+	err := hbs.ParseAndWriteToFile(sstConfigSource, path, stackInfo)
+	return err
 }
 
 func UpdateEnvDevelopment(dirName string) error {

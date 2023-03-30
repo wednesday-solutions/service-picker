@@ -21,6 +21,7 @@ func init() {
 	raymond.RegisterHelper("cmdDockerfile", CmdDockerfile)
 	raymond.RegisterHelper("envEnvironmentName", EnvEnvironmentName)
 	raymond.RegisterHelper("deployStacks", DeployStacks)
+	raymond.RegisterHelper("sstImportStacks", SstImportStacks)
 }
 
 func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface{}) error {
@@ -44,6 +45,8 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 		constants.WebDirName:               stackInfo[constants.WebDirName].(string),
 		constants.MobileDirName:            stackInfo[constants.MobileDirName].(string),
 		constants.BackendDirName:           stackInfo[constants.BackendDirName].(string),
+		constants.SstConfigStack:           stackInfo[constants.SstConfigStack].(string),
+		constants.ExistingDirectories:      stackInfo[constants.ExistingDirectories].([]string),
 	}
 	// Parse the source string into template
 	tpl, err := raymond.Parse(source)

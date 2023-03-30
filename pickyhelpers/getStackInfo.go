@@ -50,6 +50,8 @@ func GetStackInfo(stack, database string) map[string]interface{} {
 	stackInfo[constants.WebDirName] = webDir
 	stackInfo[constants.MobileDirName] = mobileDir
 	stackInfo[constants.BackendDirName] = backendDir
+	stackInfo[constants.SstConfigStack] = constants.All
+	stackInfo[constants.ExistingDirectories] = directories
 
 	return stackInfo
 }

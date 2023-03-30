@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
@@ -136,4 +137,12 @@ func FindService(dirName string) string {
 		}
 	}
 	return ""
+}
+
+func ToCamelCase(slice []string) []string {
+	camelSlice := []string{}
+	for _, str := range slice {
+		camelSlice = append(camelSlice, strcase.ToCamel(str))
+	}
+	return camelSlice
 }

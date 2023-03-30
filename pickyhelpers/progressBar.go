@@ -16,7 +16,7 @@ func ProgressBar(max int, description string, done chan bool) {
 		progressbar.OptionSetWidth(75),
 		progressbar.OptionSetDescription(fmt.Sprintf("[cyan][1/1][reset] %s...", description)),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]-[reset]",
+			Saucer:        "[green]=[reset]",
 			SaucerHead:    "[green]>[reset]",
 			SaucerPadding: " ",
 			BarStart:      "[",
