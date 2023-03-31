@@ -10,7 +10,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func GetStackInfo(stack, database string) map[string]interface{} {
+func GetStackInfo(stack, database, environment string) map[string]interface{} {
 
 	var webDir, mobileDir, backendDir, service string
 	currentDir := fileutils.CurrentDirectory()
@@ -52,6 +52,7 @@ func GetStackInfo(stack, database string) map[string]interface{} {
 	stackInfo[constants.BackendDirName] = backendDir
 	stackInfo[constants.SstConfigStack] = constants.All
 	stackInfo[constants.ExistingDirectories] = directories
+	stackInfo[constants.Environment] = environment
 
 	return stackInfo
 }

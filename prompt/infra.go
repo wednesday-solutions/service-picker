@@ -15,9 +15,11 @@ func PromptSetupInfra() {
 	response := PromptYesOrNoSelect(label)
 	if response {
 		cloudProvider := PromptCloudProvider()
-		directories, all := PromptSelectExistingDirectories()
-		err := CreateInfra(directories, cloudProvider, all)
+		services, all := PromptSelectExistingServices()
+		environment := PromptEnvironment()
+		err := CreateInfra(services, cloudProvider, all, environment)
 		errorhandler.CheckNilErr(err)
+		PromptDeployAfterInfra(services)
 	}
 	PromptHome()
 }
@@ -28,7 +30,13 @@ func PromptCloudProvider() string {
 	return PromptSelect(label, items)
 }
 
-func CreateInfra(directories []string, cloudProvider string, all bool) error {
+func PromptEnvironment() string {
+	label := "Choose an environment"
+	items := []string{constants.Development, constants.QA, constants.Production}
+	return PromptSelect(label, items)
+}
+
+func CreateInfra(directories []string, cloudProvider string, all bool, environment string) error {
 	if cloudProvider == constants.AWS {
 		status := pickyhelpers.IsInfraFilesExist()
 		var (
@@ -37,7 +45,7 @@ func CreateInfra(directories []string, cloudProvider string, all bool) error {
 			err             error
 		)
 		done := make(chan bool)
-		go pickyhelpers.ProgressBar(30, "Generating", done)
+		go pickyhelpers.ProgressBar(20, "Generating", done)
 
 		if !status {
 			err = pickyhelpers.CreateInfraSetup()
@@ -47,10 +55,10 @@ func CreateInfra(directories []string, cloudProvider string, all bool) error {
 		for _, dirName := range directories {
 			service := utils.FindService(dirName)
 			stack, database = utils.FindStackAndDatabase(dirName)
-			stackInfo = pickyhelpers.GetStackInfo(stack, database)
+			stackInfo = pickyhelpers.GetStackInfo(stack, database, environment)
 
 			camelCaseDirName = strcase.ToCamel(dirName)
-			err = pickyhelpers.CreateInfraStacks(service, stack, camelCaseDirName)
+			err = pickyhelpers.CreateInfraStacks(service, stack, database, dirName, environment)
 			if err != nil {
 				if err.Error() != errorhandler.ErrExist.Error() {
 					errorhandler.CheckNilErr(err)
@@ -61,7 +69,7 @@ func CreateInfra(directories []string, cloudProvider string, all bool) error {
 				errorhandler.CheckNilErr(err)
 			}
 			if service == constants.Backend {
-				err = pickyhelpers.UpdateEnvDevelopment(dirName)
+				err = pickyhelpers.UpdateEnvDevelopment(dirName, environment)
 				errorhandler.CheckNilErr(err)
 			}
 		}

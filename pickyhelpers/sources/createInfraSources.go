@@ -1,6 +1,11 @@
 package sources
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/iancoleman/strcase"
+	"github.com/wednesday-solutions/picky/utils/constants"
+)
 
 func PackageDotJsonSource() string {
 
@@ -65,15 +70,24 @@ export default {
 	return source
 }
 
-func WebStackJsSource(dirName string) string {
+func WebStackJsSource(dirName, environment string) string {
+	var shortEnvironment string
+	switch environment {
+	case constants.Development:
+		shortEnvironment = constants.Dev
+	case constants.QA:
+		shortEnvironment = constants.QA
+	case constants.Production:
+		shortEnvironment = constants.Prod
+	}
 
 	source := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 		
 export function %s({ stack }) {
 	// Deploy our web app
-	const site = new StaticSite(stack, "WebSite", {
+	const site = new StaticSite(stack, "%sSite", {
 		path: "/",
-		buildCommand: "yarn run build:prod",
+		buildCommand: "yarn run build:%s",
 		buildOutput: "out",
 	});
 
@@ -82,11 +96,41 @@ export function %s({ stack }) {
 		SiteUrl: site.url || "http://localhost:3000/",
 	});
 }
-`, dirName)
+`, dirName, dirName, shortEnvironment)
 	return source
 }
 
-func BackendStackJsSource(dirName string) string {
+func BackendStackJsSource(database, dirName, environment string) string {
+	var shortEnvironment string
+	switch environment {
+	case constants.Development:
+		shortEnvironment = "develop"
+	case constants.QA:
+		shortEnvironment = constants.QA
+	case constants.Production:
+		shortEnvironment = constants.Production
+	}
+	camelCaseDirName := strcase.ToCamel(dirName)
+	var (
+		dbEngineVersion string
+		dbPortNumber    string
+		dbEngine        string
+		db_uri          string
+		dbHost          string
+	)
+	if database == constants.PostgreSQL {
+		dbEngineVersion = "PostgresEngineVersion"
+		dbPortNumber = "5432"
+		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
+		db_uri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${db}`"
+		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
+	} else if database == constants.MySQL {
+		dbEngineVersion = "MysqlEngineVersion"
+		dbPortNumber = "3306"
+		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_23,\n\t\t\t})"
+		db_uri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${db}`"
+		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
+	}
 
 	source := fmt.Sprintf(`import * as cdk from "aws-cdk-lib";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -97,7 +141,7 @@ import * as secretsManager from "aws-cdk-lib/aws-secretsmanager";
 import {
 	DatabaseInstance,
 	DatabaseInstanceEngine,
-	MysqlEngineVersion,
+	%s,
 	Credentials,
 } from "aws-cdk-lib/aws-rds";
 import { CfnOutput } from "aws-cdk-lib";
@@ -106,7 +150,7 @@ import { Platform } from "aws-cdk-lib/aws-ecr-assets";
 
 export function %s({ stack }) {
 	const clientName = "test-sst-ecs";
-	const environment = "develop";
+	const environment = "%s";
 	const clientPrefix = %s${clientName}-${environment}%s;
 
 	const vpc = new ec2.Vpc(stack, %s${clientPrefix}-vpc%s, {
@@ -162,12 +206,12 @@ export function %s({ stack }) {
 
 	databaseSecurityGroup.addIngressRule(
 		ecsSG,
-		ec2.Port.tcp(3306),
+		ec2.Port.tcp(%s),
 		"Permit the database to accept requests from the fargate service"
 	);
 
 	// database
-	const mysqlUsername = "username";
+	const dbUsername = "username";
 
 	const databaseCredentialsSecret = new secretsManager.Secret(
 		stack,
@@ -179,14 +223,14 @@ export function %s({ stack }) {
 				excludeCharacters: "\"@/\\ '",
 				generateStringKey: "password",
 				passwordLength: 30,
-				secretStringTemplate: JSON.stringify({ username: mysqlUsername }),
+				secretStringTemplate: JSON.stringify({ username: dbUsername }),
 			},
 		}
 	);
 
-	const mysqlCredentials = Credentials.fromSecret(
+	const databaseCredentials = Credentials.fromSecret(
 		databaseCredentialsSecret,
-		mysqlUsername
+		dbUsername
 	);
 
 	const database = new DatabaseInstance(
@@ -195,10 +239,8 @@ export function %s({ stack }) {
 		{
 			vpc,
 			securityGroups: [databaseSecurityGroup],
-			credentials: mysqlCredentials,
-			engine: DatabaseInstanceEngine.mysql({
-				version: MysqlEngineVersion.VER_8_0_23,
-			}),
+			credentials: databaseCredentials,
+			engine: %s,
 			removalPolicy: cdk.RemovalPolicy.DESTROY, // CHANGE TO .SNAPSHOT FOR PRODUCTION
 			instanceType: ec2.InstanceType.of(
 				ec2.InstanceClass.BURSTABLE3,
@@ -327,13 +369,13 @@ export function %s({ stack }) {
 
 	const db = "sst_test_database";
 
-	const DB_URI = %smysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${db}%s;
+	const DB_URI = %s;
 
-	const image = ecs.ContainerImage.fromAsset("backend/", {
+	const image = ecs.ContainerImage.fromAsset("%s/", {
 		exclude: ["node_modules", ".git"],
 		platform: Platform.LINUX_AMD64,
 		buildArgs: {
-			ENVIRONMENT_NAME: "development",
+			ENVIRONMENT_NAME: "%s",
 		},
 	});
 
@@ -341,10 +383,10 @@ export function %s({ stack }) {
 		image,
 		memoryLimitMiB: 512,
 		environment: {
-			BUILD_NAME: "develop",
-			ENVIRONMENT_NAME: "development",
+			BUILD_NAME: "%s",
+			ENVIRONMENT_NAME: "%s",
 			DB_URI,
-			MYSQL_HOST: database.dbInstanceEndpointAddress,
+			%s,
 			REDIS_HOST: redisCache.attrRedisEndpointAddress,
 		},
 		logging: ecs.LogDriver.awsLogs({
@@ -379,21 +421,23 @@ export function %s({ stack }) {
 		value: redisCache.attrRedisEndpointAddress,
 	});
 }
-`, dirName, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", "`", "`",
+`, dbEngineVersion, camelCaseDirName, shortEnvironment, "`", "`", "`", "`", "`",
+		"`", "`", "`", "`", "`", dbPortNumber, "`", "`", "`", "`", "`", "`",
+		dbEngine, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
+		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
+		"`", "`", db_uri, dirName, environment, "`", "`", shortEnvironment,
+		environment, dbHost, "`", "`", "`", "`",
 	)
 
 	return source
 }
 
-func EnvDevSource() string {
+func EnvDevSource(environment string) string {
 
-	source := `NAME=Node Template (DEV)
-NODE_ENV=development
-ENVIRONMENT_NAME=development
-PORT=9000`
+	source := fmt.Sprintf(`NAME=Node Template
+NODE_ENV=%s
+ENVIRONMENT_NAME=%s
+PORT=9000`, environment, environment)
 
 	return source
 }

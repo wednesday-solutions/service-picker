@@ -10,8 +10,8 @@ func PromptCreateCD() {
 	label := "Do you want to create CD file"
 	response := PromptYesOrNoSelect(label)
 	if response {
-		directories, _ := PromptSelectExistingDirectories()
-		err := CreateCD(directories)
+		services, _ := PromptSelectExistingServices()
+		err := CreateCD(services)
 		errorhandler.CheckNilErr(err)
 	}
 	PromptHome()

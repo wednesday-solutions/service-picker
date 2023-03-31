@@ -141,3 +141,13 @@ const (
 	IOSTemplate              = "ios-mobile"
 	FlutterTemplate          = "flutter-mobile"
 )
+
+// Environments
+const (
+	Environment = "environment"
+	Dev         = "dev"
+	QA          = "qa"
+	Prod        = "prod"
+	Development = "development"
+	Production  = "production"
+)
