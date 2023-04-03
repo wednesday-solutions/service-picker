@@ -140,29 +140,21 @@ func EnvEnvironmentName() string {
 	return "`.env.${process.env.ENVIRONMENT_NAME}`"
 }
 
-func DeployStacks(dirName string, directories []string) string {
-	var source string
-	if dirName == constants.All {
-		for _, dir := range directories {
-			source = fmt.Sprintf("%s.stack(%s)", source, dir)
-		}
-		source = fmt.Sprintf("app%s;", source)
-	} else {
-		source = fmt.Sprintf("app.stack(%s);", dirName)
+func DeployStacks(stackFiles []string) string {
+	var deployStackSource string
+	for _, stack := range stackFiles {
+		// will append all the selected stack files to deploy in sst.config.js
+		deployStackSource = fmt.Sprintf("%s.stack(%s)", deployStackSource, stack)
 	}
-	return source
+	deployStackSource = fmt.Sprintf("app%s;", deployStackSource)
+	return deployStackSource
 }
 
-func SstImportStacks(dirName string, directories []string) string {
-	var source string
-	if dirName == constants.All {
-		// import all existing stacks
-		for _, dirName := range directories {
-			source = fmt.Sprintf("%simport { %s } from %s./stacks/%s%s;\n", source, dirName, `"`, dirName, `"`)
-		}
-	} else {
-		// import only one stack
-		source = fmt.Sprintf("import { %s } from %s./stacks/%s%s;\n", dirName, `"`, dirName, `"`)
+func SstImportStacks(stackFiles []string) string {
+	var importStackSource string
+	// import all existing stacks in sst.config.js
+	for _, stack := range stackFiles {
+		importStackSource = fmt.Sprintf("%simport { %s } from %s./stacks/%s%s;\n", importStackSource, stack, `"`, stack, `"`)
 	}
-	return source
+	return importStackSource
 }
