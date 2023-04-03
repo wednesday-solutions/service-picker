@@ -1,5 +1,7 @@
 package constants
 
+import "github.com/spaceweasel/promptui"
+
 var Repos = func() map[string]string {
 	return map[string]string{
 		"ReactJS":                     "https://github.com/wednesday-solutions/react-template",
@@ -21,6 +23,16 @@ const (
 	Picky   = "picky"
 	Service = "service"
 	Test    = "test"
+)
+
+// Home options
+const (
+	InitService         = "Init Service"
+	CreateDockerCompose = "Create docker-compose"
+	CreateCD            = "Create CD"
+	SetupInfra          = "Setup Infra"
+	Deploy              = "Deploy"
+	Exit                = "Exit"
 )
 
 // Services
@@ -59,15 +71,6 @@ const (
 	MongoDB    = "MongoDB"
 )
 
-// Features
-const (
-	Init        = "init"
-	CloudNative = "cloud native"
-	AWS         = "AWS"
-	CreateCD    = "create CD pipeline"
-	CreateInfra = "create Infra"
-)
-
 // Github Repo download URL
 const (
 	GitHubBaseURL                  = "https://raw.githubusercontent.com/wednesday-solutions/"
@@ -89,6 +92,11 @@ const (
 	BackendStackJsFile = "BackendStack.js"
 	EnvFile            = ".env"
 	EnvDevFile         = ".env.development"
+)
+
+// Cloud Providers
+const (
+	AWS = "AWS"
 )
 
 // helpers
@@ -150,4 +158,12 @@ const (
 	Prod        = "prod"
 	Development = "development"
 	Production  = "production"
+)
+
+// UI icons
+var (
+	IconChoose = promptui.Styler(promptui.FGBold)("▸")
+	IconSelect = promptui.Styler(promptui.FGGreen)("✔")
+	IconWarn   = promptui.Styler(promptui.FGYellow)("⚠")
+	IconWrong  = promptui.Styler(promptui.FGRed)("✗")
 )

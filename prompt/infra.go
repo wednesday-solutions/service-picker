@@ -3,7 +3,6 @@ package prompt
 import (
 	"fmt"
 
-	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/pickyhelpers"
 	"github.com/wednesday-solutions/picky/utils"
 	"github.com/wednesday-solutions/picky/utils/constants"
@@ -11,33 +10,47 @@ import (
 )
 
 func PromptSetupInfra() {
-	label := "Do you want to setup infrastructure for your project"
-	response := PromptYesOrNoSelect(label)
+	var p PromptInput
+	p.Label = "Do you want to setup infrastructure for your project"
+	p.GoBack = PromptHome
+	response := p.PromptYesOrNoSelect()
 	if response {
 		cloudProvider := PromptCloudProvider()
-		services, all := PromptSelectExistingServices()
+		var stacks []string
+		var all bool
+		for {
+			stacks = PromptSelectExistingStacks()
+			if len(stacks) > 0 {
+				break
+			}
+		}
 		environment := PromptEnvironment()
-		err := CreateInfra(services, cloudProvider, all, environment)
+		err := CreateInfra(stacks, cloudProvider, all, environment)
 		errorhandler.CheckNilErr(err)
-		PromptDeployAfterInfra(services)
+		PromptDeployAfterInfra(stacks)
 	}
 	PromptHome()
 }
 
 func PromptCloudProvider() string {
-	label := "Choose a cloud provider"
-	items := []string{constants.AWS}
-	return PromptSelect(label, items)
+	var p PromptInput
+	p.Label = "Choose a cloud provider"
+	p.Items = []string{constants.AWS, constants.GCP, constants.Azure}
+	p.GoBack = PromptHome
+	return p.PromptSelect()
 }
 
 func PromptEnvironment() string {
-	label := "Choose an environment"
-	items := []string{constants.Development, constants.QA, constants.Production}
-	return PromptSelect(label, items)
+	var p PromptInput
+	p.Label = "Choose an environment"
+	p.Items = []string{constants.Development, constants.QA, constants.Production}
+	p.GoBack = PromptHome
+	return p.PromptSelect()
 }
 
 func CreateInfra(directories []string, cloudProvider string, all bool, environment string) error {
-	if cloudProvider == constants.AWS {
+	switch cloudProvider {
+	case constants.AWS:
 		status := pickyhelpers.IsInfraFilesExist()
 		var (
 			stack, database string
@@ -51,34 +64,28 @@ func CreateInfra(directories []string, cloudProvider string, all bool, environme
 			err = pickyhelpers.CreateInfraSetup()
 			errorhandler.CheckNilErr(err)
 		}
-		var camelCaseDirName string
 		for _, dirName := range directories {
 			service := utils.FindService(dirName)
 			stack, database = utils.FindStackAndDatabase(dirName)
 			stackInfo = pickyhelpers.GetStackInfo(stack, database, environment)
 
-			camelCaseDirName = strcase.ToCamel(dirName)
 			err = pickyhelpers.CreateInfraStacks(service, stack, database, dirName, environment)
 			if err != nil {
 				if err.Error() != errorhandler.ErrExist.Error() {
 					errorhandler.CheckNilErr(err)
 				}
 			}
-			if !all {
-				err = pickyhelpers.CreateSstConfigFile(stackInfo, all, camelCaseDirName, directories)
-				errorhandler.CheckNilErr(err)
-			}
 			if service == constants.Backend {
 				err = pickyhelpers.UpdateEnvDevelopment(dirName, environment)
 				errorhandler.CheckNilErr(err)
 			}
 		}
-		if all {
-			err = pickyhelpers.CreateSstConfigFile(stackInfo, all, constants.All, directories)
-			errorhandler.CheckNilErr(err)
-		}
+		err = pickyhelpers.CreateSstConfigFile(stackInfo, directories)
+		errorhandler.CheckNilErr(err)
 		<-done
 		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
+	default:
+		fmt.Printf("\nWork in Progress. Please stay tuned..!\n")
 	}
 	return nil
 }

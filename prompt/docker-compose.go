@@ -12,8 +12,10 @@ import (
 )
 
 func PromptDockerCompose() {
-	label := fmt.Sprintf("Do you want to create '%s' file for this project", constants.DockerComposeFile)
-	response := PromptYesOrNoSelect(label)
+	var p PromptInput
+	p.Label = fmt.Sprintf("Do you want to create '%s' file for this project", constants.DockerComposeFile)
+	p.GoBack = PromptHome
+	response := p.PromptYesOrNoSelect()
 	if response {
 		GenerateDockerCompose()
 	} else {
@@ -22,12 +24,15 @@ func PromptDockerCompose() {
 }
 
 func GenerateDockerCompose() {
-	var stack, database, label string
+	var p PromptInput
+	p.Label = "Pick a service"
+	p.GoBack = PromptDockerCompose
+	var stack, database string
 	response := true
 	status, _ := fileutils.IsExists(filepath.Join(fileutils.CurrentDirectory(), constants.DockerComposeFile))
 	if status {
-		label = fmt.Sprintf("'%s' already exist, do you want to update it", constants.DockerComposeFile)
-		response = PromptYesOrNoSelect(label)
+		p.Label = fmt.Sprintf("'%s' already exist, do you want to update it", constants.DockerComposeFile)
+		response = p.PromptYesOrNoSelect()
 	}
 	if response {
 		stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()

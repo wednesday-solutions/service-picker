@@ -2,8 +2,11 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strings"
+	"text/template"
 
+	"github.com/fatih/color"
 	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
@@ -81,7 +84,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 			} else if second == "graphql" {
 				stack = constants.NodeExpressGraphqlTemplate
 			} else if second == "golang" {
-				stack = constants.GolangPostgreSQLTemplate
+				stack = constants.GolangEchoTemplate
 			}
 		case "mysql":
 			database = constants.MySQL
@@ -90,7 +93,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 			} else if second == "graphql" {
 				stack = constants.NodeExpressGraphqlTemplate
 			} else if second == "golang" {
-				stack = constants.GolangMySQLTemplate
+				stack = constants.GolangEchoTemplate
 			}
 		case "mongo":
 			database = constants.MongoDB
@@ -145,4 +148,206 @@ func ToCamelCase(slice []string) []string {
 		camelSlice = append(camelSlice, strcase.ToCamel(str))
 	}
 	return camelSlice
+}
+
+func CreateTemplate(name, text string) *template.Template {
+	tpl, err := template.New(name).Parse(text)
+	errorhandler.CheckNilErr(err)
+	tpl = template.Must(tpl, err)
+	return tpl
+}
+
+func PrintMultiSelectMessage(messages []string) error {
+	var message, coloredMessage string
+	var tpl *template.Template
+	if len(messages) > 0 {
+		var templateText string
+		if len(messages) == 1 {
+			templateText = fmt.Sprintf("%s %d option selected: {{ . }}\n",
+				constants.IconSelect,
+				len(messages))
+		} else {
+			templateText = fmt.Sprintf("%s %d options selected: {{ . }}\n",
+				constants.IconSelect,
+				len(messages))
+		}
+		for _, option := range messages {
+			message = fmt.Sprintf("%s%s ", message, option)
+		}
+		coloredMessage = color.GreenString("%s", message)
+		tpl = CreateTemplate("message", templateText)
+	} else {
+		message = "No options selected"
+		coloredMessage = color.YellowString("%s", message)
+		tpl = CreateTemplate("responseMessage", fmt.Sprintf("%s {{ . }}\n", constants.IconWarn))
+	}
+	err := tpl.Execute(os.Stdout, coloredMessage)
+	return err
+}
+
+func PrintWarningMessage(message string) error {
+	tpl := CreateTemplate("warningMessage", fmt.Sprintf("\n%s {{ . }}\n", constants.IconWarn))
+	message = color.YellowString("%s", message)
+	err := tpl.Execute(os.Stdout, message)
+	return err
+}
+
+func GetSuffixOfStack(stack, database string) string {
+	var suffix string
+	switch stack {
+	case constants.ReactJS:
+		suffix = constants.ReactTemplate
+	case constants.NextJS:
+		suffix = constants.NextTemplate
+	case constants.NodeHapiTemplate:
+		if database == constants.PostgreSQL {
+			suffix = constants.NodeHapiPgTemplate
+		} else if database == constants.MySQL {
+			suffix = constants.NodeHapiMySqlTemplate
+		}
+	case constants.NodeExpressGraphqlTemplate:
+		if database == constants.PostgreSQL {
+			suffix = constants.NodeGraphqlPgTemplate
+		} else if database == constants.MySQL {
+			suffix = constants.NodeGraphqlMySqlTemplate
+		}
+	case constants.NodeExpressTemplate:
+		if database == constants.MongoDB {
+			suffix = constants.NodeExpressMongoTemplate
+		}
+	case constants.GolangEchoTemplate:
+		if database == constants.PostgreSQL {
+			suffix = constants.GolangPgTemplate
+		} else if database == constants.MySQL {
+			suffix = constants.GolangMySqlTemplate
+		}
+	case constants.ReactNative:
+		suffix = constants.ReactNativeTemplate
+	case constants.Android:
+		suffix = constants.AndroidTemplate
+	case constants.IOS:
+		suffix = constants.IOSTemplate
+	case constants.Flutter:
+		suffix = constants.FlutterTemplate
+	}
+	return suffix
+}
+
+type StackDetails struct {
+	Name      string
+	Language  string
+	Framework string
+	Type      string
+	Databases string
+}
+
+func GetStackDetails(service string) []StackDetails {
+	var stacksDetails []StackDetails
+	switch service {
+	case constants.Backend:
+		stacksDetails = []StackDetails{
+			{
+				Name:      constants.NodeHapiTemplate,
+				Language:  "JavaScript",
+				Framework: "Node JS & Hapi",
+				Type:      "REST API",
+				Databases: fmt.Sprintf("%s %s", constants.PostgreSQL, constants.MySQL),
+			},
+			{
+				Name:      constants.NodeExpressGraphqlTemplate,
+				Language:  "JavaScript",
+				Framework: "Node JS & Express",
+				Type:      "GraphQL API",
+				Databases: fmt.Sprintf("%s %s", constants.PostgreSQL, constants.MySQL),
+			},
+			{
+				Name:      constants.NodeExpressTemplate,
+				Language:  "JavaScript",
+				Framework: "Node JS & Express",
+				Type:      "REST API",
+				Databases: constants.MongoDB,
+			},
+			{
+				Name:      constants.GolangEchoTemplate,
+				Language:  "Golang",
+				Framework: "Echo",
+				Type:      "GraphQL API",
+				Databases: fmt.Sprintf("%s %s", constants.PostgreSQL, constants.MySQL),
+			},
+		}
+	case constants.Web:
+		stacksDetails = []StackDetails{
+			{
+				Name:      constants.ReactJS,
+				Language:  "JavaScript",
+				Framework: "React",
+			},
+			{
+				Name:      constants.NextJS,
+				Language:  "JavaScript",
+				Framework: "Next.js",
+			},
+		}
+	case constants.Mobile:
+		stacksDetails = []StackDetails{
+			{
+				Name:      constants.ReactNative,
+				Language:  "JavaScript",
+				Framework: "React Native",
+			},
+			{
+				Name:      constants.Android,
+				Language:  "Kotlin",
+				Framework: "-",
+			},
+			{
+				Name:      constants.IOS,
+				Language:  "Swift",
+				Framework: "-",
+			},
+			{
+				Name:      constants.Flutter,
+				Language:  "Dart",
+				Framework: "Flutter",
+			},
+		}
+	}
+	return stacksDetails
+}
+
+func FindConfigStacks(configLine string) []string {
+	var stack string
+	var stacks []string
+	stackFound := false
+
+	for _, char := range configLine {
+		if char == '(' {
+			stackFound = true
+			continue
+		} else if char == ')' {
+			stackFound = false
+			stacks = append(stacks, stack)
+			stack = ""
+		}
+		if stackFound {
+			stack = fmt.Sprintf("%s%s", stack, string(char))
+		}
+	}
+	return stacks
+}
+
+func FindStacksByConfigStacks(configStacks []string) []string {
+	var stacks []string
+
+	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	camelCaseDirectories := ToCamelCase(directories)
+
+	for _, configStack := range configStacks {
+		for idx, camelCaseDirName := range camelCaseDirectories {
+			if configStack == camelCaseDirName {
+				stacks = append(stacks, directories[idx])
+			}
+		}
+	}
+	return stacks
 }
