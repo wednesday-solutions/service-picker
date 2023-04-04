@@ -26,7 +26,7 @@ func PromptSetupInfra() {
 		environment := PromptEnvironment()
 		err := CreateInfra(stacks, cloudProvider, environment)
 		errorhandler.CheckNilErr(err)
-		PromptDeployAfterInfra(stacks)
+		PromptDeployAfterInfra(stacks, environment)
 	}
 	PromptHome()
 }

@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 )
 
-func RunYarnInstall(path ...string) error {
+func InstallDependencies(pkgManager string, path ...string) error {
 	filePath := filepath.Join(path...)
-	err := RunCommand(filePath, "yarn", "install")
+	err := RunCommand(filePath, pkgManager, "install")
 	return err
 }
 

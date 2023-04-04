@@ -87,7 +87,15 @@ func PromptSelectExistingStacks() []string {
 	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
 	p.Items = directories
 	p.Items = append(p.Items, "All")
-	results, responses := p.PromptMultiSelect()
+	var results []string
+	var responses []int
+	for {
+		if len(responses) == 0 {
+			results, responses = p.PromptMultiSelect()
+		} else {
+			break
+		}
+	}
 	for _, respIdx := range responses {
 		if respIdx == len(p.Items)-1 {
 			return directories
@@ -96,22 +104,25 @@ func PromptSelectExistingStacks() []string {
 	return results
 }
 
-func PromptRunYarnInstall() error {
+func PromptInstallDependencies() error {
 	var p PromptInput
-	p.Label = "Can we run 'yarn install'"
+	p.Label = "Can we install dependencies"
 	p.GoBack = PromptHome
-	count := 0
+	count, pkgManager := 0, ""
 	for {
 		response := p.PromptYesOrNoSelect()
 		count++
+		if count == 1 {
+			pkgManager = utils.IsYarnOrNpmInstalled()
+		}
 		if response {
-			err := pickyhelpers.RunYarnInstall()
+			err := pickyhelpers.InstallDependencies(pkgManager)
 			return err
 		}
 		if count == 2 {
 			PromptHome()
 		}
-		err := utils.PrintWarningMessage("You can't deploy without installing 'yarn'")
+		err := utils.PrintWarningMessage("You can't deploy without installing dependencies")
 		errorhandler.CheckNilErr(err)
 	}
 }
