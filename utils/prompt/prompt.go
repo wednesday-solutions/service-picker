@@ -1,11 +1,11 @@
 package prompt
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/manifoldco/promptui"
-	"github.com/stoewer/go-strcase"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
@@ -14,14 +14,68 @@ import (
 
 func PromptSelect(label string, items []string) string {
 
+	templates := &promptui.SelectTemplates{
+		Active:   "{{ . | green }}",
+		Selected: "{{ . | cyan }}",
+	}
+	keys := &promptui.SelectKeys{
+		Next: promptui.Key{
+			Code:    promptui.KeyNext,
+			Display: promptui.KeyNextDisplay,
+		},
+		Prev: promptui.Key{
+			Code:    promptui.KeyPrev,
+			Display: promptui.KeyPrevDisplay,
+		},
+		PageUp: promptui.Key{
+			Code:    promptui.KeyBackward,
+			Display: promptui.KeyBackwardDisplay,
+		},
+		PageDown: promptui.Key{
+			Code:    promptui.KeyForward,
+			Display: promptui.KeyForwardDisplay,
+		},
+	}
+
 	prompt := promptui.Select{
-		Label: label,
-		Items: items,
+		Label:     label,
+		Items:     items,
+		Templates: templates,
+		IsVimMode: false,
+		Keys:      keys,
+		Pointer:   promptui.DefaultCursor,
 	}
 
 	_, result, err := prompt.Run()
 	errorhandler.CheckNilErr(err)
 
+	return result
+}
+
+func PromptGetInput(label string) string {
+
+	validate := func(input string) error {
+		if len(input) <= 2 {
+			return errors.New("Length should be greater than 2")
+		}
+		return nil
+	}
+	templates := &promptui.PromptTemplates{
+		Prompt:  "{{ . }}",
+		Valid:   "{{ . | green }}",
+		Invalid: "{{ . | red }}",
+		Success: "{{ . | bold }}",
+	}
+	prompt := promptui.Prompt{
+		Label:     label,
+		Validate:  validate,
+		Templates: templates,
+		IsVimMode: true,
+	}
+	result, err := prompt.Run()
+	if err != nil {
+		errorhandler.CheckNilErr(err)
+	}
 	return result
 }
 
@@ -49,7 +103,9 @@ func PromptSelectCloudProviderConfig(service, stack, database string) {
 
 	} else if selectedCloudConfig == constants.CreateInfra {
 
-		err := helpers.CreateInfra(stack, service)
+		stackInfo := helpers.GetStackInfo(stack, database)
+
+		err := helpers.CreateInfra(stack, service, stackInfo)
 		errorhandler.CheckNilErr(err)
 	}
 }
@@ -67,10 +123,6 @@ func PromptSelectCloudProvider(service, stack, database string) {
 func PromptSelectInit(service, stack, database string) {
 
 	currentDir := fileutils.CurrentDirectory()
-	splitDirs := strings.Split(currentDir, "/")
-	projectName := splitDirs[len(splitDirs)-1]
-	projectName = strcase.SnakeCase(projectName)
-
 	if stack == constants.GolangEchoTemplate {
 		stack = fmt.Sprintf("%s%s", strings.Split(stack, " ")[0], database)
 	}
@@ -86,19 +138,8 @@ func PromptSelectInit(service, stack, database string) {
 		err := helpers.CloneRepo(stack, service, currentDir)
 		errorhandler.CheckNilErr(err)
 
-		stackDestination := map[string]string{
-			constants.WebStatus:     currentDir + "/" + constants.Web,
-			constants.MobileStatus:  currentDir + "/" + constants.Mobile,
-			constants.BackendStatus: currentDir + "/" + constants.Backend,
-		}
-		stackInfo := make(map[string]interface{})
-
-		for status, destination := range stackDestination {
-			stackInfo[status], _ = fileutils.IsExists(destination)
-		}
-		stackInfo[constants.Stack] = stack
-		stackInfo[constants.Database] = database
-		stackInfo[constants.ProjectName] = projectName
+		// stackInfo gives the information about the stacks which is present in the root.
+		stackInfo := helpers.GetStackInfo(stack, database)
 
 		// Database conversion
 		if service == constants.Backend {

@@ -84,9 +84,11 @@ const (
 // Infra Files
 const (
 	PackageDotJsonFile = "package.json"
-	EnvFile            = ".env"
 	SstConfigJsFile    = "sst.config.js"
 	WebStackJsFile     = "WebStack.js"
+	BackendStackJsFile = "BackendStack.js"
+	EnvFile            = ".env"
+	EnvDevFile         = ".env.development"
 )
 
 // helpers
@@ -94,6 +96,7 @@ const (
 	Yes                      = "Yes"
 	No                       = "No"
 	Stack                    = "stack"
+	Stacks                   = "stacks"
 	Mysql                    = "mysql"
 	Redis                    = "redis"
 	Postgres                 = "postgres"
