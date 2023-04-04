@@ -8,10 +8,14 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func UpdateEnvFiles(stack string) error {
+func UpdateEnvFiles(stack, dirName string) error {
 
 	var envFileSources []string
-	envFiles := []string{"backend/.env.local", "backend/.env.development", "backend/.env.docker"}
+
+	envFiles := []string{".env.local", ".env.development", ".env.docker"}
+	for idx, file := range envFiles {
+		envFiles[idx] = fmt.Sprintf("%s/%s", dirName, file)
+	}
 	var envLocalSource, envDevSource, envDockerSource string
 
 	switch stack {

@@ -8,7 +8,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func ConvertQueries(stack string) error {
+func ConvertQueries(stack, dirName string) error {
 
 	var queries []string
 	var files []string
@@ -117,11 +117,11 @@ create table oauth_client_scopes (
 			oauthClientScopes,
 		}
 
-		files = []string{"/backend/resources/v1/01_oauth_clients.sql",
-			"/backend/resources/v1/02_users.sql",
-			"/backend/resources/v1/03_oauth_access_tokens.sql",
-			"/backend/resources/v1/04_oauth_client_resources.sql",
-			"/backend/resources/v1/05_oauth_client_scopes.sql",
+		files = []string{"01_oauth_clients.sql",
+			"02_users.sql",
+			"03_oauth_access_tokens.sql",
+			"04_oauth_client_resources.sql",
+			"05_oauth_client_scopes.sql",
 		}
 
 	case constants.NodeExpressGraphqlTemplate:
@@ -235,14 +235,14 @@ create table oauth_client_scopes (
 			users,
 		}
 
-		files = []string{"/backend/resources/v1/01_products.sql",
-			"/backend/resources/v1/02_addresses.sql",
-			"/backend/resources/v1/03_stores.sql",
-			"/backend/resources/v1/04_supplier.sql",
-			"/backend/resources/v1/05_supplier_products.sql",
-			"/backend/resources/v1/06_store_products.sql",
-			"/backend/resources/v1/07_purchased_products.sql",
-			"/backend/resources/v1/08_users.sql",
+		files = []string{"01_products.sql",
+			"02_addresses.sql",
+			"03_stores.sql",
+			"04_supplier.sql",
+			"05_supplier_products.sql",
+			"06_store_products.sql",
+			"07_purchased_products.sql",
+			"08_users.sql",
 		}
 
 	default:
@@ -250,7 +250,11 @@ create table oauth_client_scopes (
 	}
 
 	for idx, file := range files {
-		err := fileutils.WriteToFile(fileutils.CurrentDirectory()+file, queries[idx])
+		err := fileutils.WriteToFile(
+			fmt.Sprintf("%s/%s/%s/%s", fileutils.CurrentDirectory(),
+				dirName, "resources/v1", file),
+			queries[idx],
+		)
 		errorhandler.CheckNilErr(err)
 	}
 

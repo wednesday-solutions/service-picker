@@ -6,7 +6,6 @@ import (
 	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
 func UpdateDBConfig(stack, dbFile string, stackInfo map[string]interface{}) error {
@@ -74,7 +73,7 @@ module.exports = {
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	err := hbs.ParseAndWriteToFile(dbConfigSource, fileutils.CurrentDirectory()+dbFile, stackInfo)
+	err := hbs.ParseAndWriteToFile(dbConfigSource, dbFile, stackInfo)
 	errorhandler.CheckNilErr(err)
 
 	return nil

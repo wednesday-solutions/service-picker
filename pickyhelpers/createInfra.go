@@ -10,7 +10,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateInfra(stack, service string, stackInfo map[string]interface{}, forceCreate bool) error {
+func CreateInfra(stackInfo map[string]interface{}, forceCreate bool, backendDir string) error {
 
 	infraFiles := make(map[string]string)
 	path := fileutils.CurrentDirectory()
@@ -77,12 +77,14 @@ func CreateInfra(stack, service string, stackInfo map[string]interface{}, forceC
 	}
 
 	// Update backend/.env.development file.
-	path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-		constants.Backend,
-		constants.EnvDevFile,
-	)
-	err := fileutils.WriteToFile(path, sources.EnvDevSource())
-	errorhandler.CheckNilErr(err)
+	if backendDir != "" {
+		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+			backendDir,
+			constants.EnvDevFile,
+		)
+		err := fileutils.WriteToFile(path, sources.EnvDevSource())
+		errorhandler.CheckNilErr(err)
+	}
 
 	<-done
 	fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)

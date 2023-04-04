@@ -1,14 +1,15 @@
-package prompt
+package pickyhelpers
 
 import (
-	"github.com/wednesday-solutions/picky/pickyhelpers"
+	"fmt"
+
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func ConvertTemplateDatabase(stack, database string, stackInfo map[string]interface{}) error {
+func ConvertTemplateDatabase(stack, database, dirName string, stackInfo map[string]interface{}) error {
 
-	dbConfigFile := "/backend/config/db.js"
 	isDatabaseSupported := true
 
 	switch stack {
@@ -27,25 +28,25 @@ func ConvertTemplateDatabase(stack, database string, stackInfo map[string]interf
 
 	if !isDatabaseSupported {
 		// Add new dependencies to package.json
-		err := pickyhelpers.UpdatePackageDotJson(stack)
+		err := UpdatePackageDotJson(stack, dirName)
 		errorhandler.CheckNilErr(err)
 
 		// Update env files with respect to new database
-		err = pickyhelpers.UpdateEnvFiles(stack)
+		err = UpdateEnvFiles(stack, dirName)
 		errorhandler.CheckNilErr(err)
 
 		// Convert DB Connection into MySQL.
-		err = pickyhelpers.UpdateDBConfig(stack, dbConfigFile, stackInfo)
+		dbConfigFile := fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), dirName, "config/db.js")
+		err = UpdateDBConfig(stack, dbConfigFile, stackInfo)
 		errorhandler.CheckNilErr(err)
 
 		// Convert queries
-		err = pickyhelpers.ConvertQueries(stack)
+		err = ConvertQueries(stack, dirName)
 		errorhandler.CheckNilErr(err)
 
 		// Update docker-compose file
-		err = pickyhelpers.UpdateDockerCompose(stack, stackInfo)
+		err = UpdateDockerCompose(stack, dirName, stackInfo)
 		errorhandler.CheckNilErr(err)
 	}
-
 	return nil
 }

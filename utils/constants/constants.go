@@ -108,6 +108,9 @@ const (
 	BackendStatus            = "backendStatus"
 	GolangPostgreSQLTemplate = "GolangPostgreSQL"
 	GolangMySQLTemplate      = "GolangMySQL"
+	WebDirName               = "webDirName"
+	MobileDirName            = "mobileDirName"
+	BackendDirName           = "backendDirName"
 )
 
 // Docker related files

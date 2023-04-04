@@ -9,7 +9,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateDockerFiles(stackInfo map[string]interface{}) error {
+func CreateDockerFiles(dirName string, stackInfo map[string]interface{}) error {
 
 	var (
 		path      string
@@ -21,7 +21,7 @@ func CreateDockerFiles(stackInfo map[string]interface{}) error {
 	if stackInfo[constants.WebStatus].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Web,
+			dirName,
 			constants.DockerFile,
 		)
 		fileFound, _ = fileutils.IsExists(path)
@@ -41,7 +41,7 @@ EXPOSE 3000`
 			errorhandler.CheckNilErr(err)
 		}
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Web,
+			dirName,
 			constants.DockerEnvFile,
 		)
 		fileFound, _ = fileutils.IsExists(path)
@@ -52,7 +52,7 @@ EXPOSE 3000`
 			errorhandler.CheckNilErr(err)
 		}
 		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-			constants.Web,
+			dirName,
 			constants.DockerIgnoreFile,
 		)
 		fileFound, _ = fileutils.IsExists(path)
@@ -72,7 +72,7 @@ EXPOSE 3000`
 		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
 			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-				constants.Backend,
+				dirName,
 				constants.DockerIgnoreFile,
 			)
 			fileFound, _ = fileutils.IsExists(path)
@@ -83,7 +83,7 @@ EXPOSE 3000`
 			}
 
 			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
-				constants.Backend,
+				dirName,
 				constants.DockerFile,
 			)
 			fileFound, _ = fileutils.IsExists(path)

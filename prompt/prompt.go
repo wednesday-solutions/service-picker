@@ -1,7 +1,7 @@
 package prompt
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/manifoldco/promptui"
 	"github.com/wednesday-solutions/picky/utils/constants"
@@ -56,7 +56,7 @@ func PromptGetInput(label string) string {
 
 	validate := func(input string) error {
 		if len(input) <= 2 {
-			return errors.New("Length should be greater than 2")
+			return fmt.Errorf("Length should be greater than 2%s\n", errorhandler.Exclamation)
 		}
 		return nil
 	}
@@ -64,7 +64,6 @@ func PromptGetInput(label string) string {
 		Prompt:  "{{ . }}",
 		Valid:   "{{ . | green }}",
 		Invalid: "{{ . | red }}",
-		Success: "{{ . | bold }}",
 	}
 	prompt := promptui.Prompt{
 		Label:     label,
@@ -91,4 +90,8 @@ func PromptYesOrNoSelect(label string) bool {
 	} else {
 		return false
 	}
+}
+
+func SelectOne(label string, items []string) string {
+	return PromptSelect(label, items)
 }

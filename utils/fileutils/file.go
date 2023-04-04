@@ -67,15 +67,20 @@ func RemoveAll(path string) error {
 }
 
 // Remove all existing files in the given path.
-func RemoveContent(path string) error {
-	file, err := os.Open(path)
-	errorhandler.CheckNilErr(err)
-	dirNames, err := file.Readdirnames(-1)
+func RemoveAllContents(path string) error {
+	dirNames, err := ReadAllContents(path)
 	errorhandler.CheckNilErr(err)
 	for _, dir := range dirNames {
 		err = RemoveAll(filepath.Join(path, dir))
 	}
 	return err
+}
+
+// Read all existing in the given path.
+func ReadAllContents(path string) ([]string, error) {
+	file, err := os.Open(path)
+	errorhandler.CheckNilErr(err)
+	return file.Readdirnames(-1)
 }
 
 // TruncateAndWriteToFile will delete all the existing data and write input data into the file.

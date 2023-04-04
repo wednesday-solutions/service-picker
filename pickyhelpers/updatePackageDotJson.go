@@ -9,7 +9,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func UpdatePackageDotJson(stack string) error {
+func UpdatePackageDotJson(stack, dirName string) error {
 
 	var command string
 	var dependencies []string
@@ -42,7 +42,7 @@ func UpdatePackageDotJson(stack string) error {
 	}
 
 	cmd := exec.Command(command, updateCommands...)
-	cmd.Dir = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.Backend)
+	cmd.Dir = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dirName)
 	err = cmd.Run()
 	errorhandler.CheckNilErr(err)
 

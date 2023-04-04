@@ -10,7 +10,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateCDFile(stack, service, database string) error {
+func CreateCDFile(stack, service, database, dirName string) error {
 	var cdFileUrl string
 
 	switch stack {
@@ -50,7 +50,7 @@ func CreateCDFile(stack, service, database string) error {
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	cdDestination := fileutils.CurrentDirectory() + "/" + service + constants.CDFilePathURL
+	cdDestination := fileutils.CurrentDirectory() + "/" + dirName + constants.CDFilePathURL
 	status, _ := fileutils.IsExists(cdDestination)
 	if !status {
 
