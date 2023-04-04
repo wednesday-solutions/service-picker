@@ -71,7 +71,7 @@ export default {
 	return source
 }
 
-func WebStackSource(dirName, environment string) string {
+func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
@@ -82,7 +82,7 @@ func WebStackSource(dirName, environment string) string {
 		shortEnvironment = constants.Prod
 	}
 	var buildOutput string
-	stack, _ := utils.FindStackAndDatabase(dirName)
+	stack, _ := utils.FindStackAndDatabase(camelCaseDirName)
 	if stack == constants.ReactJS {
 		buildOutput = "build"
 	} else if stack == constants.NextJS {
@@ -94,7 +94,7 @@ func WebStackSource(dirName, environment string) string {
 export function %s({ stack }) {
 	// Deploy our web app
 	const site = new StaticSite(stack, "%sSite", {
-		path: "/",
+		path: "%s/",
 		buildCommand: "yarn run build:%s",
 		buildOutput: "%s",
 	});
@@ -104,7 +104,7 @@ export function %s({ stack }) {
 		SiteUrl: site.url || "http://localhost:3000/",
 	});
 }
-`, dirName, dirName, shortEnvironment, buildOutput)
+`, camelCaseDirName, camelCaseDirName, dirName, shortEnvironment, buildOutput)
 	return source
 }
 

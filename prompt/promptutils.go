@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/wednesday-solutions/picky/pickyhelpers"
 	"github.com/wednesday-solutions/picky/utils"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
@@ -102,27 +101,4 @@ func PromptSelectExistingStacks() []string {
 		}
 	}
 	return results
-}
-
-func PromptInstallDependencies() error {
-	var p PromptInput
-	p.Label = "Can we install dependencies"
-	p.GoBack = PromptHome
-	count, pkgManager := 0, ""
-	for {
-		response := p.PromptYesOrNoSelect()
-		count++
-		if count == 1 {
-			pkgManager = utils.IsYarnOrNpmInstalled()
-		}
-		if response {
-			err := pickyhelpers.InstallDependencies(pkgManager)
-			return err
-		}
-		if count == 2 {
-			PromptHome()
-		}
-		err := utils.PrintWarningMessage("You can't deploy without installing dependencies")
-		errorhandler.CheckNilErr(err)
-	}
 }

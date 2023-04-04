@@ -32,7 +32,7 @@ func UpdatePackageDotJson(stack, dirName string) error {
 		updateCommands = append(updateCommands, dependencies...)
 	}
 	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dirName)
-	err := RunCommand(path, pkgManager, updateCommands...)
+	err := utils.RunCommandWithoutLogs(path, pkgManager, updateCommands...)
 	errorhandler.CheckNilErr(err)
 	return nil
 }
