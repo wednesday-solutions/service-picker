@@ -10,7 +10,7 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateCDFile(stack, service, database, dirName string) error {
+func CreateCDFile(service, stack, database, dirName string) error {
 	var cdFileUrl string
 
 	switch stack {
@@ -79,6 +79,7 @@ func CreateCDFile(stack, service, database, dirName string) error {
 
 	} else {
 		fmt.Println("The", service, stack, "CD you are looking to create already exists")
+		return errorhandler.ErrExist
 	}
 	return nil
 }

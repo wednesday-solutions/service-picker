@@ -9,17 +9,11 @@ import (
 	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
-func CreateDockerComposeFile(stackInfo map[string]interface{}, forceCreate bool) error {
+func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 
 	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(),
 		constants.DockerComposeFile,
 	)
-	if !forceCreate {
-		status, _ := fileutils.IsExists(filePath)
-		if status {
-			return errorhandler.ErrExist
-		}
-	}
 	// Don't make any changes in the below source string.
 	source := `version: '3'
 services:

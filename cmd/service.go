@@ -9,7 +9,7 @@ import (
 var ServiceSelection = ServiceSelectionFn()
 
 func RunService(*cobra.Command, []string) error {
-	prompt.PromptSelectService()
+	prompt.PromptHome()
 	return nil
 }
 
