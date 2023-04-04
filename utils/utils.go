@@ -127,7 +127,7 @@ func SplitStackDirectoryName(dirName string) (string, string, string) {
 	if len(splitDirName) > 2 {
 		lastSuffix = splitDirName[len(splitDirName)-1]
 		stackSuffix = splitDirName[len(splitDirName)-2]
-		if lastSuffix == "pg" || lastSuffix == "mysql" || lastSuffix == "mongo" {
+		if lastSuffix == constants.Pg || lastSuffix == constants.Mysql || lastSuffix == constants.Mongo {
 			isBackendStack = true
 		}
 		var suffixSize int
@@ -157,19 +157,13 @@ func ExistingStackAndDatabase(dirName string) (string, string) {
 }
 
 func FindService(dirName string) string {
-	splitDirName := strings.Split(dirName, "-")
-	if len(splitDirName) > 2 {
-		suffix := splitDirName[len(splitDirName)-1]
-		switch suffix {
-		case "pg", "mysql":
-			return constants.Backend
-		case "web":
-			return constants.Web
-		case "mobile":
-			return constants.Mobile
-		}
+	_, _, lastSuffix := SplitStackDirectoryName(dirName)
+	switch lastSuffix {
+	case constants.Pg, constants.Mysql, constants.Mongo:
+		return constants.Backend
+	default:
+		return lastSuffix
 	}
-	return ""
 }
 
 func ToCamelCase(slice []string) []string {

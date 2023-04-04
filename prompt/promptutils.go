@@ -42,7 +42,7 @@ func PromptGetDirectoryName(stack, database string) string {
 	var p PromptInput
 	suffix := utils.GetSuffixOfStack(stack, database)
 	exampleLabel := fmt.Sprintf("('-%s' suffix will be added). Eg: test-%s ", suffix, suffix)
-	p.Label = fmt.Sprintf("Please enter a name for the '%s stack'%s", stack, exampleLabel)
+	p.Label = fmt.Sprintf("Please enter a name for the '%s' stack %s", stack, exampleLabel)
 	p.GoBack = PromptSelectService
 	dirName := p.PromptGetInput()
 	dirName = utils.DirectoryName(dirName, stack, database)

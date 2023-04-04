@@ -25,11 +25,11 @@ func PromptDeploy() {
 		}
 		p.Label = "Do you want to change the selected stacks"
 		p.GoBack = PromptDeploy
-		var stacks []string
+		var stackDirectories []string
 		response = p.PromptYesOrNoSelect()
 		if response {
-			stacks = PromptSelectExistingStacks()
-			nonExistingStacks := pickyhelpers.IsInfraStacksExist(stacks)
+			stackDirectories = PromptSelectExistingStacks()
+			nonExistingStacks := pickyhelpers.IsInfraStacksExist(stackDirectories)
 			if len(nonExistingStacks) > 0 {
 				message := "Didn't setup Infrastructure for the following stacks,\n\n"
 				for i, stack := range nonExistingStacks {
@@ -40,12 +40,18 @@ func PromptDeploy() {
 				PromptSetupInfra()
 			}
 		}
-		_ = PromptEnvironment()
+		environment := PromptEnvironment()
+		if response {
+			stackInfo := pickyhelpers.GetStackInfo("", "", environment)
+			err := pickyhelpers.CreateSstConfigFile(stackInfo, stackDirectories)
+			errorhandler.CheckNilErr(err)
+		}
 		err := PromptInstallDependencies()
 		errorhandler.CheckNilErr(err)
 
 		// Let's deploy...
-		fmt.Println("Work in progress. Please stay tuned..!")
+		err = utils.PrintWarningMessage("Work in progress. Please stay tuned..!")
+		errorhandler.CheckNilErr(err)
 	}
 	PromptHome()
 }
@@ -70,7 +76,8 @@ func PromptDeployAfterInfra(services []string, environment string) {
 				errorhandler.CheckNilErr(err)
 
 				// Let's deploy...
-				fmt.Println("Work in progress. Please stay tuned..!")
+				err = utils.PrintWarningMessage("Work in progress. Please stay tuned..!")
+				errorhandler.CheckNilErr(err)
 			}
 		} else {
 			err := utils.PrintWarningMessage("Please setup infrastructure first.")

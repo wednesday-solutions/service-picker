@@ -103,6 +103,7 @@ const (
 	No                       = "No"
 	Stack                    = "stack"
 	Stacks                   = "stacks"
+	DB                       = "db"
 	Pg                       = "pg"
 	Mysql                    = "mysql"
 	Mongo                    = "mongo"
