@@ -1,28 +1,25 @@
-package helpers
+package pickyhelpers
 
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
-func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
+func CreateDockerComposeFile(stackInfo map[string]interface{}, forceCreate bool) error {
 
 	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(),
 		constants.DockerComposeFile,
 	)
-	status, _ := fileutils.IsExists(filePath)
-	if status {
-		return nil
+	if !forceCreate {
+		status, _ := fileutils.IsExists(filePath)
+		if status {
+			return errorhandler.ErrExist
+		}
 	}
-
-	// create Docker File
-	err := fileutils.MakeFile(fileutils.CurrentDirectory(), constants.DockerComposeFile)
-	errorhandler.CheckNilErr(err)
-
 	// Don't make any changes in the below source string.
 	source := `version: '3'
 services:
@@ -95,7 +92,7 @@ volumes:
   {{projectName}}_db_volume:
 `
 
-	err = hbs.ParseAndWriteToFile(source, filePath, stackInfo)
+	err := hbs.ParseAndWriteToFile(source, filePath, stackInfo)
 	errorhandler.CheckNilErr(err)
 
 	return nil

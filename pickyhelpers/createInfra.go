@@ -1,16 +1,16 @@
-package helpers
+package pickyhelpers
 
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/hbs"
+	"github.com/wednesday-solutions/picky/pickyhelpers/sources"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/hbs"
-	"github.com/wednesday-solutions/picky/utils/helpers/sources"
 )
 
-func CreateInfra(stack, service string, stackInfo map[string]interface{}) error {
+func CreateInfra(stack, service string, stackInfo map[string]interface{}, forceCreate bool) error {
 
 	infraFiles := make(map[string]string)
 	path := fileutils.CurrentDirectory()
@@ -23,10 +23,12 @@ func CreateInfra(stack, service string, stackInfo map[string]interface{}) error 
 		constants.BackendStackJsFile,
 	}
 
-	for _, file := range files {
-		status, _ := fileutils.IsExists(path + "/" + file)
-		if status {
-			errorhandler.CheckNilErr(fmt.Errorf("%s file already exist", file))
+	if !forceCreate {
+		for _, file := range files {
+			status, _ := fileutils.IsExists(path + "/" + file)
+			if status {
+				return errorhandler.ErrExist
+			}
 		}
 	}
 
@@ -83,7 +85,7 @@ func CreateInfra(stack, service string, stackInfo map[string]interface{}) error 
 	errorhandler.CheckNilErr(err)
 
 	<-done
-	fmt.Printf("\nGenerating completed\n")
+	fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 
 	return nil
 }

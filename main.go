@@ -1,14 +1,16 @@
 package main
 
 import (
-	"log"
-
 	"github.com/wednesday-solutions/picky/cmd"
+	"github.com/wednesday-solutions/picky/utils/errorhandler"
 )
 
 func main() {
 	err := cmd.Execute()
 	if err != nil {
-		log.Fatalln("Something error happened: ", err)
+		if err.Error() == errorhandler.ErrInterrupt.Error() {
+			err = errorhandler.ExitMessage
+		}
+		errorhandler.CheckNilErr(err)
 	}
 }

@@ -1,12 +1,12 @@
-package helpers
+package pickyhelpers
 
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
-	"github.com/wednesday-solutions/picky/utils/hbs"
 )
 
 func CreateDockerFiles(stackInfo map[string]interface{}) error {

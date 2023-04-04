@@ -56,13 +56,26 @@ func CreateFile(file string) error {
 	return nil
 }
 
+// Remove a single file
 func RemoveFile(path string) error {
-	err := os.Remove(path) // Remove a single file
-	if err != nil {
-		return err
-	} else {
-		return nil
+	return os.Remove(path)
+}
+
+// Remove all the files in the directory of the path.
+func RemoveAll(path string) error {
+	return os.RemoveAll(path)
+}
+
+// Remove all existing files in the given path.
+func RemoveContent(path string) error {
+	file, err := os.Open(path)
+	errorhandler.CheckNilErr(err)
+	dirNames, err := file.Readdirnames(-1)
+	errorhandler.CheckNilErr(err)
+	for _, dir := range dirNames {
+		err = RemoveAll(filepath.Join(path, dir))
 	}
+	return err
 }
 
 // TruncateAndWriteToFile will delete all the existing data and write input data into the file.
