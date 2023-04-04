@@ -140,14 +140,29 @@ func EnvEnvironmentName() string {
 	return "`.env.${process.env.ENVIRONMENT_NAME}`"
 }
 
-func DeployStacks(webStatus, backendStatus bool) string {
+func DeployStacks(dirName string, directories []string) string {
 	var source string
-	if webStatus && backendStatus {
-		source = `app.stack(WebStack).stack(BackendStack);`
-	} else if webStatus {
-		source = `app.stack(WebStack);`
-	} else if backendStatus {
-		source = `app.stack(BackendStack);`
+	if dirName == constants.All {
+		for _, dir := range directories {
+			source = fmt.Sprintf("%s.stack(%s)", source, dir)
+		}
+		source = fmt.Sprintf("app%s;", source)
+	} else {
+		source = fmt.Sprintf("app.stack(%s);", dirName)
+	}
+	return source
+}
+
+func SstImportStacks(dirName string, directories []string) string {
+	var source string
+	if dirName == constants.All {
+		// import all existing stacks
+		for _, dirName := range directories {
+			source = fmt.Sprintf("%simport { %s } from %s./stacks/%s%s;\n", source, dirName, `"`, dirName, `"`)
+		}
+	} else {
+		// import only one stack
+		source = fmt.Sprintf("import { %s } from %s./stacks/%s%s;\n", dirName, `"`, dirName, `"`)
 	}
 	return source
 }

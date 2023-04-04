@@ -112,6 +112,9 @@ const (
 	MobileDirName            = "mobileDirName"
 	BackendDirName           = "backendDirName"
 	SizeOfPromptSelect       = 8
+	All                      = "All"
+	SstConfigStack           = "sstConfigStack"
+	ExistingDirectories      = "existingDirectories"
 )
 
 // Docker related files

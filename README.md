@@ -13,10 +13,11 @@ This repo will have support for production applications using the following tech
   - flutter app
 - frontend
   - react
+  - next
 - backend
   - Node (Hapi - REST API)
   - Node (Express - GraphQL API)
-  - Node (Express - TypeScript)
+  - Node (Express - REST API)
   - Golang (Echo - GraphQL API)
 - Databases
   - MySQL
@@ -27,3 +28,20 @@ This repo will have support for production applications using the following tech
 - Infrastructure
   - Redis
   - Kafka
+
+Go should be installed in your machine for running the 'Service Picker' project. If the Go is already installed, then run the below command in the terminal.
+go get -u github.com/wednesday-solutions/picky
+
+This command will install 'Service Picker' in your GOPATH.
+
+Then verify that the installation is successful.
+picky -v
+
+It will give the version.
+
+Try running below commands,
+picky
+picky service
+
+Available commands:-
+service

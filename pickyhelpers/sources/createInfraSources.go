@@ -12,8 +12,12 @@ func PackageDotJsonSource() string {
 	"scripts": {
 		"dev": "sst dev",
 		"build": "sst build",
-		"deploy": "sst deploy",
-		"remove": "sst remove",
+		"deploy:dev": "sst deploy --stage dev",
+		"deploy:qa": "sst deploy --stage qa",
+		"deploy:prod": "sst deploy --stage prod",
+		"remove:dev": "sst remove --stage dev",
+		"remove:qa": "sst remove --stage qa",
+		"remove:prod": "sst remove --stage prod",
 		"console": "sst console",
 		"typecheck": "tsc --noEmit"
 	},
@@ -41,13 +45,7 @@ WEB_AWS_REGION=ap-south-1`
 func SstConfigJsSource() string {
 
 	source := `import dotenv from "dotenv";
-{{#if webStatus}}
-import { WebStack } from "./stacks/WebStack";
-{{/if}}
-{{#if backendStatus}}
-import { BackendStack } from "./stacks/BackendStack";
-{{/if}}
-
+{{{sstImportStacks sstConfigStack existingDirectories}}}
 dotenv.config({ path: ".env" });
 
 export default {
@@ -59,7 +57,7 @@ export default {
 	},
 	stacks(app) {
 		// deploy stacks
-		{{deployStacks webStatus backendStatus}}
+		{{deployStacks sstConfigStack existingDirectories}}
 	},
 };
 `
@@ -67,11 +65,11 @@ export default {
 	return source
 }
 
-func WebStackJsSource() string {
+func WebStackJsSource(dirName string) string {
 
-	source := `import { StaticSite } from "sst/constructs";
+	source := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 		
-export function WebStack({ stack }) {
+export function %s({ stack }) {
 	// Deploy our web app
 	const site = new StaticSite(stack, "WebSite", {
 		path: "/",
@@ -84,11 +82,11 @@ export function WebStack({ stack }) {
 		SiteUrl: site.url || "http://localhost:3000/",
 	});
 }
-`
+`, dirName)
 	return source
 }
 
-func BackendStackJsSource() string {
+func BackendStackJsSource(dirName string) string {
 
 	source := fmt.Sprintf(`import * as cdk from "aws-cdk-lib";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -106,7 +104,7 @@ import { CfnOutput } from "aws-cdk-lib";
 import * as elasticcache from "aws-cdk-lib/aws-elasticache";
 import { Platform } from "aws-cdk-lib/aws-ecr-assets";
 
-export function BackendStack({ stack }) {
+export function %s({ stack }) {
 	const clientName = "test-sst-ecs";
 	const environment = "develop";
 	const clientPrefix = %s${clientName}-${environment}%s;
@@ -381,7 +379,7 @@ export function BackendStack({ stack }) {
 		value: redisCache.attrRedisEndpointAddress,
 	});
 }
-`, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
+`, dirName, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
 		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
 		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
 		"`", "`", "`", "`", "`", "`", "`",
