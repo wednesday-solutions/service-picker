@@ -5,7 +5,7 @@ import (
 
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
 var TestCommand = TestCommandFn()

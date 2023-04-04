@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/wednesday-solutions/picky/hbs"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func CreateDockerFiles(dirName string, stackInfo map[string]interface{}) error {
@@ -20,11 +20,11 @@ func CreateDockerFiles(dirName string, stackInfo map[string]interface{}) error {
 
 	if stackInfo[constants.WebStatus].(bool) {
 
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 			dirName,
 			constants.DockerFile,
 		)
-		fileFound, _ = fileutils.IsExists(path)
+		fileFound, _ = utils.IsExists(path)
 		if !fileFound {
 			source = `FROM node:14-alpine as baseimage
 RUN mkdir app/
@@ -40,25 +40,25 @@ EXPOSE 3000`
 			err = hbs.ParseAndWriteToFile(source, path, stackInfo)
 			errorhandler.CheckNilErr(err)
 		}
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 			dirName,
 			constants.DockerEnvFile,
 		)
-		fileFound, _ = fileutils.IsExists(path)
+		fileFound, _ = utils.IsExists(path)
 		if !fileFound {
 			source = `GITHUB_URL=https://api.github.com/`
 
-			err = fileutils.WriteToFile(path, source)
+			err = utils.WriteToFile(path, source)
 			errorhandler.CheckNilErr(err)
 		}
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 			dirName,
 			constants.DockerIgnoreFile,
 		)
-		fileFound, _ = fileutils.IsExists(path)
+		fileFound, _ = utils.IsExists(path)
 		if !fileFound {
 			source = "node_modules\n.git\nbadges"
-			err = fileutils.WriteToFile(path, source)
+			err = utils.WriteToFile(path, source)
 			errorhandler.CheckNilErr(err)
 		}
 	}
@@ -71,22 +71,22 @@ EXPOSE 3000`
 		switch stackInfo[constants.Stack] {
 		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
-			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+			path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 				dirName,
 				constants.DockerIgnoreFile,
 			)
-			fileFound, _ = fileutils.IsExists(path)
+			fileFound, _ = utils.IsExists(path)
 			if !fileFound {
 				source = "node_modules\n.git\nbadges"
-				err = fileutils.WriteToFile(path, source)
+				err = utils.WriteToFile(path, source)
 				errorhandler.CheckNilErr(err)
 			}
 
-			path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+			path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 				dirName,
 				constants.DockerFile,
 			)
-			fileFound, _ = fileutils.IsExists(path)
+			fileFound, _ = utils.IsExists(path)
 			if fileFound {
 				source = `FROM node:14
 ARG ENVIRONMENT_NAME

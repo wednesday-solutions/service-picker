@@ -1,11 +1,11 @@
-package fileutils
+package utils
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
 // IsExists will check if the path exists or no.

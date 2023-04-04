@@ -5,9 +5,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func CreateCDFile(service, stack, database, dirName string) error {
@@ -50,8 +50,8 @@ func CreateCDFile(service, stack, database, dirName string) error {
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	cdDestination := fileutils.CurrentDirectory() + "/" + dirName + constants.CDFilePathURL
-	status, _ := fileutils.IsExists(cdDestination)
+	cdDestination := utils.CurrentDirectory() + "/" + dirName + constants.CDFilePathURL
+	status, _ := utils.IsExists(cdDestination)
 	if !status {
 
 		done := make(chan bool)
@@ -67,11 +67,11 @@ func CreateCDFile(service, stack, database, dirName string) error {
 		errorhandler.CheckNilErr(err)
 
 		// Create CD File
-		err = fileutils.CreateFile(cdDestination)
+		err = utils.CreateFile(cdDestination)
 		errorhandler.CheckNilErr(err)
 
 		// Write CDFileData to CD File
-		err = fileutils.WriteToFile(cdDestination, string(cdFileData))
+		err = utils.WriteToFile(cdDestination, string(cdFileData))
 		errorhandler.CheckNilErr(err)
 
 		<-done

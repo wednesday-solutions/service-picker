@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/schollz/progressbar/v3"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
 func ProgressBar(max int, description string, done chan bool) {

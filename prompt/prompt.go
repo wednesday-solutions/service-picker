@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/spaceweasel/promptui"
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 type PromptInput struct {

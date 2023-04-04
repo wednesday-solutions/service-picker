@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 	"github.com/wednesday-solutions/picky/pickyhelpers"
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
 func PromptDockerCompose() {
@@ -29,7 +28,7 @@ func GenerateDockerCompose() {
 	p.GoBack = PromptDockerCompose
 	var stack, database string
 	response := true
-	status, _ := fileutils.IsExists(filepath.Join(fileutils.CurrentDirectory(), constants.DockerComposeFile))
+	status, _ := utils.IsExists(filepath.Join(utils.CurrentDirectory(), constants.DockerComposeFile))
 	if status {
 		p.Label = fmt.Sprintf("'%s' already exist, do you want to update it", constants.DockerComposeFile)
 		response = p.PromptYesOrNoSelect()

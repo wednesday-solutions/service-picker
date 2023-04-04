@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/iancoleman/strcase"
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func PackageDotJsonSource() string {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/wednesday-solutions/picky/hbs"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func UpdateDockerCompose(stack, dirName string, stackInfo map[string]interface{}) error {
@@ -48,7 +48,7 @@ services:
 		updateDockerCompose = false
 	}
 	if updateDockerCompose {
-		path := fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+		path := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 			dirName,
 			constants.DockerComposeFile,
 		)

@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 	"github.com/wednesday-solutions/picky/pickyhelpers"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
 func PromptSelectInit(service, stack, database, dirName string) {
@@ -34,19 +34,19 @@ func PromptSelectInit(service, stack, database, dirName string) {
 func Init(service, stack, database, dirName string) {
 	var p PromptInput
 	p.GoBack = PromptSelectService
-	currentDir := fileutils.CurrentDirectory()
+	currentDir := utils.CurrentDirectory()
 	if stack == constants.GolangEchoTemplate {
 		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
 	}
 	destination := filepath.Join(currentDir, dirName)
-	status, _ := fileutils.IsExists(destination)
+	status, _ := utils.IsExists(destination)
 	var response bool
 	for status {
 		p.Label = fmt.Sprintf("The '%s' already exists, do you want to update it", dirName)
 		response = p.PromptYesOrNoSelect()
 		if response {
 			// Delete all contents of existing directory.
-			err := fileutils.RemoveAllContents(destination)
+			err := utils.RemoveAllContents(destination)
 			errorhandler.CheckNilErr(err)
 		} else {
 			PromptHome()
@@ -54,7 +54,7 @@ func Init(service, stack, database, dirName string) {
 	}
 	if !status {
 		// Create directory with directory name we got.
-		err := fileutils.MakeDirectory(currentDir, dirName)
+		err := utils.MakeDirectory(currentDir, dirName)
 		errorhandler.CheckNilErr(err)
 		response = true
 	}

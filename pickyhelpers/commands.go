@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/wednesday-solutions/picky/utils"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func InstallDependencies(pkgManager string, path ...string) error {

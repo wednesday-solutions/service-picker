@@ -8,15 +8,14 @@ import (
 
 	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/hbs"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 	"github.com/wednesday-solutions/picky/pickyhelpers/sources"
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
 )
 
 func IsInfraFilesExist() bool {
-	path := fileutils.CurrentDirectory()
+	path := utils.CurrentDirectory()
 	files := []string{
 		constants.PackageDotJsonFile,
 		constants.EnvFile,
@@ -24,7 +23,7 @@ func IsInfraFilesExist() bool {
 		constants.Stacks,
 	}
 	for _, file := range files {
-		status, _ := fileutils.IsExists(filepath.Join(path, file))
+		status, _ := utils.IsExists(filepath.Join(path, file))
 		if !status {
 			return false
 		}
@@ -43,8 +42,8 @@ func CreateInfraSetup() error {
 	var err error
 	var path string
 	for file, source := range infraFiles {
-		path = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), file)
-		err = fileutils.WriteToFile(path, source)
+		path = fmt.Sprintf("%s/%s", utils.CurrentDirectory(), file)
+		err = utils.WriteToFile(path, source)
 		errorhandler.CheckNilErr(err)
 	}
 	return nil
@@ -54,14 +53,14 @@ func CreateInfraStacks(service, stack, database, dirName, environment string) er
 	camelCaseDirName := strcase.ToCamel(dirName)
 	var err error
 	var stackFileName string
-	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.Stacks)
-	folderExist, _ := fileutils.IsExists(path)
+	path := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.Stacks)
+	folderExist, _ := utils.IsExists(path)
 	if !folderExist {
-		err = fileutils.MakeDirectory(fileutils.CurrentDirectory(), constants.Stacks)
+		err = utils.MakeDirectory(utils.CurrentDirectory(), constants.Stacks)
 		errorhandler.CheckNilErr(err)
 	}
 	stackFileName = fmt.Sprintf("%s%s", camelCaseDirName, ".js")
-	path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), constants.Stacks, stackFileName)
+	path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), constants.Stacks, stackFileName)
 	var source string
 
 	switch service {
@@ -72,14 +71,14 @@ func CreateInfraStacks(service, stack, database, dirName, environment string) er
 	case constants.Backend:
 		source = sources.BackendStackSource(database, dirName, environment)
 	}
-	err = fileutils.WriteToFile(path, source)
+	err = utils.WriteToFile(path, source)
 	return err
 }
 
 func CreateSstConfigFile(stackInfo map[string]interface{}, directories []string,
 ) error {
 	sstConfigSource := sources.SstConfigSource()
-	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigFile)
+	path := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.SstConfigFile)
 
 	// SST config file for all selected existing stacks.
 	camelCaseDirectories := utils.ToCamelCase(directories)
@@ -90,11 +89,11 @@ func CreateSstConfigFile(stackInfo map[string]interface{}, directories []string,
 }
 
 func UpdateEnvDevelopment(dirName, environment string) error {
-	path := fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
+	path := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
 		dirName,
 		constants.EnvDevFile,
 	)
-	err := fileutils.WriteToFile(path, sources.EnvDevSource(environment))
+	err := utils.WriteToFile(path, sources.EnvDevSource(environment))
 	errorhandler.CheckNilErr(err)
 	return nil
 }
@@ -105,8 +104,8 @@ func IsInfraStacksExist(services []string) []string {
 	var nonExistingStacks []string
 	for _, service := range services {
 		camelCaseService = fmt.Sprintf("%s%s", strcase.ToCamel(service), ".js")
-		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), constants.Stacks, camelCaseService)
-		status, _ = fileutils.IsExists(path)
+		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), constants.Stacks, camelCaseService)
+		status, _ = utils.IsExists(path)
 		if !status {
 			nonExistingStacks = append(nonExistingStacks, service)
 		}
@@ -115,8 +114,8 @@ func IsInfraStacksExist(services []string) []string {
 }
 
 func SstConfigExistStacks() []string {
-	file := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigFile)
-	status, _ := fileutils.IsExists(file)
+	file := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.SstConfigFile)
+	status, _ := utils.IsExists(file)
 	if status {
 		input, err := ioutil.ReadFile(file)
 		errorhandler.CheckNilErr(err)
