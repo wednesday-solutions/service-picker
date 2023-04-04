@@ -74,7 +74,7 @@ func Exit() {
 	errorhandler.CheckNilErr(errorhandler.ErrInterrupt)
 }
 
-func PromptSelectExistingDirectories() ([]string, bool) {
+func PromptSelectExistingServices() ([]string, bool) {
 	label := "Select existing service"
 	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
 	items := directories

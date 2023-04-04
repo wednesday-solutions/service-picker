@@ -65,7 +65,7 @@ func Init(service, stack, database, dirName string) {
 		errorhandler.CheckNilErr(err)
 
 		// stackInfo gives the information about the stacks which is present in the root.
-		stackInfo := pickyhelpers.GetStackInfo(stack, database)
+		stackInfo := pickyhelpers.GetStackInfo(stack, database, constants.Environment)
 
 		// Database conversion
 		if service == constants.Backend {

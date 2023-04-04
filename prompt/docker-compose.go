@@ -38,7 +38,7 @@ func GenerateDockerCompose() {
 				break
 			}
 		}
-		stackInfo := pickyhelpers.GetStackInfo(stack, database)
+		stackInfo := pickyhelpers.GetStackInfo(stack, database, constants.Environment)
 		err := pickyhelpers.CreateDockerComposeFile(stackInfo)
 		errorhandler.CheckNilErr(err)
 		fmt.Printf("\n%s\n", errorhandler.DoneMessage)

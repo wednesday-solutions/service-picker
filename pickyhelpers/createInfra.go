@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/pickyhelpers/sources"
 	"github.com/wednesday-solutions/picky/utils"
@@ -47,7 +48,8 @@ func CreateInfraSetup() error {
 	return nil
 }
 
-func CreateInfraStacks(service, stack, dirName string) error {
+func CreateInfraStacks(service, stack, database, dirName, environment string) error {
+	camelCaseDirName := strcase.ToCamel(dirName)
 	var err error
 	var stackFileName string
 	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.Stacks)
@@ -56,17 +58,17 @@ func CreateInfraStacks(service, stack, dirName string) error {
 		err = fileutils.MakeDirectory(fileutils.CurrentDirectory(), constants.Stacks)
 		errorhandler.CheckNilErr(err)
 	}
-	stackFileName = fmt.Sprintf("%s%s", dirName, ".js")
+	stackFileName = fmt.Sprintf("%s%s", camelCaseDirName, ".js")
 	path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), constants.Stacks, stackFileName)
 	var source string
 
 	switch service {
 	case constants.Web:
-		source = sources.WebStackJsSource(dirName)
+		source = sources.WebStackJsSource(camelCaseDirName, environment)
 	case constants.Mobile:
 		// not implemented
 	case constants.Backend:
-		source = sources.BackendStackJsSource(dirName)
+		source = sources.BackendStackJsSource(database, dirName, environment)
 	}
 	err = fileutils.WriteToFile(path, source)
 	return err
@@ -87,12 +89,27 @@ func CreateSstConfigFile(stackInfo map[string]interface{},
 	return err
 }
 
-func UpdateEnvDevelopment(dirName string) error {
+func UpdateEnvDevelopment(dirName, environment string) error {
 	path := fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(),
 		dirName,
 		constants.EnvDevFile,
 	)
-	err := fileutils.WriteToFile(path, sources.EnvDevSource())
+	err := fileutils.WriteToFile(path, sources.EnvDevSource(environment))
 	errorhandler.CheckNilErr(err)
 	return nil
+}
+
+func IsInfraStacksExist(services []string) []string {
+	var path, camelCaseService string
+	var status bool
+	var nonExistingStacks []string
+	for _, service := range services {
+		camelCaseService = fmt.Sprintf("%s%s", strcase.ToCamel(service), ".js")
+		path = fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), constants.Stacks, camelCaseService)
+		status, _ = fileutils.IsExists(path)
+		if !status {
+			nonExistingStacks = append(nonExistingStacks, service)
+		}
+	}
+	return nonExistingStacks
 }
