@@ -13,6 +13,8 @@ import (
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
+// DirectoryName will create a default suffix for the stack which is selected by the user.
+// The directoryName depends on user input, stack, and the database which are selected or provided by the user.
 func DirectoryName(dirName, stack, database string) string {
 	switch stack {
 	case constants.NodeHapiTemplate:
@@ -53,6 +55,8 @@ func DirectoryName(dirName, stack, database string) string {
 	return dirName
 }
 
+// ExistingStacksDatabasesAndDirectories return existing stacks details.
+// Stack details contain stack name, database, and the directory name.
 func ExistingStacksDatabasesAndDirectories() ([]string, []string, []string) {
 	var stacks, databases, dirNames []string
 	var stack, database string
@@ -70,6 +74,7 @@ func ExistingStacksDatabasesAndDirectories() ([]string, []string, []string) {
 	return stacks, databases, dirNames
 }
 
+// FindStackAndDatabase return stack and database of given directory name.
 func FindStackAndDatabase(dirName string) (string, string) {
 	var stack, database string
 	_, stackSuffix, lastSuffix := SplitStackDirectoryName(dirName)
@@ -118,6 +123,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 	return stack, database
 }
 
+// SplitStackDirectoryName returns user-input, stack-suffix and last-suffix of the given stack directory name.
 func SplitStackDirectoryName(dirName string) (string, string, string) {
 	var userInput, stackSuffix, lastSuffix string
 	var splitDirName []string
@@ -145,16 +151,19 @@ func SplitStackDirectoryName(dirName string) (string, string, string) {
 	return userInput, stackSuffix, lastSuffix
 }
 
+// FindUserInputStackName return user-input of the given stack directory name.
 func FindUserInputStackName(dirName string) string {
 	userInput, _, _ := SplitStackDirectoryName(dirName)
 	return userInput
 }
 
+// ExistingStackAndDatabase return stack and database of the given stack directory name.
 func ExistingStackAndDatabase(dirName string) (string, string) {
 	stack, database := FindStackAndDatabase(dirName)
 	return stack, database
 }
 
+// FindService return service of the given stack directory name.
 func FindService(dirName string) string {
 	_, _, lastSuffix := SplitStackDirectoryName(dirName)
 	switch lastSuffix {
@@ -165,7 +174,8 @@ func FindService(dirName string) string {
 	}
 }
 
-func ToCamelCase(slice []string) []string {
+// CovertToCamelCase return camel cased array of string of the given array of string.
+func ConvertToCamelCase(slice []string) []string {
 	camelSlice := []string{}
 	for _, str := range slice {
 		camelSlice = append(camelSlice, strcase.ToCamel(str))
@@ -173,13 +183,15 @@ func ToCamelCase(slice []string) []string {
 	return camelSlice
 }
 
-func CreateTemplate(name, text string) *template.Template {
+// CreateMessageTemplate creates new text template for printing colorful logs.
+func CreateMessageTemplate(name, text string) *template.Template {
 	tpl, err := template.New(name).Parse(text)
 	errorhandler.CheckNilErr(err)
 	tpl = template.Must(tpl, err)
 	return tpl
 }
 
+// PrintMultiSelectMessage prints multi selected options.
 func PrintMultiSelectMessage(messages []string) error {
 	var message, coloredMessage string
 	var tpl *template.Template
@@ -198,23 +210,33 @@ func PrintMultiSelectMessage(messages []string) error {
 			message = fmt.Sprintf("%s%s ", message, option)
 		}
 		coloredMessage = color.GreenString("%s", message)
-		tpl = CreateTemplate("message", templateText)
+		tpl = CreateMessageTemplate("message", templateText)
 	} else {
 		message = "No options selected"
 		coloredMessage = color.YellowString("%s", message)
-		tpl = CreateTemplate("responseMessage", fmt.Sprintf("%s {{ . }}\n", constants.IconWarn))
+		tpl = CreateMessageTemplate("responseMessage", fmt.Sprintf("%s {{ . }}\n", constants.IconWarn))
 	}
 	err := tpl.Execute(os.Stdout, coloredMessage)
 	return err
 }
 
+// PrintWarningMessage prints given message in yellow color as warning message in terminal.
 func PrintWarningMessage(message string) error {
-	tpl := CreateTemplate("warningMessage", fmt.Sprintf("\n%s {{ . }}\n", constants.IconWarn))
+	tpl := CreateMessageTemplate("warningMessage", fmt.Sprintf("\n%s {{ . }}\n", constants.IconWarn))
 	message = color.YellowString("%s", message)
 	err := tpl.Execute(os.Stdout, message)
 	return err
 }
 
+// PrintInfoMessage prints given message in cyan color as info message in terminal.
+func PrintInfoMessage(message string) error {
+	tpl := CreateMessageTemplate("InfoMessage", fmt.Sprintf("\n%s {{ . }}\n", constants.IconChoose))
+	message = color.CyanString("%s", message)
+	err := tpl.Execute(os.Stdout, message)
+	return err
+}
+
+// GetSuffixOfStack returns suffix name for the given stack and database.
 func GetSuffixOfStack(stack, database string) string {
 	var suffix string
 	switch stack {
@@ -264,6 +286,8 @@ type StackDetails struct {
 	Databases string
 }
 
+// GetStackDetails returns an array of StackDetails for showing details
+// when user selects stacks prompt.
 func GetStackDetails(service string) []StackDetails {
 	var stacksDetails []StackDetails
 	switch service {
@@ -338,6 +362,8 @@ func GetStackDetails(service string) []StackDetails {
 	return stacksDetails
 }
 
+// FindConfigStacks will return an array of existing stack functions in sst.config.js
+// Eg: [ApiNodeHapiMysql, FeReactWeb]
 func FindConfigStacks(configLine string) []string {
 	var stack string
 	var stacks []string
@@ -359,11 +385,13 @@ func FindConfigStacks(configLine string) []string {
 	return stacks
 }
 
-func FindStacksByConfigStacks(configStacks []string) []string {
+// FindStackDirectoriesByConfigStacks will return an array of stack directories present
+// in the root directory. Eg: [api-node-hapi-mysql, fe-react-web]
+func FindStackDirectoriesByConfigStacks(configStacks []string) []string {
 	var stacks []string
 
 	_, _, directories := ExistingStacksDatabasesAndDirectories()
-	camelCaseDirectories := ToCamelCase(directories)
+	camelCaseDirectories := ConvertToCamelCase(directories)
 
 	for _, configStack := range configStacks {
 		for idx, camelCaseDirName := range camelCaseDirectories {
@@ -375,6 +403,7 @@ func FindStacksByConfigStacks(configStacks []string) []string {
 	return stacks
 }
 
+// RunCommandWithLogs runs the given command with logs.
 func RunCommandWithLogs(path string, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
@@ -387,6 +416,7 @@ func RunCommandWithLogs(path string, name string, args ...string) error {
 	return err
 }
 
+// RunCommandWithLogs runs the given command without logs.
 func RunCommandWithoutLogs(path string, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	if path != "" {
@@ -396,6 +426,8 @@ func RunCommandWithoutLogs(path string, name string, args ...string) error {
 	return err
 }
 
+// IsYarnOrNpmInstalled checks whether yarn or npm is installed in the user's machine.
+// If both are not installed, then the system will throw error.
 func IsYarnOrNpmInstalled() string {
 	var pkgManager string
 	err := RunCommandWithoutLogs("", constants.Yarn, "-v")
@@ -416,6 +448,7 @@ func IsYarnOrNpmInstalled() string {
 	return pkgManager
 }
 
+// GetShortEnvironment return short environment name for the given environment.
 func GetShortEnvironment(environment string) string {
 	switch environment {
 	case constants.Development:
