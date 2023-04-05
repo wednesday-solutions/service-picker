@@ -7,10 +7,12 @@ import (
 )
 
 func PromptCreateCD() {
-	label := "Do you want to create CD file"
-	response := PromptYesOrNoSelect(label)
+	var p PromptInput
+	p.Label = "Do you want to create CD file"
+	p.GoBack = PromptHome
+	response := p.PromptYesOrNoSelect()
 	if response {
-		services, _ := PromptSelectExistingServices()
+		services := PromptSelectExistingStacks()
 		err := CreateCD(services)
 		errorhandler.CheckNilErr(err)
 	}

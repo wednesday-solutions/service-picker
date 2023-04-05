@@ -1,32 +1,41 @@
 package prompt
 
-import "github.com/wednesday-solutions/picky/utils"
+import (
+	"github.com/wednesday-solutions/picky/utils"
+	"github.com/wednesday-solutions/picky/utils/constants"
+)
 
 func PromptHome() {
-	var label string
+	var p PromptInput
+	p.Label = "Pick an option"
+	p.GoBack = PromptHome
 	var initService bool
 	stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
 	if len(stacks) > 0 {
-		label = "Pick an option"
-		items := []string{"Init Service"}
+		p.Items = []string{constants.InitService, constants.CreateCD}
 		showCreateDC := ShowCreateDockerCompose(databases)
 		if showCreateDC {
-			items = append(items, "Create docker-compose")
+			p.Items = append(p.Items, constants.CreateDockerCompose)
 		}
-		items = append(items, "Create CD", "Setup Infra", "Deploy", "Exit")
-		response := PromptSelect(label, items)
+		p.Items = append(p.Items,
+			constants.SetupInfra,
+			constants.Deploy,
+			constants.Exit,
+		)
+		response := p.PromptSelect()
 		switch response {
-		case "Init Service":
+		case constants.InitService:
 			initService = true
-		case "Create docker-compose":
+		case constants.CreateDockerCompose:
 			PromptDockerCompose()
-		case "Create CD":
+		case constants.CreateCD:
 			PromptCreateCD()
-		case "Setup Infra":
+		case constants.SetupInfra:
 			PromptSetupInfra()
-		case "Deploy":
+		case
+			constants.Deploy:
 			PromptDeploy()
-		case "Exit":
+		case constants.Exit:
 			PromptExit()
 		}
 	}

@@ -3,21 +3,22 @@ package prompt
 import "github.com/wednesday-solutions/picky/utils/constants"
 
 func PromptSelectService() {
-	label := "Pick a service"
-	services := AllServices()
-	service := PromptSelect(label, services)
+	var p PromptInput
+	p.Label = "Pick a service"
+	p.Items = AllServices()
+	p.GoBack = PromptHome
+	service := p.PromptSelect()
 	PromptSelectStack(service)
 }
 
 func PromptSelectStack(service string) {
-	label := "Pick a stack"
-	items := AllStacksOfService(service)
-	stack := PromptSelect(label, items)
+
+	stack := PromptStack(service)
 
 	var database string
 	if service == constants.Backend {
 		database = PromptSelectStackDatabase(service, stack)
 	}
-	dirName := GetDirectoryName(stack, database)
+	dirName := PromptGetDirectoryName(stack, database)
 	PromptSelectInit(service, stack, database, dirName)
 }

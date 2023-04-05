@@ -12,10 +12,12 @@ import (
 )
 
 func PromptSelectInit(service, stack, database, dirName string) {
+	var p PromptInput
+	p.GoBack = PromptSelectService
 	response := true
 	for response {
-		label := fmt.Sprintf("Do you want to initialize '%s' as '%s'", stack, dirName)
-		response = PromptYesOrNoSelect(label)
+		p.Label = fmt.Sprintf("Do you want to initialize '%s' as '%s'", stack, dirName)
+		response = p.PromptYesOrNoSelect()
 		if response {
 			Init(service, stack, database, dirName)
 		} else {
@@ -30,8 +32,8 @@ func PromptSelectInit(service, stack, database, dirName string) {
 }
 
 func Init(service, stack, database, dirName string) {
-
-	var label string
+	var p PromptInput
+	p.GoBack = PromptSelectService
 	currentDir := fileutils.CurrentDirectory()
 	if stack == constants.GolangEchoTemplate {
 		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
@@ -40,8 +42,8 @@ func Init(service, stack, database, dirName string) {
 	status, _ := fileutils.IsExists(destination)
 	var response bool
 	for status {
-		label = fmt.Sprintf("The '%s' already exists, do you want to update it", dirName)
-		response = PromptYesOrNoSelect(label)
+		p.Label = fmt.Sprintf("The '%s' already exists, do you want to update it", dirName)
+		response = p.PromptYesOrNoSelect()
 		if response {
 			// Delete all contents of existing directory.
 			err := fileutils.RemoveAllContents(destination)
@@ -79,8 +81,8 @@ func Init(service, stack, database, dirName string) {
 		<-done
 		fmt.Printf("\nDownloading %s", errorhandler.CompleteMessage)
 	}
-	label = "Do you want to initialize another service"
-	response = PromptYesOrNoSelect(label)
+	p.Label = "Do you want to initialize another service"
+	response = p.PromptYesOrNoSelect()
 	if response {
 		PromptSelectService()
 	} else {
