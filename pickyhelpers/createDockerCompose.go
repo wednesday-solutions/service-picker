@@ -15,7 +15,7 @@ func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 		constants.DockerComposeFile,
 	)
 	// Don't make any changes in the below source string.
-	source := `version: '3'
+	_ = `version: '3'
 services:
 {{#if backendStatus}}
   # Setup {{database}}
@@ -72,20 +72,133 @@ services:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
 {{/if}}
-{{#if webStatus}} 
-  # Setup {{projectName}} web
-  {{projectName}}_web:
+{{#each webDirectories}} 
+  # Setup {{projectName}} {{this}}
+  {{projectName}}_{{this}}:
     build:
-      context: './{{webDirName}}'
+      context: './{{this}}'
     ports:
       - {{portConnection web}}
     env_file:
-      - ./{{webDirName}}/.env.docker
-{{/if}}
+      - ./{{this}}/.env.docker
 
+{{else}}
+# No web directories
+
+{{/each}}
 # Setup Volumes
 volumes:
   {{projectName}}_db_volume:
+`
+
+	source := `version: '3'
+services:
+{{#each backendPgDirectories}}
+  # Setup {{PostgreSQL}}
+  {{dbServiceName stack PostgreSQL}}:
+    image: '{{dbVersion PostgreSQL}}' 
+    ports:
+      - {{portConnection PostgreSQL}} 
+    restart: always # This will make sure that the container comes up post unexpected shutdowns
+    env_file:
+      - ./{{this}}/.env.docker
+    volumes:
+      - {{this}}{{databaseVolumeConnection PostgreSQL}}
+{{#equal stack GolangPostgreSQL}}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_PORT: ${PSQL_PORT}
+{{/equal}}
+
+{{#equal stack GolangPostgreSQL}}
+{{{waitForDBService PostgreSQL}}}
+
+{{/equal}}
+  # Setup {{this}} api
+  {{this}}:
+    build:
+      context: './{{this}}'
+      args:
+        ENVIRONMENT_NAME: docker
+    ports:
+      - {{portConnection backend}}
+    env_file:
+      - ./{{this}}/.env.docker
+    environment:
+      ENVIRONMENT_NAME: docker
+{{dependsOnFieldOfGo stack}}
+{{/each}}
+
+{{#each backendMysqlDirectories}}
+  # Setup {{MySQL}}
+  {{dbServiceName stack MySQL}}:
+    image: '{{dbVersion MySQL}}' 
+    ports:
+      - {{portConnection MySQL}} 
+    restart: always # This will make sure that the container comes up post unexpected shutdowns
+    env_file:
+      - ./{{this}}/.env.docker
+    volumes:
+      - {{this}}{{databaseVolumeConnection MySQL}}
+{{#equal stack GolangMySQL}}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DBNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+{{/equal}}
+
+{{#equal stack GolangMySQL}}
+{{{waitForDBService MySQL}}}
+
+{{/equal}}
+  # Setup {{this}} api
+  {{this}}:
+    build:
+      context: './{{this}}'
+      args:
+        ENVIRONMENT_NAME: docker
+    ports:
+      - {{portConnection backend}}
+    env_file:
+      - ./{{this}}/.env.docker
+    environment:
+      ENVIRONMENT_NAME: docker
+{{dependsOnFieldOfGo stack}}
+{{/each}}
+{{#if backendStatus}}
+  # Setup Redis
+  redis:
+    image: 'redis:6-alpine'
+    ports:
+      - {{portConnection redis}}
+    # Default command that redis will execute at start
+    command: ['redis-server']
+
+{{/if}}
+{{#each webDirectories}} 
+  # Setup {{this}} web
+  {{this}}:
+    build:
+      context: './{{this}}'
+    ports:
+      - {{portConnection web}}
+    env_file:
+      - ./{{this}}/.env.docker
+
+{{else}}
+# No web directories
+
+{{/each}}
+# Setup Volumes
+volumes:
+{{#each backendPgDirectories}}
+  {{this}}-db-volume:
+{{/each}}
+{{#each backendMysqlDirectories}}
+  {{this}}-db-volume:
+{{/each}}
 `
 
 	err := hbs.ParseAndWriteToFile(source, filePath, stackInfo)

@@ -12,21 +12,28 @@ import (
 func GetStackInfo(stack, database, environment string) map[string]interface{} {
 
 	var webDir, mobileDir, backendDir, service string
+	var webDirectories, backendPgDirectories, backendMysqlDirectories []string
 	currentDir := utils.CurrentDirectory()
 	splitDirs := strings.Split(currentDir, "/")
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
 
-	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
-	for _, dirName := range directories {
+	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
+	for i, dirName := range directories {
 		service = utils.FindService(dirName)
 		switch service {
 		case constants.Web:
 			webDir = dirName
+			webDirectories = append(webDirectories, dirName)
 		case constants.Mobile:
 			mobileDir = dirName
 		case constants.Backend:
 			backendDir = dirName
+			if databases[i] == constants.PostgreSQL {
+				backendPgDirectories = append(backendPgDirectories, dirName)
+			} else if databases[i] == constants.MySQL {
+				backendMysqlDirectories = append(backendMysqlDirectories, dirName)
+			}
 		}
 	}
 	stackDestination := map[string]string{
@@ -51,6 +58,9 @@ func GetStackInfo(stack, database, environment string) map[string]interface{} {
 	stackInfo[constants.BackendDirName] = backendDir
 	stackInfo[constants.ExistingDirectories] = directories
 	stackInfo[constants.Environment] = environment
+	stackInfo[constants.WebDirectories] = webDirectories
+	stackInfo[constants.BackendPgDirectories] = backendPgDirectories
+	stackInfo[constants.BackendMysqlDirectories] = backendMysqlDirectories
 
 	return stackInfo
 }

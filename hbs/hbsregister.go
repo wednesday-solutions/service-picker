@@ -6,13 +6,13 @@ import (
 	"github.com/wednesday-solutions/picky/internal/constants"
 )
 
-func DatabaseVolume(db string) string {
+func DatabaseVolumeConnection(db string) string {
 	if db == constants.PostgreSQL {
-		return "postgresql/data"
+		return fmt.Sprintf("-db-volume:/var/lib/%s", "postgresql/data")
 	} else if db == constants.MySQL {
-		return constants.Mysql
+		return fmt.Sprintf("-db-volume:/var/lib/%s", constants.Mysql)
 	} else {
-		return ""
+		return db
 	}
 }
 
@@ -26,32 +26,61 @@ func DBVersion(db string) string {
 	}
 }
 
+var webPortNumber = 3000
+var backendPortNumber = 9000
+var postgresPortNumber = 5432
+var mysqlPortNumber = 3306
+
 func PortConnection(stack string) string {
+	var portConnectionStr string
 	switch stack {
 	case constants.PostgreSQL:
-		return "5432:5432"
+		portConnectionStr = fmt.Sprintf("%d:5432", postgresPortNumber)
+		postgresPortNumber++
+		return portConnectionStr
 	case constants.MySQL:
-		return "3306:3306"
+		portConnectionStr = fmt.Sprintf("%d:3306", mysqlPortNumber)
+		mysqlPortNumber++
+		return portConnectionStr
 	case constants.MongoDB:
 		return "27017:27017"
 	case constants.Web, constants.Mobile:
-		return "3000:3000"
+		portConnectionStr = fmt.Sprintf("%d:3000", webPortNumber)
+		webPortNumber++
+		return portConnectionStr
 	case constants.Backend:
-		return "9000:9000"
+		portConnectionStr = fmt.Sprintf("%d:9000", backendPortNumber)
+		backendPortNumber++
+		return portConnectionStr
 	case constants.Redis:
 		return "6379:6379"
 	default:
-		return ""
+		return portConnectionStr
 	}
 }
 
+var postgresService, mysqlService = 1, 1
+
 func DBServiceName(stack, database string) string {
+	var serviceName string
 	switch stack {
 	case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 		if database == constants.PostgreSQL {
-			return "db_postgres"
+			if postgresService > 1 {
+				serviceName = fmt.Sprintf("%s_%d", "db_postgres", postgresService)
+			} else {
+				serviceName = "db_postgres"
+			}
+			postgresService++
+			return serviceName
 		} else if database == constants.MySQL {
-			return "db_mysql"
+			if mysqlService > 1 {
+				serviceName = fmt.Sprintf("%s_%d", "db_mysql", mysqlService)
+			} else {
+				serviceName = "db_mysql"
+			}
+			mysqlService++
+			return serviceName
 		}
 	case constants.GolangPostgreSQLTemplate, constants.GolangMySQLTemplate:
 		return constants.DB

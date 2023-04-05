@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	raymond.RegisterHelper("databaseVolume", DatabaseVolume)
+	raymond.RegisterHelper("databaseVolumeConnection", DatabaseVolumeConnection)
 	raymond.RegisterHelper("dbVersion", DBVersion)
 	raymond.RegisterHelper("portConnection", PortConnection)
 	raymond.RegisterHelper("dbServiceName", DBServiceName)
@@ -32,7 +32,9 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 		constants.Backend:                  constants.Backend,
 		constants.Redis:                    constants.Redis,
 		constants.Postgres:                 constants.Postgres,
+		constants.PostgreSQL:               constants.PostgreSQL,
 		constants.Mysql:                    constants.Mysql,
+		constants.MySQL:                    constants.MySQL,
 		constants.GolangMySQLTemplate:      constants.GolangMySQLTemplate,
 		constants.GolangPostgreSQLTemplate: constants.GolangPostgreSQLTemplate,
 		constants.Stack:                    stackInfo[constants.Stack].(string),
@@ -45,6 +47,9 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 		constants.MobileDirName:            stackInfo[constants.MobileDirName].(string),
 		constants.BackendDirName:           stackInfo[constants.BackendDirName].(string),
 		constants.ExistingDirectories:      stackInfo[constants.ExistingDirectories].([]string),
+		constants.WebDirectories:           stackInfo[constants.WebDirectories].([]string),
+		constants.BackendPgDirectories:     stackInfo[constants.BackendPgDirectories].([]string),
+		constants.BackendMysqlDirectories:  stackInfo[constants.BackendMysqlDirectories].([]string),
 	}
 	// Parse the source string into template
 	tpl, err := raymond.Parse(source)
