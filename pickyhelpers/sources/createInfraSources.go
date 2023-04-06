@@ -444,7 +444,8 @@ export function %s({ stack }) {
 	return source
 }
 
-func EnvDevSource(environment string) string {
+// EnvSource return the source string with respect to the given environment.
+func EnvSource(environment string) string {
 
 	source := fmt.Sprintf(`NAME=Node Template
 NODE_ENV=%s

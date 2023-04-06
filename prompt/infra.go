@@ -9,6 +9,7 @@ import (
 	"github.com/wednesday-solutions/picky/pickyhelpers"
 )
 
+// PromptSetupInfra is the prompt for the setup infra option of Home prompt.
 func PromptSetupInfra() {
 	var p PromptInput
 	p.Label = "Do you want to setup infrastructure for your project"
@@ -31,6 +32,7 @@ func PromptSetupInfra() {
 	PromptHome()
 }
 
+// PromptCloudProvider is a prompt for selecting a cloud provider.
 func PromptCloudProvider() string {
 	var p PromptInput
 	p.Label = "Choose a cloud provider"
@@ -39,6 +41,7 @@ func PromptCloudProvider() string {
 	return p.PromptSelect()
 }
 
+// PromptEnvironment is a prompt for selecting an environment.
 func PromptEnvironment() string {
 	var p PromptInput
 	p.Label = "Choose an environment"
@@ -47,6 +50,7 @@ func PromptEnvironment() string {
 	return p.PromptSelect()
 }
 
+// CreateInfra execute all the functionalities of infra setup.
 func CreateInfra(directories []string, cloudProvider string, environment string) error {
 	switch cloudProvider {
 	case constants.AWS:
@@ -75,7 +79,7 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 				}
 			}
 			if service == constants.Backend {
-				err = pickyhelpers.UpdateEnvDevelopment(dirName, environment)
+				err = pickyhelpers.UpdateEnvByEnvironment(dirName, environment)
 				errorhandler.CheckNilErr(err)
 			}
 		}
