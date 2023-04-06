@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/iancoleman/strcase"
+	"github.com/wednesday-solutions/picky/utils"
 	"github.com/wednesday-solutions/picky/utils/constants"
 )
 
@@ -80,6 +81,13 @@ func WebStackSource(dirName, environment string) string {
 	case constants.Production:
 		shortEnvironment = constants.Prod
 	}
+	var buildOutput string
+	stack, _ := utils.FindStackAndDatabase(dirName)
+	if stack == constants.ReactJS {
+		buildOutput = "build"
+	} else if stack == constants.NextJS {
+		buildOutput = "out"
+	}
 
 	source := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 		
@@ -88,7 +96,7 @@ export function %s({ stack }) {
 	const site = new StaticSite(stack, "%sSite", {
 		path: "/",
 		buildCommand: "yarn run build:%s",
-		buildOutput: "out",
+		buildOutput: "%s",
 	});
 
 	// Show the URLs in the output
@@ -96,7 +104,7 @@ export function %s({ stack }) {
 		SiteUrl: site.url || "http://localhost:3000/",
 	});
 }
-`, dirName, dirName, shortEnvironment)
+`, dirName, dirName, shortEnvironment, buildOutput)
 	return source
 }
 
@@ -110,6 +118,10 @@ func BackendStackSource(database, dirName, environment string) string {
 	case constants.Production:
 		shortEnvironment = constants.Production
 	}
+	databaseName := fmt.Sprintf("%s_%s",
+		utils.FindUserInputStackName(dirName),
+		constants.Database,
+	)
 	camelCaseDirName := strcase.ToCamel(dirName)
 	var (
 		dbEngineVersion string
@@ -249,10 +261,10 @@ export function %s({ stack }) {
 			vpcSubnets: {
 				subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
 			},
-			backupRetention: cdk.Duration.days(7),
+			backupRetention: cdk.Duration.days(1),
 			allocatedStorage: 10,
 			maxAllocatedStorage: 30,
-			databaseName: "sst_test_database",
+			databaseName: "%s",
 		}
 	);
 
@@ -421,11 +433,11 @@ export function %s({ stack }) {
 		value: redisCache.attrRedisEndpointAddress,
 	});
 }
-`, dbEngineVersion, camelCaseDirName, shortEnvironment, "`", "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", dbPortNumber, "`", "`", "`", "`", "`", "`",
-		dbEngine, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", db_uri, dirName, environment, "`", "`", shortEnvironment,
+`, dbEngineVersion, camelCaseDirName, shortEnvironment, "`", "`", "`", "`",
+		"`", "`", "`", "`", "`", "`", dbPortNumber, "`", "`", "`", "`", "`", "`",
+		dbEngine, databaseName, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
+		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
+		"`", "`", "`", db_uri, dirName, environment, "`", "`", shortEnvironment,
 		environment, dbHost, "`", "`", "`", "`",
 	)
 
