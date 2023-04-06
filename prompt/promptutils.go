@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func AllServices() []string {
@@ -48,7 +47,7 @@ func PromptGetDirectoryName(stack, database string) string {
 	status := true
 	var err error
 	for status {
-		status, err = fileutils.IsExists(filepath.Join(fileutils.CurrentDirectory(), dirName))
+		status, err = utils.IsExists(filepath.Join(utils.CurrentDirectory(), dirName))
 		errorhandler.CheckNilErr(err)
 		if status {
 			p.Label = "Entered name already exists. Please enter another name"

@@ -3,10 +3,9 @@ package pickyhelpers
 import (
 	"fmt"
 
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func UpdatePackageDotJson(stack, dirName string) error {
@@ -31,7 +30,7 @@ func UpdatePackageDotJson(stack, dirName string) error {
 		updateCommands = []string{"install", "--legacy-peer-deps", "--save"}
 		updateCommands = append(updateCommands, dependencies...)
 	}
-	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), dirName)
+	path := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), dirName)
 	err := utils.RunCommandWithoutLogs(path, pkgManager, updateCommands...)
 	errorhandler.CheckNilErr(err)
 	return nil

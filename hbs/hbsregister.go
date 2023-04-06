@@ -3,7 +3,7 @@ package hbs
 import (
 	"fmt"
 
-	"github.com/wednesday-solutions/picky/utils/constants"
+	"github.com/wednesday-solutions/picky/internal/constants"
 )
 
 func DatabaseVolume(db string) string {

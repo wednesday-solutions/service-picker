@@ -3,9 +3,9 @@ package pickyhelpers
 import (
 	"fmt"
 
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func ConvertTemplateDatabase(stack, database, dirName string, stackInfo map[string]interface{}) error {
@@ -36,7 +36,7 @@ func ConvertTemplateDatabase(stack, database, dirName string, stackInfo map[stri
 		errorhandler.CheckNilErr(err)
 
 		// Convert DB Connection into MySQL.
-		dbConfigFile := fmt.Sprintf("%s/%s/%s", fileutils.CurrentDirectory(), dirName, "config/db.js")
+		dbConfigFile := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), dirName, "config/db.js")
 		err = UpdateDBConfig(stack, dbConfigFile, stackInfo)
 		errorhandler.CheckNilErr(err)
 

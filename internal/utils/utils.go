@@ -9,9 +9,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/iancoleman/strcase"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
 func DirectoryName(dirName, stack, database string) string {
@@ -57,7 +56,7 @@ func DirectoryName(dirName, stack, database string) string {
 func ExistingStacksDatabasesAndDirectories() ([]string, []string, []string) {
 	var stacks, databases, dirNames []string
 	var stack, database string
-	directories, err := fileutils.ReadAllContents(fileutils.CurrentDirectory())
+	directories, err := ReadAllContents(CurrentDirectory())
 	errorhandler.CheckNilErr(err)
 
 	for _, dirName := range directories {

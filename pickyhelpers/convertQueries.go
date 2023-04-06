@@ -3,9 +3,9 @@ package pickyhelpers
 import (
 	"fmt"
 
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func ConvertQueries(stack, dirName string) error {
@@ -250,8 +250,8 @@ create table oauth_client_scopes (
 	}
 
 	for idx, file := range files {
-		err := fileutils.WriteToFile(
-			fmt.Sprintf("%s/%s/%s/%s", fileutils.CurrentDirectory(),
+		err := utils.WriteToFile(
+			fmt.Sprintf("%s/%s/%s/%s", utils.CurrentDirectory(),
 				dirName, "resources/v1", file),
 			queries[idx],
 		)

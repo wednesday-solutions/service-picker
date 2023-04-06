@@ -3,9 +3,9 @@ package pickyhelpers
 import (
 	"fmt"
 
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func UpdateEnvFiles(stack, dirName string) error {
@@ -98,8 +98,8 @@ APP_NAME=app`
 	}
 
 	for idx, envFile := range envFiles {
-		envFile = fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), envFile)
-		err := fileutils.WriteToFile(envFile, envFileSources[idx])
+		envFile = fmt.Sprintf("%s/%s", utils.CurrentDirectory(), envFile)
+		err := utils.WriteToFile(envFile, envFileSources[idx])
 		errorhandler.CheckNilErr(err)
 	}
 

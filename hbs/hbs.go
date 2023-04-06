@@ -2,9 +2,9 @@ package hbs
 
 import (
 	"github.com/aymerick/raymond"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func init() {
@@ -54,7 +54,7 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 	executedTemplate, err := tpl.Exec(ctx)
 	errorhandler.CheckNilErr(err)
 
-	err = fileutils.WriteToFile(filePath, executedTemplate)
+	err = utils.WriteToFile(filePath, executedTemplate)
 	errorhandler.CheckNilErr(err)
 
 	return nil

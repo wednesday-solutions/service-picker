@@ -3,9 +3,9 @@ package prompt
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 	"github.com/wednesday-solutions/picky/pickyhelpers"
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
 )
 
 func PromptDeploy() {

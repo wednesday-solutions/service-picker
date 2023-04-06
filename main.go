@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/wednesday-solutions/picky/cmd"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
 func main() {

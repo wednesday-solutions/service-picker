@@ -1,6 +1,6 @@
 package prompt
 
-import "github.com/wednesday-solutions/picky/utils/constants"
+import "github.com/wednesday-solutions/picky/internal/constants"
 
 func PromptSelectService() {
 	var p PromptInput

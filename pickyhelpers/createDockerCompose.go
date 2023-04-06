@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/wednesday-solutions/picky/hbs"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 
-	filePath := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(),
+	filePath := fmt.Sprintf("%s/%s", utils.CurrentDirectory(),
 		constants.DockerComposeFile,
 	)
 	// Don't make any changes in the below source string.

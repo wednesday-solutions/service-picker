@@ -5,15 +5,14 @@ import (
 	"strings"
 
 	"github.com/stoewer/go-strcase"
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func GetStackInfo(stack, database, environment string) map[string]interface{} {
 
 	var webDir, mobileDir, backendDir, service string
-	currentDir := fileutils.CurrentDirectory()
+	currentDir := utils.CurrentDirectory()
 	splitDirs := strings.Split(currentDir, "/")
 	projectName := splitDirs[len(splitDirs)-1]
 	projectName = strcase.SnakeCase(projectName)
@@ -39,7 +38,7 @@ func GetStackInfo(stack, database, environment string) map[string]interface{} {
 
 	for status, destination := range stackDestination {
 		if destination != fmt.Sprintf("%s/", currentDir) {
-			stackInfo[status], _ = fileutils.IsExists(destination)
+			stackInfo[status], _ = utils.IsExists(destination)
 		} else {
 			stackInfo[status] = false
 		}

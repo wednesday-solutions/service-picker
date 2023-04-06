@@ -1,10 +1,9 @@
 package pickyhelpers
 
 import (
-	"github.com/wednesday-solutions/picky/utils"
-	"github.com/wednesday-solutions/picky/utils/constants"
-	"github.com/wednesday-solutions/picky/utils/errorhandler"
-	"github.com/wednesday-solutions/picky/utils/fileutils"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func CloneRepo(stack, dirName, path string) error {
@@ -15,9 +14,9 @@ func CloneRepo(stack, dirName, path string) error {
 
 	// Delete cd.yml file from the cloned repo.
 	cdFilePatch := path + "/" + dirName + constants.CDFilePathURL
-	status, _ := fileutils.IsExists(cdFilePatch)
+	status, _ := utils.IsExists(cdFilePatch)
 	if status {
-		err = fileutils.RemoveFile(cdFilePatch)
+		err = utils.RemoveFile(cdFilePatch)
 		errorhandler.CheckNilErr(err)
 	}
 	return nil
