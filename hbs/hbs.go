@@ -14,6 +14,7 @@ func init() {
 	raymond.RegisterHelper("dbServiceName", DBServiceName)
 	raymond.RegisterHelper("globalAddDependencies", GlobalAddDependencies)
 	raymond.RegisterHelper("addDependencies", AddDependencies)
+	raymond.RegisterHelper("envFileBackend", EnvFileBackend)
 	raymond.RegisterHelper("runBuildEnvironment", RunBuildEnvironment)
 	raymond.RegisterHelper("waitForDBService", WaitForDBService)
 	raymond.RegisterHelper("dependsOnFieldOfGo", DependsOnFieldOfGo)

@@ -72,83 +72,54 @@ func ExistingStacksDatabasesAndDirectories() ([]string, []string, []string) {
 }
 
 func FindStackAndDatabase(dirName string) (string, string) {
-	var stack, database string
-	_, stackSuffix, lastSuffix := SplitStackDirectoryName(dirName)
-
-	switch lastSuffix {
-	case constants.Pg:
-		database = constants.PostgreSQL
-		if stackSuffix == "hapi" {
-			stack = constants.NodeHapiTemplate
-		} else if stackSuffix == "graphql" {
-			stack = constants.NodeExpressGraphqlTemplate
-		} else if stackSuffix == "golang" {
-			stack = constants.GolangEchoTemplate
-		}
-	case constants.Mysql:
-		database = constants.MySQL
-		if stackSuffix == "hapi" {
-			stack = constants.NodeHapiTemplate
-		} else if stackSuffix == "graphql" {
-			stack = constants.NodeExpressGraphqlTemplate
-		} else if stackSuffix == "golang" {
-			stack = constants.GolangEchoTemplate
-		}
-	case constants.Mongo:
-		database = constants.MongoDB
-		if stackSuffix == "express" {
-			stack = constants.NodeExpressTemplate
-		}
-	case constants.Web:
-		if stackSuffix == "react" {
-			stack = constants.ReactJS
-		} else if stackSuffix == "next" {
-			stack = constants.NextJS
-		}
-	case constants.Mobile:
-		if stackSuffix == "reactnative" {
-			stack = constants.ReactNative
-		} else if stackSuffix == "android" {
-			stack = constants.Android
-		} else if stackSuffix == "ios" {
-			stack = constants.IOS
-		} else if stackSuffix == "flutter" {
-			stack = constants.Flutter
+	var first, second, stack, database string
+	splitDirName := strings.Split(dirName, "-")
+	if len(splitDirName) > 2 {
+		first = splitDirName[len(splitDirName)-1]
+		second = splitDirName[len(splitDirName)-2]
+		switch first {
+		case "pg":
+			database = constants.PostgreSQL
+			if second == "hapi" {
+				stack = constants.NodeHapiTemplate
+			} else if second == "graphql" {
+				stack = constants.NodeExpressGraphqlTemplate
+			} else if second == "golang" {
+				stack = constants.GolangEchoTemplate
+			}
+		case "mysql":
+			database = constants.MySQL
+			if second == "hapi" {
+				stack = constants.NodeHapiTemplate
+			} else if second == "graphql" {
+				stack = constants.NodeExpressGraphqlTemplate
+			} else if second == "golang" {
+				stack = constants.GolangEchoTemplate
+			}
+		case "mongo":
+			database = constants.MongoDB
+			if second == "express" {
+				stack = constants.NodeExpressTemplate
+			}
+		case "web":
+			if second == "react" {
+				stack = constants.ReactJS
+			} else if second == "next" {
+				stack = constants.NextJS
+			}
+		case "mobile":
+			if second == "reactnative" {
+				stack = constants.ReactNative
+			} else if second == "android" {
+				stack = constants.Android
+			} else if second == "ios" {
+				stack = constants.IOS
+			} else if second == "flutter" {
+				stack = constants.Flutter
+			}
 		}
 	}
 	return stack, database
-}
-
-func SplitStackDirectoryName(dirName string) (string, string, string) {
-	var userInput, stackSuffix, lastSuffix string
-	var splitDirName []string
-	var isBackendStack bool
-	splitDirName = strings.Split(dirName, "-")
-	if len(splitDirName) > 2 {
-		lastSuffix = splitDirName[len(splitDirName)-1]
-		stackSuffix = splitDirName[len(splitDirName)-2]
-		if lastSuffix == "pg" || lastSuffix == "mysql" || lastSuffix == "mongo" {
-			isBackendStack = true
-		}
-		var suffixSize int
-		if isBackendStack {
-			if len(splitDirName) > 3 {
-				suffixSize = 3
-			}
-		} else {
-			suffixSize = 2
-		}
-		userInput = splitDirName[0]
-		for _, split := range splitDirName[1 : len(splitDirName)-suffixSize] {
-			userInput = fmt.Sprintf("%s_%s", userInput, split)
-		}
-	}
-	return userInput, stackSuffix, lastSuffix
-}
-
-func FindUserInputStackName(dirName string) string {
-	userInput, _, _ := SplitStackDirectoryName(dirName)
-	return userInput
 }
 
 func ExistingStackAndDatabase(dirName string) (string, string) {
