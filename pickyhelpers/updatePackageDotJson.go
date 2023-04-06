@@ -17,7 +17,7 @@ func UpdatePackageDotJson(stack, dirName string) error {
 	switch stack {
 	case constants.NodeHapiTemplate:
 		// convert to postgres
-		dependencies = []string{"pg", "pg-native"}
+		dependencies = []string{constants.Pg, "pg-native"}
 
 	case constants.NodeExpressGraphqlTemplate:
 		// convert to mysql

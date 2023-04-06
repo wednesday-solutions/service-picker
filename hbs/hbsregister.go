@@ -10,7 +10,7 @@ func DatabaseVolume(db string) string {
 	if db == constants.PostgreSQL {
 		return "postgresql/data"
 	} else if db == constants.MySQL {
-		return "mysql"
+		return constants.Mysql
 	} else {
 		return ""
 	}
@@ -54,9 +54,9 @@ func DBServiceName(stack, database string) string {
 			return "db_mysql"
 		}
 	case constants.GolangPostgreSQLTemplate, constants.GolangMySQLTemplate:
-		return "db"
+		return constants.DB
 	}
-	return "db"
+	return constants.DB
 }
 
 func GlobalAddDependencies(database string) string {

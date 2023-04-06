@@ -119,7 +119,7 @@ func SstConfigExistStacks() []string {
 	errorhandler.CheckNilErr(err)
 
 	lines := strings.Split(string(input), "\n")
-	configStackFiles := utils.FindConfigStacks(lines[15])
+	configStackFiles := utils.FindConfigStacks(lines[len(lines)-4])
 
 	stacks := utils.FindStacksByConfigStacks(configStackFiles)
 	return stacks
