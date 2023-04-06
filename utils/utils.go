@@ -376,18 +376,56 @@ func FindStacksByConfigStacks(configStacks []string) []string {
 	return stacks
 }
 
+func RunCommandWithLogs(path string, name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if path != "" {
+		cmd.Dir = path
+	}
+	err := cmd.Run()
+	fmt.Printf("\n")
+	return err
+}
+
+func RunCommandWithoutLogs(path string, name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	if path != "" {
+		cmd.Dir = path
+	}
+	err := cmd.Run()
+	return err
+}
+
 func IsYarnOrNpmInstalled() string {
 	var pkgManager string
-	err := exec.Command(constants.Yarn, "-v").Run()
+	err := RunCommandWithoutLogs("", constants.Yarn, "-v")
 	if err != nil {
-		err = exec.Command(constants.Npm, "-v").Run()
+		err = RunCommandWithoutLogs("", constants.Npm, "-v")
 		if err != nil {
-			errorhandler.CheckNilErr(fmt.Errorf("Please install 'yarn' or 'npm' in your machine."))
+			// Throw error either yarn or npm not installed
+			errorhandler.CheckNilErr(fmt.Errorf("Please install 'yarn' or 'npm' in your machine.\n"))
 		} else {
-			pkgManager = constants.Npm
+			// install 'yarn' if 'npm' installed already.
+			err = RunCommandWithoutLogs("", constants.Npm, "install", "--global", constants.Yarn)
+			errorhandler.CheckNilErr(err)
+			pkgManager = constants.Yarn
 		}
 	} else {
 		pkgManager = constants.Yarn
 	}
 	return pkgManager
+}
+
+func GetShortEnvironment(environment string) string {
+	switch environment {
+	case constants.Development:
+		return constants.Dev
+	case constants.QA:
+		return constants.QA
+	case constants.Production:
+		return constants.Prod
+	default:
+		return environment
+	}
 }

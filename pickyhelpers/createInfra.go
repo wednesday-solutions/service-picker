@@ -66,7 +66,7 @@ func CreateInfraStacks(service, stack, database, dirName, environment string) er
 
 	switch service {
 	case constants.Web:
-		source = sources.WebStackSource(camelCaseDirName, environment)
+		source = sources.WebStackSource(dirName, camelCaseDirName, environment)
 	case constants.Mobile:
 		// not implemented
 	case constants.Backend:
@@ -115,12 +115,18 @@ func IsInfraStacksExist(services []string) []string {
 }
 
 func SstConfigExistStacks() []string {
-	input, err := ioutil.ReadFile("sst.config.js")
-	errorhandler.CheckNilErr(err)
+	file := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigFile)
+	status, _ := fileutils.IsExists(file)
+	if status {
+		input, err := ioutil.ReadFile(file)
+		errorhandler.CheckNilErr(err)
 
-	lines := strings.Split(string(input), "\n")
-	configStackFiles := utils.FindConfigStacks(lines[len(lines)-4])
+		lines := strings.Split(string(input), "\n")
+		configStackFiles := utils.FindConfigStacks(lines[len(lines)-4])
 
-	stacks := utils.FindStacksByConfigStacks(configStackFiles)
-	return stacks
+		stacks := utils.FindStacksByConfigStacks(configStackFiles)
+		return stacks
+	} else {
+		return []string{}
+	}
 }

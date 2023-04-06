@@ -1,8 +1,7 @@
 package pickyhelpers
 
 import (
-	"os/exec"
-
+	"github.com/wednesday-solutions/picky/utils"
 	"github.com/wednesday-solutions/picky/utils/constants"
 	"github.com/wednesday-solutions/picky/utils/errorhandler"
 	"github.com/wednesday-solutions/picky/utils/fileutils"
@@ -11,8 +10,7 @@ import (
 func CloneRepo(stack, dirName, path string) error {
 
 	// Download the selected stack.
-	cmd := exec.Command("git", "clone", constants.Repos()[stack], dirName)
-	err := cmd.Run()
+	err := utils.RunCommandWithoutLogs("", "git", "clone", constants.Repos()[stack], dirName)
 	errorhandler.CheckNilErr(err)
 
 	// Delete cd.yml file from the cloned repo.
