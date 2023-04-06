@@ -47,10 +47,10 @@ WEB_AWS_REGION=ap-south-1`
 	return source
 }
 
-func SstConfigJsSource() string {
+func SstConfigSource() string {
 
 	source := `import dotenv from "dotenv";
-{{{sstImportStacks sstConfigStack existingDirectories}}}
+{{{sstImportStacks existingDirectories}}}
 dotenv.config({ path: ".env" });
 
 export default {
@@ -62,7 +62,7 @@ export default {
 	},
 	stacks(app) {
 		// deploy stacks
-		{{deployStacks sstConfigStack existingDirectories}}
+		{{deployStacks existingDirectories}}
 	},
 };
 `
@@ -70,7 +70,7 @@ export default {
 	return source
 }
 
-func WebStackJsSource(dirName, environment string) string {
+func WebStackSource(dirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
@@ -100,7 +100,7 @@ export function %s({ stack }) {
 	return source
 }
 
-func BackendStackJsSource(database, dirName, environment string) string {
+func BackendStackSource(database, dirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:

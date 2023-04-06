@@ -2,7 +2,9 @@ package pickyhelpers
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/hbs"
@@ -18,7 +20,7 @@ func IsInfraFilesExist() bool {
 	files := []string{
 		constants.PackageDotJsonFile,
 		constants.EnvFile,
-		constants.SstConfigJsFile,
+		constants.SstConfigFile,
 		constants.Stacks,
 	}
 	for _, file := range files {
@@ -64,27 +66,25 @@ func CreateInfraStacks(service, stack, database, dirName, environment string) er
 
 	switch service {
 	case constants.Web:
-		source = sources.WebStackJsSource(camelCaseDirName, environment)
+		source = sources.WebStackSource(camelCaseDirName, environment)
 	case constants.Mobile:
 		// not implemented
 	case constants.Backend:
-		source = sources.BackendStackJsSource(database, dirName, environment)
+		source = sources.BackendStackSource(database, dirName, environment)
 	}
 	err = fileutils.WriteToFile(path, source)
 	return err
 }
 
-func CreateSstConfigFile(stackInfo map[string]interface{},
-	all bool, dirName string, directories []string,
+func CreateSstConfigFile(stackInfo map[string]interface{}, directories []string,
 ) error {
-	sstConfigSource := sources.SstConfigJsSource()
-	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigJsFile)
-	stackInfo[constants.SstConfigStack] = dirName
-	if all {
-		// SST config file for all existing stacks.
-		camelCaseDirectories := utils.ToCamelCase(directories)
-		stackInfo[constants.ExistingDirectories] = camelCaseDirectories
-	}
+	sstConfigSource := sources.SstConfigSource()
+	path := fmt.Sprintf("%s/%s", fileutils.CurrentDirectory(), constants.SstConfigFile)
+
+	// SST config file for all selected existing stacks.
+	camelCaseDirectories := utils.ToCamelCase(directories)
+	stackInfo[constants.ExistingDirectories] = camelCaseDirectories
+
 	err := hbs.ParseAndWriteToFile(sstConfigSource, path, stackInfo)
 	return err
 }
@@ -112,4 +112,15 @@ func IsInfraStacksExist(services []string) []string {
 		}
 	}
 	return nonExistingStacks
+}
+
+func SstConfigExistStacks() []string {
+	input, err := ioutil.ReadFile("sst.config.js")
+	errorhandler.CheckNilErr(err)
+
+	lines := strings.Split(string(input), "\n")
+	configStackFiles := utils.FindConfigStacks(lines[15])
+
+	stacks := utils.FindStacksByConfigStacks(configStackFiles)
+	return stacks
 }

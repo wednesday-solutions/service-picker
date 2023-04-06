@@ -17,7 +17,6 @@ func PromptSetupInfra() {
 	if response {
 		cloudProvider := PromptCloudProvider()
 		var stacks []string
-		var all bool
 		for {
 			stacks = PromptSelectExistingStacks()
 			if len(stacks) > 0 {
@@ -25,7 +24,7 @@ func PromptSetupInfra() {
 			}
 		}
 		environment := PromptEnvironment()
-		err := CreateInfra(stacks, cloudProvider, all, environment)
+		err := CreateInfra(stacks, cloudProvider, environment)
 		errorhandler.CheckNilErr(err)
 		PromptDeployAfterInfra(stacks)
 	}
@@ -35,7 +34,7 @@ func PromptSetupInfra() {
 func PromptCloudProvider() string {
 	var p PromptInput
 	p.Label = "Choose a cloud provider"
-	p.Items = []string{constants.AWS, constants.GCP, constants.Azure}
+	p.Items = []string{constants.AWS}
 	p.GoBack = PromptHome
 	return p.PromptSelect()
 }
@@ -48,7 +47,7 @@ func PromptEnvironment() string {
 	return p.PromptSelect()
 }
 
-func CreateInfra(directories []string, cloudProvider string, all bool, environment string) error {
+func CreateInfra(directories []string, cloudProvider string, environment string) error {
 	switch cloudProvider {
 	case constants.AWS:
 		status := pickyhelpers.IsInfraFilesExist()

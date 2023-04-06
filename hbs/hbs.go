@@ -45,7 +45,6 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 		constants.WebDirName:               stackInfo[constants.WebDirName].(string),
 		constants.MobileDirName:            stackInfo[constants.MobileDirName].(string),
 		constants.BackendDirName:           stackInfo[constants.BackendDirName].(string),
-		constants.SstConfigStack:           stackInfo[constants.SstConfigStack].(string),
 		constants.ExistingDirectories:      stackInfo[constants.ExistingDirectories].([]string),
 	}
 	// Parse the source string into template

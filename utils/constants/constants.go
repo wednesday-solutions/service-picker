@@ -87,9 +87,7 @@ const (
 // Infra Files
 const (
 	PackageDotJsonFile = "package.json"
-	SstConfigJsFile    = "sst.config.js"
-	WebStackJsFile     = "WebStack.js"
-	BackendStackJsFile = "BackendStack.js"
+	SstConfigFile      = "sst.config.js"
 	EnvFile            = ".env"
 	EnvDevFile         = ".env.development"
 )
