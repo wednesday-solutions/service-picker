@@ -41,8 +41,8 @@ func AllStacksOfService(service string) []string {
 func PromptGetDirectoryName(stack, database string) string {
 	var p PromptInput
 	suffix := utils.GetSuffixOfStack(stack, database)
-	suffix = fmt.Sprintf("('-%s' suffix will be added)", suffix)
-	p.Label = fmt.Sprintf("Please enter a name for the '%s stack'%s", stack, suffix)
+	exampleLabel := fmt.Sprintf("('-%s' suffix will be added). Eg: test-%s ", suffix, suffix)
+	p.Label = fmt.Sprintf("Please enter a name for the '%s stack'%s", stack, exampleLabel)
 	p.GoBack = PromptSelectService
 	dirName := p.PromptGetInput()
 	dirName = utils.DirectoryName(dirName, stack, database)

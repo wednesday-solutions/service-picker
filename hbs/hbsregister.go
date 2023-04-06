@@ -79,15 +79,6 @@ func AddDependencies(database string) string {
 	}
 }
 
-func EnvFileBackend(database string) string {
-	switch database {
-	case constants.PostgreSQL, constants.MySQL:
-		return "./backend/.env.docker"
-	default:
-		return ""
-	}
-}
-
 func RunBuildEnvironment(stack string) string {
 	switch stack {
 	case constants.NodeExpressGraphqlTemplate:
@@ -142,9 +133,9 @@ func EnvEnvironmentName() string {
 
 func DeployStacks(stackFiles []string) string {
 	var deployStackSource string
-	for _, stack := range stackFiles {
+	for _, stackFile := range stackFiles {
 		// will append all the selected stack files to deploy in sst.config.js
-		deployStackSource = fmt.Sprintf("%s.stack(%s)", deployStackSource, stack)
+		deployStackSource = fmt.Sprintf("%s.stack(%s)", deployStackSource, stackFile)
 	}
 	deployStackSource = fmt.Sprintf("app%s;", deployStackSource)
 	return deployStackSource
@@ -153,8 +144,9 @@ func DeployStacks(stackFiles []string) string {
 func SstImportStacks(stackFiles []string) string {
 	var importStackSource string
 	// import all existing stacks in sst.config.js
-	for _, stack := range stackFiles {
-		importStackSource = fmt.Sprintf("%simport { %s } from %s./stacks/%s%s;\n", importStackSource, stack, `"`, stack, `"`)
+	for _, stackFile := range stackFiles {
+		importStackSource = fmt.Sprintf("%simport { %s } from %s./stacks/%s%s;\n",
+			importStackSource, stackFile, `"`, stackFile, `"`)
 	}
 	return importStackSource
 }
