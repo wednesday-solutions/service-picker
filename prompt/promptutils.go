@@ -78,20 +78,26 @@ func Exit() {
 	errorhandler.CheckNilErr(errorhandler.ErrInterrupt)
 }
 
+// PromptSelectExistingStacks is a prompt function will ask for selecting available stacks.
 func PromptSelectExistingStacks() []string {
 	var p PromptInput
-	p.Label = "Select existing stacks"
+	p.Label = "Select available stacks to create infrastructure"
 	p.GoBack = PromptHome
 	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
 	p.Items = directories
 	p.Items = append(p.Items, "All")
 	var results []string
 	var responses []int
+	count := 0
 	for {
 		if len(responses) == 0 {
 			results, responses = p.PromptMultiSelect()
 		} else {
 			break
+		}
+		count++
+		if count > 2 {
+			PromptHome()
 		}
 	}
 	for _, respIdx := range responses {
@@ -117,4 +123,11 @@ func GetDetailsTemplatesOfStacks(service string) string {
 `, details)
 	}
 	return details
+}
+
+func PromptAlreadyExist(existingFile string) bool {
+	var p PromptInput
+	p.Label = fmt.Sprintf("'%s' already exists, do you want to rewrite it", existingFile)
+	p.GoBack = PromptHome
+	return p.PromptYesOrNoSelect()
 }

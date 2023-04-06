@@ -212,7 +212,7 @@ func PrintMultiSelectMessage(messages []string) error {
 		coloredMessage = color.GreenString("%s", message)
 		tpl = CreateMessageTemplate("message", templateText)
 	} else {
-		message = "No options selected"
+		message = "No options selected, please select atleast one."
 		coloredMessage = color.YellowString("%s", message)
 		tpl = CreateMessageTemplate("responseMessage", fmt.Sprintf("%s {{ . }}\n", constants.IconWarn))
 	}
@@ -232,6 +232,14 @@ func PrintWarningMessage(message string) error {
 func PrintInfoMessage(message string) error {
 	tpl := CreateMessageTemplate("InfoMessage", fmt.Sprintf("\n%s {{ . }}\n", constants.IconChoose))
 	message = color.CyanString("%s", message)
+	err := tpl.Execute(os.Stdout, message)
+	return err
+}
+
+// PrintErrorMessage prints the given message in red color as error message
+func PrintErrorMessage(message string) error {
+	tpl := CreateMessageTemplate("errorMessage", fmt.Sprintf("\n{{ . }}%s\n", errorhandler.Exclamation))
+	message = color.RedString("%s", message)
 	err := tpl.Execute(os.Stdout, message)
 	return err
 }
@@ -362,27 +370,16 @@ func GetStackDetails(service string) []StackDetails {
 	return stacksDetails
 }
 
-// FindConfigStacks will return an array of existing stack functions in sst.config.js
-// Eg: [ApiNodeHapiMysql, FeReactWeb]
-func FindConfigStacks(configLine string) []string {
-	var stack string
-	var stacks []string
-	stackFound := false
-
-	for _, char := range configLine {
-		if char == '(' {
-			stackFound = true
-			continue
-		} else if char == ')' {
-			stackFound = false
-			stacks = append(stacks, stack)
-			stack = ""
-		}
-		if stackFound {
-			stack = fmt.Sprintf("%s%s", stack, string(char))
-		}
+// GetInfraStacksExist fetch stack files inside the stacks directory.
+func GetInfraStacksExist() []string {
+	path := fmt.Sprintf("%s/%s", CurrentDirectory(), constants.Stacks)
+	status, _ := IsExists(path)
+	if !status {
+		return []string{}
 	}
-	return stacks
+	files, err := ReadAllContents(path)
+	errorhandler.CheckNilErr(err)
+	return files
 }
 
 // FindStackDirectoriesByConfigStacks will return an array of stack directories present
@@ -395,6 +392,7 @@ func FindStackDirectoriesByConfigStacks(configStacks []string) []string {
 
 	for _, configStack := range configStacks {
 		for idx, camelCaseDirName := range camelCaseDirectories {
+			camelCaseDirName = fmt.Sprintf("%s%s", camelCaseDirName, ".js")
 			if configStack == camelCaseDirName {
 				stacks = append(stacks, directories[idx])
 			}
@@ -426,9 +424,9 @@ func RunCommandWithoutLogs(path string, name string, args ...string) error {
 	return err
 }
 
-// IsYarnOrNpmInstalled checks whether yarn or npm is installed in the user's machine.
+// GetPackageManagerOfUser checks whether yarn or npm is installed in the user's machine.
 // If both are not installed, then the system will throw error.
-func IsYarnOrNpmInstalled() string {
+func GetPackageManagerOfUser() string {
 	var pkgManager string
 	err := RunCommandWithoutLogs("", constants.Yarn, "-v")
 	if err != nil {
@@ -437,10 +435,7 @@ func IsYarnOrNpmInstalled() string {
 			// Throw error either yarn or npm not installed
 			errorhandler.CheckNilErr(fmt.Errorf("Please install 'yarn' or 'npm' in your machine.\n"))
 		} else {
-			// install 'yarn' if 'npm' installed already.
-			err = RunCommandWithoutLogs("", constants.Npm, "install", "--global", constants.Yarn)
-			errorhandler.CheckNilErr(err)
-			pkgManager = constants.Yarn
+			pkgManager = constants.Npm
 		}
 	} else {
 		pkgManager = constants.Yarn

@@ -2,9 +2,7 @@ package pickyhelpers
 
 import (
 	"fmt"
-	"io/ioutil"
 	"path/filepath"
-	"strings"
 
 	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/hbs"
@@ -51,9 +49,18 @@ func CreateInfraSetup() error {
 	return nil
 }
 
-// CreateInfraStacks creates the stack files of existing stacks in the stacks directory.
-func CreateInfraStacks(service, stack, database, dirName, environment string) error {
-	camelCaseDirName := strcase.ToCamel(dirName)
+type Infra struct {
+	Service          string
+	Stack            string
+	Database         string
+	DirName          string
+	CamelCaseDirName string
+	Environment      string
+	ForceCreate      bool
+}
+
+// CreateInfraStack creates the infra stack file of existing stack in the stacks directory.
+func (i Infra) CreateInfraStack() error {
 	var err error
 	var stackFileName string
 	path := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.Stacks)
@@ -62,19 +69,28 @@ func CreateInfraStacks(service, stack, database, dirName, environment string) er
 		err = utils.MakeDirectory(utils.CurrentDirectory(), constants.Stacks)
 		errorhandler.CheckNilErr(err)
 	}
-	stackFileName = fmt.Sprintf("%s%s", camelCaseDirName, ".js")
+	stackFileName = fmt.Sprintf("%s%s", i.CamelCaseDirName, ".js")
 	path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), constants.Stacks, stackFileName)
-	var source string
-
-	switch service {
-	case constants.Web:
-		source = sources.WebStackSource(dirName, camelCaseDirName, environment)
-	case constants.Mobile:
-		// not implemented
-	case constants.Backend:
-		source = sources.BackendStackSource(database, dirName, environment)
+	response := true
+	if !i.ForceCreate {
+		stackFileExist, _ := utils.IsExists(path)
+		if stackFileExist {
+			return errorhandler.ErrExist
+		}
 	}
-	err = utils.WriteToFile(path, source)
+	var source string
+	if response {
+		switch i.Service {
+		case constants.Web:
+			source = sources.WebStackSource(i.DirName, i.CamelCaseDirName, i.Environment)
+		case constants.Backend:
+			source = sources.BackendStackSource(i.Database, i.DirName, i.Environment)
+		default:
+			err := utils.PrintErrorMessage("Selected stack is invalid")
+			return err
+		}
+		err = utils.WriteToFile(path, source)
+	}
 	return err
 }
 
@@ -105,14 +121,11 @@ func UpdateEnvByEnvironment(dirName, environment string) error {
 
 // IsInfraStacksExist will return non existing stacks in the stacks directory.
 // It will check the stack function is exists in the stacks directory.
-func IsInfraStacksExist(stacksDirectories []string) []string {
-	var path, camelCaseStack string
+func GetNonExistingInfraStacks(stacksDirectories []string) []string {
 	var status bool
 	var nonExistingStacks []string
 	for _, stack := range stacksDirectories {
-		camelCaseStack = fmt.Sprintf("%s%s", strcase.ToCamel(stack), ".js")
-		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), constants.Stacks, camelCaseStack)
-		status, _ = utils.IsExists(path)
+		status = IsInfraStackExist(stack)
 		if !status {
 			nonExistingStacks = append(nonExistingStacks, stack)
 		}
@@ -120,25 +133,9 @@ func IsInfraStacksExist(stacksDirectories []string) []string {
 	return nonExistingStacks
 }
 
-// SstConfigExistStacks will give the stacks which is present in the sst.config.js
-func SstConfigExistStacks() []string {
-	file := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.SstConfigFile)
-	status, _ := utils.IsExists(file)
-	if status {
-		// Reads the sst.config.js file and store the contents in input.
-		input, err := ioutil.ReadFile(file)
-		errorhandler.CheckNilErr(err)
-
-		lines := strings.Split(string(input), "\n")
-		// Pass the line which contain the stack details.
-		// Eg: app.stack(ApiNodeHapiMysql).stack(ReReactWeb)
-		// Will get the stacks which are present. Eg: [ApiNodeHapiMysql, FeReactWeb]
-		configStackFiles := utils.FindConfigStacks(lines[len(lines)-4])
-
-		// Will get stack directories. Eg: [api-node-hapi-mysql, fe-react-web]
-		stacks := utils.FindStackDirectoriesByConfigStacks(configStackFiles)
-		return stacks
-	} else {
-		return []string{}
-	}
+func IsInfraStackExist(stackDirName string) bool {
+	camelCaseStack := fmt.Sprintf("%s%s", strcase.ToCamel(stackDirName), ".js")
+	path := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), constants.Stacks, camelCaseStack)
+	status, _ := utils.IsExists(path)
+	return status
 }

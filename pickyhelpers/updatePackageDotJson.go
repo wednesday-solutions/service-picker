@@ -22,7 +22,7 @@ func UpdatePackageDotJson(stack, dirName string) error {
 		// convert to mysql
 		dependencies = []string{"mysql2"}
 	}
-	pkgManager = utils.IsYarnOrNpmInstalled()
+	pkgManager = utils.GetPackageManagerOfUser()
 	if pkgManager == constants.Yarn {
 		updateCommands = []string{"add"}
 		updateCommands = append(updateCommands, dependencies...)
