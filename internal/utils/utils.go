@@ -13,9 +13,8 @@ import (
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 )
 
-// DirectoryName will create a default suffix for the stack which is selected by the user.
-// The directoryName depends on user input, stack, and the database which are selected or provided by the user.
-func DirectoryName(dirName, stack, database string) string {
+// CreateStackDirectory will create a a directory based on the user input, stack and the database selected.
+func CreateStackDirectory(dirName, stack, database string) string {
 	switch stack {
 	case constants.NodeHapiTemplate:
 		if database == constants.PostgreSQL {
@@ -98,11 +97,6 @@ func FindStackAndDatabase(dirName string) (string, string) {
 		} else if stackSuffix == "golang" {
 			stack = constants.GolangEchoTemplate
 		}
-	case constants.Mongo:
-		database = constants.MongoDB
-		if stackSuffix == "express" {
-			stack = constants.NodeExpressTemplate
-		}
 	case constants.Web:
 		if stackSuffix == "react" {
 			stack = constants.ReactJS
@@ -129,22 +123,22 @@ func SplitStackDirectoryName(dirName string) (string, string, string) {
 	var splitDirName []string
 	var isBackendStack bool
 	splitDirName = strings.Split(dirName, "-")
-	if len(splitDirName) > 2 {
-		lastSuffix = splitDirName[len(splitDirName)-1]
-		stackSuffix = splitDirName[len(splitDirName)-2]
+	if len(splitDirName) > constants.Two {
+		lastSuffix = splitDirName[len(splitDirName)-constants.One]
+		stackSuffix = splitDirName[len(splitDirName)-constants.Two]
 		if lastSuffix == constants.Pg || lastSuffix == constants.Mysql || lastSuffix == constants.Mongo {
 			isBackendStack = true
 		}
 		var suffixSize int
 		if isBackendStack {
-			if len(splitDirName) > 3 {
-				suffixSize = 3
+			if len(splitDirName) > constants.BackendSuffixSize {
+				suffixSize = constants.BackendSuffixSize
 			}
 		} else {
-			suffixSize = 2
+			suffixSize = constants.WebSuffixSize
 		}
-		userInput = splitDirName[0]
-		for _, split := range splitDirName[1 : len(splitDirName)-suffixSize] {
+		userInput = splitDirName[constants.Zero]
+		for _, split := range splitDirName[constants.One : len(splitDirName)-suffixSize] {
 			userInput = fmt.Sprintf("%s_%s", userInput, split)
 		}
 	}
@@ -195,9 +189,9 @@ func CreateMessageTemplate(name, text string) *template.Template {
 func PrintMultiSelectMessage(messages []string) error {
 	var message, coloredMessage string
 	var tpl *template.Template
-	if len(messages) > 0 {
+	if len(messages) > constants.Zero {
 		var templateText string
-		if len(messages) == 1 {
+		if len(messages) == constants.One {
 			templateText = fmt.Sprintf("%s %d option selected: {{ . }}\n",
 				constants.IconSelect,
 				len(messages))
@@ -443,8 +437,8 @@ func GetPackageManagerOfUser() string {
 	return pkgManager
 }
 
-// GetShortEnvironment return short environment name for the given environment.
-func GetShortEnvironment(environment string) string {
+// GetEnvironment return short environment name for the given environment.
+func GetEnvironment(environment string) string {
 	switch environment {
 	case constants.Development:
 		return constants.Dev

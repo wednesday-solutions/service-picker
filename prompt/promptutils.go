@@ -43,7 +43,7 @@ func PromptGetDirectoryName(stack, database string) string {
 	p.Label = fmt.Sprintf("Please enter a name for the '%s' stack %s", stack, exampleLabel)
 	p.GoBack = PromptSelectService
 	dirName := p.PromptGetInput()
-	dirName = utils.DirectoryName(dirName, stack, database)
+	dirName = utils.CreateStackDirectory(dirName, stack, database)
 	status := true
 	var err error
 	for status {
@@ -52,7 +52,7 @@ func PromptGetDirectoryName(stack, database string) string {
 		if status {
 			p.Label = "Entered name already exists. Please enter another name"
 			dirName = p.PromptGetInput()
-			dirName = utils.DirectoryName(dirName, stack, database)
+			dirName = utils.CreateStackDirectory(dirName, stack, database)
 		}
 	}
 	return dirName

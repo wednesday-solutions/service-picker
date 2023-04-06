@@ -15,12 +15,12 @@ func UpdatePackageDotJson(stack, dirName string) error {
 
 	switch stack {
 	case constants.NodeHapiTemplate:
-		// convert to postgres
-		dependencies = []string{constants.Pg, "pg-native"}
+		// postgres database support for mysql templates
+		dependencies = []string{constants.Pg, constants.PgNative}
 
 	case constants.NodeExpressGraphqlTemplate:
-		// convert to mysql
-		dependencies = []string{"mysql2"}
+		// mysql database support for postgres templates
+		dependencies = []string{constants.Mysql2}
 	}
 	pkgManager = utils.GetPackageManagerOfUser()
 	if pkgManager == constants.Yarn {

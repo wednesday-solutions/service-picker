@@ -72,14 +72,8 @@ export default {
 }
 
 func WebStackSource(dirName, camelCaseDirName, environment string) string {
-	var shortEnvironment string
-	switch environment {
-	case constants.Development:
-		shortEnvironment = constants.Dev
-	case constants.QA:
-		shortEnvironment = constants.QA
-	case constants.Production:
-		shortEnvironment = constants.Prod
+	if environment == constants.Development {
+		environment = constants.Dev
 	}
 	var buildOutput string
 	stack, _ := utils.FindStackAndDatabase(camelCaseDirName)
@@ -104,7 +98,7 @@ export function %s({ stack }) {
 		SiteUrl: site.url || "http://localhost:3000/",
 	});
 }
-`, camelCaseDirName, camelCaseDirName, dirName, shortEnvironment, buildOutput)
+`, camelCaseDirName, camelCaseDirName, dirName, environment, buildOutput)
 	return source
 }
 

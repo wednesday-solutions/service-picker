@@ -112,6 +112,8 @@ const (
 	Frontend                 = "frontend"
 	Database                 = "database"
 	ProjectName              = "projectName"
+	PgNative                 = "pg-native"
+	Mysql2                   = "mysql2"
 	WebStatus                = "webStatus"
 	MobileStatus             = "mobileStatus"
 	BackendStatus            = "backendStatus"
@@ -129,6 +131,11 @@ const (
 	WebDirectories           = "webDirectories"
 	BackendPgDirectories     = "backendPgDirectories"
 	BackendMysqlDirectories  = "backendMysqlDirectories"
+	Zero                     = 0
+	One                      = 1
+	Two                      = 2
+	BackendSuffixSize        = 3
+	WebSuffixSize            = 2
 )
 
 // Docker related files
