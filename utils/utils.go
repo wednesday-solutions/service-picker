@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 	"text/template"
 
@@ -350,4 +351,20 @@ func FindStacksByConfigStacks(configStacks []string) []string {
 		}
 	}
 	return stacks
+}
+
+func IsYarnOrNpmInstalled() string {
+	var pkgManager string
+	err := exec.Command(constants.Yarn, "-v").Run()
+	if err != nil {
+		err = exec.Command(constants.Npm, "-v").Run()
+		if err != nil {
+			errorhandler.CheckNilErr(fmt.Errorf("Please install 'yarn' or 'npm' in your machine."))
+		} else {
+			pkgManager = constants.Npm
+		}
+	} else {
+		pkgManager = constants.Yarn
+	}
+	return pkgManager
 }

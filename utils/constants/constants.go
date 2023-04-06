@@ -121,6 +121,8 @@ const (
 	All                      = "All"
 	SstConfigStack           = "sstConfigStack"
 	ExistingDirectories      = "existingDirectories"
+	Yarn                     = "yarn"
+	Npm                      = "npm"
 )
 
 // Docker related files
