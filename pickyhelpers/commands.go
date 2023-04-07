@@ -13,14 +13,21 @@ func InstallDependencies(pkgManager string, path ...string) error {
 	return err
 }
 
-func BuildSST() error {
+func BuildSST(pkgManager string) error {
 	err := utils.RunCommandWithLogs("", "yarn", "build")
 	return err
 }
 
-func DeploySST(environment string) error {
+func DeploySST(pkgManager, environment string) error {
 	environment = utils.GetEnvironment(environment)
 	arg := fmt.Sprintf("deploy:%s", environment)
-	err := utils.RunCommandWithLogs("", "yarn", arg)
+	err := utils.RunCommandWithLogs("", pkgManager, arg)
+	return err
+}
+
+func RemoveDeploy(pkgManager, environment string) error {
+	environment = utils.GetEnvironment(environment)
+	arg := fmt.Sprintf("remove:%s", environment)
+	err := utils.RunCommandWithLogs("", pkgManager, "run", arg)
 	return err
 }

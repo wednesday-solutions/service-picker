@@ -27,12 +27,17 @@ func DeployStacks(stacks []string, environment string) error {
 	if environment == "" {
 		environment = PromptEnvironment()
 	}
-	response := true
+	response, afterInfra := true, false
 	if len(stacks) == 0 {
 		stacks = utils.GetInfraStacksExist()
+	} else {
+		// afterInfra will become true if the DeployStacks function is called from DeployAfterInfra
+		afterInfra = true
 	}
 	if len(stacks) > 0 {
-		stacks = utils.FindStackDirectoriesByConfigStacks(stacks)
+		if !afterInfra {
+			stacks = utils.FindStackDirectoriesByConfigStacks(stacks)
+		}
 		// Prints the existing infra stacks.
 		message := "Existing stacks are,\n\n"
 		for i, stack := range stacks {
@@ -60,7 +65,9 @@ func DeployStacks(stacks []string, environment string) error {
 	stackInfo := pickyhelpers.GetStackInfo("", "", environment)
 	err := pickyhelpers.CreateSstConfigFile(stackInfo, stacks)
 	errorhandler.CheckNilErr(err)
-	err = PromptDeployUtils(stacks, environment)
+
+	// Deploy infrastructure
+	err = PromptInstallDependenciesAndDeploy(stacks, environment)
 	return err
 }
 
@@ -77,31 +84,28 @@ func PromptDeployAfterInfra(configStacks []string, environment string) error {
 	return nil
 }
 
-// PromptDeployUtils contains all three steps of deployments such as install dependencies,
-// build, and deployment.
-func PromptDeployUtils(configStacks []string, environment string) error {
-
-	// Install dependencies ('yarn install' or 'npm install')
-	err := PromptInstallDependencies(configStacks)
-	errorhandler.CheckNilErr(err)
-
-	// Build sst
-	err = PromptBuildSST()
-	errorhandler.CheckNilErr(err)
-
-	// Deploy infrastructure
-	err = PromptDeploySST(environment)
-	return err
+// PromptBuildSST runs 'yarn build'
+func PromptBuildSST(pkgManager string) error {
+	var p PromptInput
+	p.Label = "Do you want to build"
+	p.GoBack = PromptDeploy
+	response := p.PromptYesOrNoSelect()
+	if response {
+		err := pickyhelpers.BuildSST(pkgManager)
+		return err
+	} else {
+		PromptDeploy()
+	}
+	return nil
 }
 
-// PromptInstallDependencies will install dependencies
-func PromptInstallDependencies(configStacks []string) error {
+// InstallDependenciesAndDeploy install dependencies of each file, then deploy.
+func PromptInstallDependenciesAndDeploy(configStacks []string, environment string) error {
 	var p PromptInput
-	p.Label = "Can we install dependencies"
-	p.GoBack = PromptHome
-	pkgManager := ""
+	p.Label = "Can we deploy now"
+	p.GoBack = PromptDeploy
 	response := p.PromptYesOrNoSelect()
-	pkgManager = utils.GetPackageManagerOfUser()
+	pkgManager := utils.GetPackageManagerOfUser()
 	if response {
 		// install sst dependencies(root directory)
 		err := utils.PrintInfoMessage("Installing sst dependencies")
@@ -120,37 +124,11 @@ func PromptInstallDependencies(configStacks []string) error {
 			)
 			errorhandler.CheckNilErr(err)
 		}
-		return err
-	} else {
-		PromptDeploy()
-	}
-	return nil
-}
-
-// PromptBuildSST runs 'yarn build'
-func PromptBuildSST() error {
-	var p PromptInput
-	p.Label = "Can we build"
-	p.GoBack = PromptDeploy
-	response := p.PromptYesOrNoSelect()
-	if response {
-		err := pickyhelpers.BuildSST()
-		return err
-	} else {
-		PromptDeploy()
-	}
-	return nil
-}
-
-// PromptDeploySST runs 'yarn deploy:environment'
-func PromptDeploySST(environment string) error {
-	var p PromptInput
-	p.Label = "Can we deploy now"
-	p.GoBack = PromptDeploy
-	response := p.PromptYesOrNoSelect()
-	if response {
-		err := pickyhelpers.DeploySST(environment)
+		err = utils.PrintInfoMessage("Deploying...")
 		errorhandler.CheckNilErr(err)
+		err = pickyhelpers.DeploySST(pkgManager, environment)
+		errorhandler.CheckNilErr(err)
+
 	} else {
 		PromptDeploy()
 	}

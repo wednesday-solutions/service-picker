@@ -76,7 +76,7 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 		environment = constants.Dev
 	}
 	var buildOutput string
-	stack, _ := utils.FindStackAndDatabase(camelCaseDirName)
+	stack, _ := utils.FindStackAndDatabase(dirName)
 	if stack == constants.ReactJS {
 		buildOutput = "build"
 	} else if stack == constants.NextJS {
@@ -88,7 +88,7 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 export function %s({ stack }) {
 	// Deploy our web app
 	const site = new StaticSite(stack, "%sSite", {
-		path: "%s/",
+		path: "%s",
 		buildCommand: "yarn run build:%s",
 		buildOutput: "%s",
 	});
@@ -112,8 +112,9 @@ func BackendStackSource(database, dirName, environment string) string {
 	case constants.Production:
 		shortEnvironment = constants.Production
 	}
-	databaseName := fmt.Sprintf("%s_%s",
-		utils.FindUserInputStackName(dirName),
+	userInputStackName := utils.FindUserInputStackName(dirName)
+	dbName := fmt.Sprintf("%s_%s",
+		userInputStackName,
 		constants.Database,
 	)
 	camelCaseDirName := strcase.ToCamel(dirName)
@@ -128,15 +129,16 @@ func BackendStackSource(database, dirName, environment string) string {
 		dbEngineVersion = "PostgresEngineVersion"
 		dbPortNumber = "5432"
 		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
-		db_uri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${db}`"
+		db_uri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
 		dbPortNumber = "3306"
 		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_23,\n\t\t\t})"
-		db_uri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${db}`"
+		db_uri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
 	}
+	singleQuote := "`"
 
 	source := fmt.Sprintf(`import * as cdk from "aws-cdk-lib";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -155,9 +157,10 @@ import * as elasticcache from "aws-cdk-lib/aws-elasticache";
 import { Platform } from "aws-cdk-lib/aws-ecr-assets";
 
 export function %s({ stack }) {
-	const clientName = "test-sst-ecs";
+	const clientName = "%s";
 	const environment = "%s";
 	const clientPrefix = %s${clientName}-${environment}%s;
+	const dbName = "%s";
 
 	const vpc = new ec2.Vpc(stack, %s${clientPrefix}-vpc%s, {
 		maxAzs: 3,
@@ -258,7 +261,7 @@ export function %s({ stack }) {
 			backupRetention: cdk.Duration.days(1),
 			allocatedStorage: 10,
 			maxAllocatedStorage: 30,
-			databaseName: "%s",
+			databaseName: dbName,
 		}
 	);
 
@@ -373,8 +376,6 @@ export function %s({ stack }) {
 		.secretValueFromJson("password")
 		.toString();
 
-	const db = "sst_test_database";
-
 	const DB_URI = %s;
 
 	const image = ecs.ContainerImage.fromAsset("%s/", {
@@ -419,7 +420,7 @@ export function %s({ stack }) {
 
 	new CfnOutput(stack, "database-name", {
 		exportName: "database-name",
-		value: db,
+		value: dbName,
 	});
 
 	new CfnOutput(stack, "redis-host", {
@@ -427,12 +428,17 @@ export function %s({ stack }) {
 		value: redisCache.attrRedisEndpointAddress,
 	});
 }
-`, dbEngineVersion, camelCaseDirName, shortEnvironment, "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", "`", dbPortNumber, "`", "`", "`", "`", "`", "`",
-		dbEngine, databaseName, "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`", "`",
-		"`", "`", "`", db_uri, dirName, environment, "`", "`", shortEnvironment,
-		environment, dbHost, "`", "`", "`", "`",
+`, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
+		singleQuote, singleQuote, dbName, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, dbPortNumber,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		dbEngine, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, db_uri, dirName,
+		environment, singleQuote, singleQuote, shortEnvironment, environment, dbHost,
+		singleQuote, singleQuote, singleQuote, singleQuote,
 	)
 
 	return source
