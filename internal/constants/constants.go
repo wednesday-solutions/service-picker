@@ -27,12 +27,12 @@ const (
 
 // Home options
 const (
-	InitService         = "Init Service"
-	CreateDockerCompose = "Create docker-compose"
-	CreateCD            = "Create CD"
-	SetupInfra          = "Setup Infra"
-	Deploy              = "Deploy"
-	Exit                = "Exit"
+	InitService   = "Init Service"
+	DockerCompose = "Docker-compose"
+	CreateCD      = "Create CD"
+	SetupInfra    = "Setup Infra"
+	Deploy        = "Deploy"
+	Exit          = "Exit"
 )
 
 // Services
@@ -69,6 +69,12 @@ const (
 	PostgreSQL = "PostgreSQL"
 	MySQL      = "MySQL"
 	MongoDB    = "MongoDB"
+)
+
+// Docker compose actions
+const (
+	CreateDockerCompose = "Create docker-compose"
+	RunDockerCompose    = "Run docker-compose"
 )
 
 // Github Repo download URL

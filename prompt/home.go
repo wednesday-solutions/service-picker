@@ -15,7 +15,7 @@ func PromptHome() {
 		p.Items = []string{constants.InitService, constants.CreateCD}
 		showCreateDC := ShowCreateDockerCompose(databases)
 		if showCreateDC {
-			p.Items = append(p.Items, constants.CreateDockerCompose)
+			p.Items = append(p.Items, constants.DockerCompose)
 		}
 		p.Items = append(p.Items,
 			constants.SetupInfra,
@@ -26,7 +26,7 @@ func PromptHome() {
 		switch response {
 		case constants.InitService:
 			initService = true
-		case constants.CreateDockerCompose:
+		case constants.DockerCompose:
 			PromptDockerCompose()
 		case constants.CreateCD:
 			PromptCreateCD()
