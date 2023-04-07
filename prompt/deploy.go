@@ -3,6 +3,7 @@ package prompt
 import (
 	"fmt"
 
+	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
 	"github.com/wednesday-solutions/picky/pickyhelpers"
@@ -133,4 +134,35 @@ func PromptInstallDependenciesAndDeploy(configStacks []string, environment strin
 		PromptDeploy()
 	}
 	return nil
+}
+
+func ShowRemoveDeploy() bool {
+	path := fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.DotSstDirectory)
+	status, _ := utils.IsExists(path)
+	return status
+}
+
+// PromptRemoveDeploy is the prompt for the remove deploy option of Home prompt.
+func PromptRemoveDeploy() {
+	var p PromptInput
+	p.Label = "Do you want to remove the deployed infrastructure"
+	p.GoBack = PromptHome
+	response := p.PromptYesOrNoSelect()
+	if response {
+		environment := PromptEnvironment()
+		err := RemoveDeploy(environment)
+		errorhandler.CheckNilErr(err)
+	}
+	PromptHome()
+}
+
+func RemoveDeploy(environment string) error {
+	pkgManager := utils.GetPackageManagerOfUser()
+	environment = utils.GetEnvironment(environment)
+
+	err := utils.PrintInfoMessage("Removing deployed infrastructure..")
+	errorhandler.CheckNilErr(err)
+	arg := fmt.Sprintf("%s:%s", "remove", environment)
+	err = utils.RunCommandWithLogs("", pkgManager, "run", arg)
+	return err
 }

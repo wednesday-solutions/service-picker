@@ -3,6 +3,7 @@ package pickyhelpers
 import (
 	"fmt"
 
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
@@ -91,7 +92,7 @@ volumes:
   {{projectName}}_db_volume:
 `
 
-	source := `version: '3'
+	_ = `version: '3'
 services:
 {{#each backendPgDirectories}}
   # Setup {{PostgreSQL}}
@@ -200,6 +201,147 @@ volumes:
   {{this}}-db-volume:
 {{/each}}
 `
+
+	var (
+		backendMysqlDirectories []string
+		backendPgDirectories    []string
+		backendMysqlSnakeCased  []string
+		backendPgSnakeCased     []string
+	)
+
+	var snakeCaseDirName string
+	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
+	for i, d := range directories {
+		service := utils.FindService(d)
+		if service == constants.Backend {
+			if databases[i] == constants.MySQL {
+				backendMysqlDirectories = append(backendMysqlDirectories, d)
+				snakeCaseDirName = strcase.ToSnake(d)
+				backendMysqlSnakeCased = append(backendMysqlSnakeCased, snakeCaseDirName)
+			} else if databases[i] == constants.PostgreSQL {
+				backendPgDirectories = append(backendPgDirectories, d)
+				snakeCaseDirName = strcase.ToSnake(d)
+				backendPgSnakeCased = append(backendPgSnakeCased, snakeCaseDirName)
+			}
+		}
+	}
+
+	source := `version: '3'
+services:`
+
+	for i, d := range backendPgDirectories {
+		source = fmt.Sprintf(`%s
+  # Setup {{PostgreSQL}}
+  %s_db:
+    image: '{{dbVersion PostgreSQL}}' 
+    ports:
+      - {{portConnection PostgreSQL}} 
+    restart: always # This will make sure that the container comes up post unexpected shutdowns
+    env_file:
+      - ./%s/.env.docker
+    volumes:
+      - %s{{databaseVolumeConnection PostgreSQL}}
+{{#equal stack GolangPostgreSQL}}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_PORT: ${PSQL_PORT}
+{{/equal}}
+
+{{#equal stack GolangPostgreSQL}}
+{{{waitForDBService PostgreSQL}}}
+
+{{/equal}}
+  # Setup %s api
+  %s:
+    build:
+      context: './%s'
+      args:
+        ENVIRONMENT_NAME: docker
+    ports:
+      - {{portConnection backend}}
+    env_file:
+      - ./%s/.env.docker
+    environment:
+      ENVIRONMENT_NAME: docker
+{{dependsOnFieldOfGo stack}}
+`, source, backendPgSnakeCased[i], d, d, d, d, d, d)
+	}
+
+	for i, d := range backendMysqlDirectories {
+		source = fmt.Sprintf(`%s
+  # Setup {{MySQL}}
+  %s_db:
+    image: '{{dbVersion MySQL}}' 
+    ports:
+      - {{portConnection MySQL}} 
+    restart: always # This will make sure that the container comes up post unexpected shutdowns
+    env_file:
+      - ./%s/.env.docker
+    volumes:
+      - %s{{databaseVolumeConnection MySQL}}
+{{#equal stack GolangMySQL}}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DBNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+{{/equal}}
+
+{{#equal stack GolangMySQL}}
+{{{waitForDBService MySQL}}}
+
+{{/equal}}
+  # Setup %s api
+  %s:
+    build:
+      context: './%s'
+      args:
+        ENVIRONMENT_NAME: docker
+    ports:
+      - {{portConnection backend}}
+    env_file:
+      - ./%s/.env.docker
+    environment:
+      ENVIRONMENT_NAME: docker
+{{dependsOnFieldOfGo stack}}
+`, source, backendMysqlSnakeCased[i], d, d, d, d, d, d)
+	}
+
+	source = fmt.Sprintf(`%s
+{{#if backendStatus}}
+  # Setup Redis
+  redis:
+    image: 'redis:6-alpine'
+    ports:
+      - {{portConnection redis}}
+    # Default command that redis will execute at start
+    command: ['redis-server']
+
+{{/if}}
+{{#each webDirectories}} 
+  # Setup {{this}} web
+  {{this}}:
+    build:
+      context: './{{this}}'
+    ports:
+      - {{portConnection web}}
+    env_file:
+      - ./{{this}}/.env.docker
+
+{{else}}
+# No web directories
+
+{{/each}}
+# Setup Volumes
+volumes:
+{{#each backendPgDirectories}}
+  {{this}}-db-volume:
+{{/each}}
+{{#each backendMysqlDirectories}}
+  {{this}}-db-volume:
+{{/each}}
+`, source)
 
 	err := hbs.ParseAndWriteToFile(source, filePath, stackInfo)
 	errorhandler.CheckNilErr(err)

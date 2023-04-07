@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/stoewer/go-strcase"
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
@@ -16,7 +16,7 @@ func GetStackInfo(stack, database, environment string) map[string]interface{} {
 	currentDir := utils.CurrentDirectory()
 	splitDirs := strings.Split(currentDir, "/")
 	projectName := splitDirs[len(splitDirs)-1]
-	projectName = strcase.SnakeCase(projectName)
+	projectName = strcase.ToSnake(projectName)
 
 	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
 	for i, dirName := range directories {

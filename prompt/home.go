@@ -20,8 +20,12 @@ func PromptHome() {
 		p.Items = append(p.Items,
 			constants.SetupInfra,
 			constants.Deploy,
-			constants.Exit,
 		)
+		showRemoveDeploy := ShowRemoveDeploy()
+		if showRemoveDeploy {
+			p.Items = append(p.Items, constants.RemoveDeploy)
+		}
+		p.Items = append(p.Items, constants.Exit)
 		response := p.PromptSelect()
 		switch response {
 		case constants.InitService:
@@ -32,9 +36,10 @@ func PromptHome() {
 			PromptCreateCD()
 		case constants.SetupInfra:
 			PromptSetupInfra()
-		case
-			constants.Deploy:
+		case constants.Deploy:
 			PromptDeploy()
+		case constants.RemoveDeploy:
+			PromptRemoveDeploy()
 		case constants.Exit:
 			PromptExit()
 		}
