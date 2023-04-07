@@ -92,7 +92,9 @@ func GenerateDockerCompose() error {
 func RunDockerCompose() error {
 	status, _ := utils.IsExists(filepath.Join(utils.CurrentDirectory(), constants.DockerComposeFile))
 	if status {
-		err := utils.RunCommandWithLogs("", "docker", "compose", "up")
+		err := utils.PrintInfoMessage("Running docker-compose..")
+		errorhandler.CheckNilErr(err)
+		err = utils.RunCommandWithLogs("", "docker", "compose", "up")
 		errorhandler.CheckNilErr(err)
 	} else {
 		err := utils.PrintWarningMessage(fmt.Sprintf("%s file is not exist in the root directory.", constants.DockerComposeFile))
