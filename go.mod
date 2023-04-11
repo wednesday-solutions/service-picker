@@ -7,11 +7,10 @@ require (
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.15.0
 	github.com/iancoleman/strcase v0.2.0
-	github.com/rivo/tview v0.0.0-20230330183452-5796b0cd5c1f
+	github.com/rivo/tview v0.0.0-20230406072732-e22ce9588bb4
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spaceweasel/promptui v0.8.1
-	github.com/spf13/cobra v1.6.1
-	github.com/stoewer/go-strcase v1.3.0
+	github.com/spf13/cobra v1.7.0
 )
 
 require (
@@ -28,8 +27,9 @@ require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/term v0.7.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

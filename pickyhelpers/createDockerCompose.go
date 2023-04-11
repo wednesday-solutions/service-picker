@@ -3,6 +3,7 @@ package pickyhelpers
 import (
 	"fmt"
 
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/hbs"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
@@ -14,96 +15,45 @@ func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 	filePath := fmt.Sprintf("%s/%s", utils.CurrentDirectory(),
 		constants.DockerComposeFile,
 	)
+	var (
+		backendMysqlDirectories []string
+		backendPgDirectories    []string
+		backendMysqlSnakeCased  []string
+		backendPgSnakeCased     []string
+	)
+	var snakeCaseDirName string
+	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
+	for i, d := range directories {
+		service := utils.FindService(d)
+		if service == constants.Backend {
+			if databases[i] == constants.MySQL {
+				backendMysqlDirectories = append(backendMysqlDirectories, d)
+				snakeCaseDirName = strcase.ToSnake(d)
+				backendMysqlSnakeCased = append(backendMysqlSnakeCased, snakeCaseDirName)
+			} else if databases[i] == constants.PostgreSQL {
+				backendPgDirectories = append(backendPgDirectories, d)
+				snakeCaseDirName = strcase.ToSnake(d)
+				backendPgSnakeCased = append(backendPgSnakeCased, snakeCaseDirName)
+			}
+		}
+	}
+
 	// Don't make any changes in the below source string.
-	_ = `version: '3'
-services:
-{{#if backendStatus}}
-  # Setup {{database}}
-  {{dbServiceName stack database}}:
-    image: '{{dbVersion database}}' 
-    ports:
-      - {{portConnection database}} 
-    restart: always # This will make sure that the container comes up post unexpected shutdowns
-    env_file:
-      - ./{{backendDirName}}/.env.docker
-    volumes:
-      - {{projectName}}_db_volume:/var/lib/{{databaseVolume database}}
-{{#equal stack GolangPostgreSQL}}
-    environment:
-      POSTGRES_USER: ${PSQL_USER}
-      POSTGRES_PASSWORD: ${PSQL_PASS}
-      POSTGRES_DB: ${PSQL_DBNAME}
-      POSTGRES_PORT: ${PSQL_PORT}
-{{/equal}}
-{{#equal stack GolangMySQL}}
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DBNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASS}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-{{/equal}}
-
-  # Setup Redis
-  redis:
-    image: 'redis:6-alpine'
-    ports:
-      - {{portConnection redis}}
-    # Default command that redis will execute at start
-    command: ['redis-server']
-
-{{#equal stack GolangPostgreSQL}}
-{{{waitForDBService database}}}
-
-{{/equal}}
-{{#equal stack GolangMySQL}}
-{{{waitForDBService database}}}
-
-{{/equal}}
-  # Setup {{projectName}} API
-  {{projectName}}_api:
-    build:
-      context: './{{backendDirName}}'
-      args:
-        ENVIRONMENT_NAME: docker
-    ports:
-      - {{portConnection backend}}
-    env_file:
-      - ./{{backendDirName}}/.env.docker
-    environment:
-      ENVIRONMENT_NAME: docker
-{{dependsOnFieldOfGo stack}}
-{{/if}}
-{{#each webDirectories}} 
-  # Setup {{projectName}} {{this}}
-  {{projectName}}_{{this}}:
-    build:
-      context: './{{this}}'
-    ports:
-      - {{portConnection web}}
-    env_file:
-      - ./{{this}}/.env.docker
-
-{{else}}
-# No web directories
-
-{{/each}}
-# Setup Volumes
-volumes:
-  {{projectName}}_db_volume:
-`
-
 	source := `version: '3'
-services:
-{{#each backendPgDirectories}}
+services:`
+
+	for i, d := range backendPgDirectories {
+		source = fmt.Sprintf(`%s
   # Setup {{PostgreSQL}}
-  {{dbServiceName stack PostgreSQL}}:
+  %s_db:
     image: '{{dbVersion PostgreSQL}}' 
     ports:
       - {{portConnection PostgreSQL}} 
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
-      - ./{{this}}/.env.docker
+      - ./%s/.env.docker
     volumes:
-      - {{this}}{{databaseVolumeConnection PostgreSQL}}
+      - %s{{databaseVolumeConnection PostgreSQL}}
 {{#equal stack GolangPostgreSQL}}
     environment:
       POSTGRES_USER: ${PSQL_USER}
@@ -116,32 +66,34 @@ services:
 {{{waitForDBService PostgreSQL}}}
 
 {{/equal}}
-  # Setup {{this}} api
-  {{this}}:
+  # Setup %s api
+  %s:
     build:
-      context: './{{this}}'
+      context: './%s'
       args:
         ENVIRONMENT_NAME: docker
     ports:
       - {{portConnection backend}}
     env_file:
-      - ./{{this}}/.env.docker
+      - ./%s/.env.docker
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
-{{/each}}
+`, source, backendPgSnakeCased[i], d, d, d, d, d, d)
+	}
 
-{{#each backendMysqlDirectories}}
+	for i, d := range backendMysqlDirectories {
+		source = fmt.Sprintf(`%s
   # Setup {{MySQL}}
-  {{dbServiceName stack MySQL}}:
+  %s_db:
     image: '{{dbVersion MySQL}}' 
     ports:
       - {{portConnection MySQL}} 
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
-      - ./{{this}}/.env.docker
+      - ./%s/.env.docker
     volumes:
-      - {{this}}{{databaseVolumeConnection MySQL}}
+      - %s{{databaseVolumeConnection MySQL}}
 {{#equal stack GolangMySQL}}
     environment:
       MYSQL_DATABASE: ${MYSQL_DBNAME}
@@ -153,20 +105,23 @@ services:
 {{{waitForDBService MySQL}}}
 
 {{/equal}}
-  # Setup {{this}} api
-  {{this}}:
+  # Setup %s api
+  %s:
     build:
-      context: './{{this}}'
+      context: './%s'
       args:
         ENVIRONMENT_NAME: docker
     ports:
       - {{portConnection backend}}
     env_file:
-      - ./{{this}}/.env.docker
+      - ./%s/.env.docker
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
-{{/each}}
+`, source, backendMysqlSnakeCased[i], d, d, d, d, d, d)
+	}
+
+	source = fmt.Sprintf(`%s
 {{#if backendStatus}}
   # Setup Redis
   redis:
@@ -199,7 +154,7 @@ volumes:
 {{#each backendMysqlDirectories}}
   {{this}}-db-volume:
 {{/each}}
-`
+`, source)
 
 	err := hbs.ParseAndWriteToFile(source, filePath, stackInfo)
 	errorhandler.CheckNilErr(err)

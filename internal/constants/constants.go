@@ -32,6 +32,7 @@ const (
 	CreateCD      = "Create CD"
 	SetupInfra    = "Setup Infra"
 	Deploy        = "Deploy"
+	RemoveDeploy  = "Remove Deploy"
 	Exit          = "Exit"
 )
 
@@ -142,6 +143,7 @@ const (
 	Two                      = 2
 	BackendSuffixSize        = 3
 	WebSuffixSize            = 2
+	DotSstDirectory          = ".sst"
 )
 
 // Docker related files

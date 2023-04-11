@@ -47,6 +47,10 @@ func ConvertTemplateDatabase(stack, database, dirName string, stackInfo map[stri
 		// Update docker-compose file
 		err = UpdateDockerCompose(stack, dirName, stackInfo)
 		errorhandler.CheckNilErr(err)
+	} else {
+		// Update DB_HOST in .env.docker file
+		err := UpdateEnvDockerFile(stack, dirName)
+		errorhandler.CheckNilErr(err)
 	}
 	return nil
 }
