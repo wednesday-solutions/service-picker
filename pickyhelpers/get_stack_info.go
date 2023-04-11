@@ -2,9 +2,7 @@ package pickyhelpers
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
@@ -14,9 +12,7 @@ func GetStackInfo(stack, database, environment string) map[string]interface{} {
 	var webDir, mobileDir, backendDir, service string
 	var webDirectories, backendPgDirectories, backendMysqlDirectories []string
 	currentDir := utils.CurrentDirectory()
-	splitDirs := strings.Split(currentDir, "/")
-	projectName := splitDirs[len(splitDirs)-1]
-	projectName = strcase.ToSnake(projectName)
+	projectName := utils.GetProjectNameInSnakeCase()
 
 	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
 	for i, dirName := range directories {

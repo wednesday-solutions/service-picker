@@ -50,7 +50,11 @@ func CreateCDFile(service, stack, database, dirName string) error {
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	cdDestination := utils.CurrentDirectory() + "/" + dirName + constants.CDFilePathURL
+	cdDestination := fmt.Sprintf("%s/%s/cd-%s.yaml",
+		utils.CurrentDirectory(),
+		constants.GithubWorkflowsDir,
+		dirName,
+	)
 	status, _ := utils.IsExists(cdDestination)
 	if !status {
 

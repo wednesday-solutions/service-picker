@@ -12,7 +12,7 @@ func PromptHome() {
 	var initService bool
 	stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
 	if len(stacks) > 0 {
-		p.Items = []string{constants.InitService, constants.CreateCD}
+		p.Items = []string{constants.InitService, constants.CICD}
 		showCreateDC := ShowCreateDockerCompose(databases)
 		if showCreateDC {
 			p.Items = append(p.Items, constants.DockerCompose)
@@ -32,8 +32,8 @@ func PromptHome() {
 			initService = true
 		case constants.DockerCompose:
 			PromptDockerCompose()
-		case constants.CreateCD:
-			PromptCreateCD()
+		case constants.CICD:
+			PromptCICD()
 		case constants.SetupInfra:
 			PromptSetupInfra()
 		case constants.Deploy:

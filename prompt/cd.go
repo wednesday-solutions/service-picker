@@ -1,22 +1,32 @@
 package prompt
 
 import (
+	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
 	"github.com/wednesday-solutions/picky/pickyhelpers"
 )
 
-func PromptCreateCD() {
+func PromptCICD() {
 	var p PromptInput
-	p.Label = "Do you want to create CD file"
+	p.Label = "Select an option"
+	p.Items = []string{constants.CreateCI, constants.CreateCD}
 	p.GoBack = PromptHome
-	response := p.PromptYesOrNoSelect()
-	if response {
-		services := PromptSelectExistingStacks()
-		err := CreateCD(services)
-		errorhandler.CheckNilErr(err)
+	selectedOptions, _ := p.PromptMultiSelect()
+	services := PromptSelectExistingStacks()
+
+	for _, option := range selectedOptions {
+		if option == constants.CreateCI {
+
+			err := pickyhelpers.CreateCI(services)
+			errorhandler.CheckNilErr(err)
+
+		} else if option == constants.CreateCD {
+
+			err := CreateCD(services)
+			errorhandler.CheckNilErr(err)
+		}
 	}
-	PromptHome()
 }
 
 func CreateCD(directories []string) error {

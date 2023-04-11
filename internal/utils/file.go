@@ -40,6 +40,12 @@ func MakeDirectory(path string, dirName string) error {
 	}
 }
 
+// CreateDirectory creates directory according to the input.
+func CreateDirectory(filePath string) error {
+	err := os.Mkdir(filePath, 0755)
+	return err
+}
+
 // MakeFile will create new file according to input path and file name.
 func MakeFile(path, fileName string) error {
 	_, err := os.Create(path + "/" + fileName)
