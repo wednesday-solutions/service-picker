@@ -19,7 +19,7 @@ func BuildSST() error {
 }
 
 func DeploySST(environment string) error {
-	environment = utils.GetShortEnvironment(environment)
+	environment = utils.GetEnvironment(environment)
 	arg := fmt.Sprintf("deploy:%s", environment)
 	err := utils.RunCommandWithLogs("", "yarn", arg)
 	return err

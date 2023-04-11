@@ -99,39 +99,32 @@ func PromptInstallDependencies(configStacks []string) error {
 	var p PromptInput
 	p.Label = "Can we install dependencies"
 	p.GoBack = PromptHome
-	count, pkgManager := 0, ""
-	for {
-		response := p.PromptYesOrNoSelect()
-		count++
-		if count == 1 {
-			pkgManager = utils.GetPackageManagerOfUser()
-		}
-		if response {
-			// install sst dependencies(root directory)
-			err := utils.PrintInfoMessage("Installing sst dependencies")
-			errorhandler.CheckNilErr(err)
-			err = pickyhelpers.InstallDependencies(pkgManager)
-			errorhandler.CheckNilErr(err)
-
-			// install selected stacks dependencies(respected stack directory)
-			for _, configStackDir := range configStacks {
-				err := utils.PrintInfoMessage(fmt.Sprintf("Installing %s dependencies", configStackDir))
-				errorhandler.CheckNilErr(err)
-				err = pickyhelpers.InstallDependencies(
-					pkgManager,
-					utils.CurrentDirectory(),
-					configStackDir,
-				)
-				errorhandler.CheckNilErr(err)
-			}
-			return err
-		}
-		if count == 2 {
-			PromptHome()
-		}
-		err := utils.PrintWarningMessage("You can't deploy without installing dependencies")
+	pkgManager := ""
+	response := p.PromptYesOrNoSelect()
+	pkgManager = utils.GetPackageManagerOfUser()
+	if response {
+		// install sst dependencies(root directory)
+		err := utils.PrintInfoMessage("Installing sst dependencies")
 		errorhandler.CheckNilErr(err)
+		err = pickyhelpers.InstallDependencies(pkgManager)
+		errorhandler.CheckNilErr(err)
+
+		// install selected stacks dependencies(respected stack directory)
+		for _, configStackDir := range configStacks {
+			err := utils.PrintInfoMessage(fmt.Sprintf("Installing %s dependencies", configStackDir))
+			errorhandler.CheckNilErr(err)
+			err = pickyhelpers.InstallDependencies(
+				pkgManager,
+				utils.CurrentDirectory(),
+				configStackDir,
+			)
+			errorhandler.CheckNilErr(err)
+		}
+		return err
+	} else {
+		PromptDeploy()
 	}
+	return nil
 }
 
 // PromptBuildSST runs 'yarn build'
@@ -139,20 +132,14 @@ func PromptBuildSST() error {
 	var p PromptInput
 	p.Label = "Can we build"
 	p.GoBack = PromptDeploy
-	count := 0
-	for {
-		response := p.PromptYesOrNoSelect()
-		count++
-		if response {
-			err := pickyhelpers.BuildSST()
-			return err
-		}
-		if count == 2 {
-			PromptHome()
-		}
-		err := utils.PrintWarningMessage("You can't deploy without build.")
-		errorhandler.CheckNilErr(err)
+	response := p.PromptYesOrNoSelect()
+	if response {
+		err := pickyhelpers.BuildSST()
+		return err
+	} else {
+		PromptDeploy()
 	}
+	return nil
 }
 
 // PromptDeploySST runs 'yarn deploy:environment'
@@ -160,16 +147,12 @@ func PromptDeploySST(environment string) error {
 	var p PromptInput
 	p.Label = "Can we deploy now"
 	p.GoBack = PromptDeploy
-	count := 0
-	for {
-		response := p.PromptYesOrNoSelect()
-		count++
-		if response {
-			err := pickyhelpers.DeploySST(environment)
-			errorhandler.CheckNilErr(err)
-		}
-		if count == 2 {
-			PromptHome()
-		}
+	response := p.PromptYesOrNoSelect()
+	if response {
+		err := pickyhelpers.DeploySST(environment)
+		errorhandler.CheckNilErr(err)
+	} else {
+		PromptDeploy()
 	}
+	return nil
 }
