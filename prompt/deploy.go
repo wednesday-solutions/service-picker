@@ -14,88 +14,67 @@ func PromptDeploy() {
 	p.Label = "Do you want to deploy your project"
 	p.GoBack = PromptHome
 	response := p.PromptYesOrNoSelect()
-	// configStacks means the existing stacks in the sst.config.js
-	var configStacks []string
 	if response {
-		_ = PromptCloudProvider()
-		configStacks = pickyhelpers.SstConfigExistStacks()
-		if len(configStacks) == 0 {
-			err := utils.PrintWarningMessage(fmt.Sprintf("Please setup infrastructure first%s\n",
-				errorhandler.Exclamation,
-			))
-			errorhandler.CheckNilErr(err)
-			PromptSetupInfra()
-		}
-		// Prints the existing stacks in the sst.config.js
-		message := "Selected stacks are,\n\n"
-		for i, stack := range configStacks {
-			message = fmt.Sprintf("%s  %d.%s\n", message, i+1, stack)
-		}
-		fmt.Printf("%s\n", message)
-
-		p.Label = "Do you want to change the selected stacks"
-		p.GoBack = PromptDeploy
-		response = p.PromptYesOrNoSelect()
-		if response {
-			configStacks = PromptSelectExistingStacks()
-			// handling errors by checking the selected stacks are present in the stacks directory.
-			nonExistingStacks := pickyhelpers.IsInfraStacksExist(configStacks)
-			if len(nonExistingStacks) > 0 {
-				message := "Didn't setup Infrastructure for the following stacks,\n\n"
-				for i, stack := range nonExistingStacks {
-					message = fmt.Sprintf("%s %d. %s\n", message, i+1, stack)
-				}
-				fmt.Printf("%s\n", message)
-				err := utils.PrintWarningMessage(fmt.Sprintf("Please setup infrastructure first%s\n",
-					errorhandler.Exclamation,
-				))
-				errorhandler.CheckNilErr(err)
-				PromptSetupInfra()
-			}
-		}
-		environment := PromptEnvironment()
-		if response {
-			stackInfo := pickyhelpers.GetStackInfo("", "", environment)
-			err := pickyhelpers.CreateSstConfigFile(stackInfo, configStacks)
-			errorhandler.CheckNilErr(err)
-		}
-		// Let's deploy..
-		err := PromptDeployUtils(configStacks, environment)
+		err := DeployStacks([]string{}, "")
 		errorhandler.CheckNilErr(err)
 	}
 	PromptHome()
 }
 
+// DeployStacks will deploy the infrastructure.
+func DeployStacks(stacks []string, environment string) error {
+	var p PromptInput
+	if environment == "" {
+		environment = PromptEnvironment()
+	}
+	response := true
+	if len(stacks) == 0 {
+		stacks = utils.GetInfraStacksExist()
+	}
+	if len(stacks) > 0 {
+		stacks = utils.FindStackDirectoriesByConfigStacks(stacks)
+		// Prints the existing infra stacks.
+		message := "Existing stacks are,\n\n"
+		for i, stack := range stacks {
+			message = fmt.Sprintf("%s  %d. %s\n", message, i+1, stack)
+		}
+		fmt.Printf("%s\n", message)
+		p.Label = "Do you want to change the existing stacks"
+		p.GoBack = PromptDeploy
+		response = p.PromptYesOrNoSelect()
+	}
+	if response {
+		stacks = PromptSelectExistingStacks()
+		nonExistingStacks := pickyhelpers.GetNonExistingInfraStacks(stacks)
+		if len(nonExistingStacks) > 0 {
+			message := "Didn't setup Infrastructure for the following stacks,\n\n"
+			for i, stack := range nonExistingStacks {
+				message = fmt.Sprintf("%s %d. %s\n", message, i+1, stack)
+			}
+			fmt.Printf("%s\n", message)
+			// create infra stacks for non existing stacks.
+			err := PromptCreateInfraStacksWhenDeploy(nonExistingStacks, environment)
+			errorhandler.CheckNilErr(err)
+		}
+	}
+	stackInfo := pickyhelpers.GetStackInfo("", "", environment)
+	err := pickyhelpers.CreateSstConfigFile(stackInfo, stacks)
+	errorhandler.CheckNilErr(err)
+	err = PromptDeployUtils(stacks, environment)
+	return err
+}
+
 // PromptDeployAfterInfra will come up after setting up the infrastructure.
-func PromptDeployAfterInfra(configStacks []string, environment string) {
+func PromptDeployAfterInfra(configStacks []string, environment string) error {
 	var p PromptInput
 	p.Label = "Do you want to deploy your project"
 	p.GoBack = PromptHome
 	response := p.PromptYesOrNoSelect()
 	if response {
-		_ = PromptCloudProvider()
-		if len(configStacks) > 0 {
-			message := "Selected stacks are,\n\n"
-			for i, configStack := range configStacks {
-				message = fmt.Sprintf("%s  %d. %s\n", message, i+1, configStack)
-			}
-			fmt.Printf("%s\n", message)
-			p.Label = "Are you sure to deploy the above stacks"
-			response = p.PromptYesOrNoSelect()
-			if response {
-				// Let's deploy...
-				err := PromptDeployUtils(configStacks, environment)
-				errorhandler.CheckNilErr(err)
-			}
-		} else {
-			err := utils.PrintWarningMessage(fmt.Sprintf("Please setup infrastructure first%s\n",
-				errorhandler.Exclamation,
-			))
-			errorhandler.CheckNilErr(err)
-			PromptSetupInfra()
-		}
+		err := DeployStacks(configStacks, environment)
+		return err
 	}
-	PromptHome()
+	return nil
 }
 
 // PromptDeployUtils contains all three steps of deployments such as install dependencies,
@@ -110,7 +89,7 @@ func PromptDeployUtils(configStacks []string, environment string) error {
 	err = PromptBuildSST()
 	errorhandler.CheckNilErr(err)
 
-	// Let's deploy...
+	// Deploy infrastructure
 	err = PromptDeploySST(environment)
 	return err
 }
@@ -125,7 +104,7 @@ func PromptInstallDependencies(configStacks []string) error {
 		response := p.PromptYesOrNoSelect()
 		count++
 		if count == 1 {
-			pkgManager = utils.IsYarnOrNpmInstalled()
+			pkgManager = utils.GetPackageManagerOfUser()
 		}
 		if response {
 			// install sst dependencies(root directory)

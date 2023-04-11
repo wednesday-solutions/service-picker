@@ -3,6 +3,7 @@ package prompt
 import (
 	"fmt"
 
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
@@ -17,17 +18,29 @@ func PromptSetupInfra() {
 	response := p.PromptYesOrNoSelect()
 	if response {
 		cloudProvider := PromptCloudProvider()
-		var stacks []string
-		for {
-			stacks = PromptSelectExistingStacks()
-			if len(stacks) > 0 {
-				break
-			}
-		}
 		environment := PromptEnvironment()
-		err := CreateInfra(stacks, cloudProvider, environment)
+		response := true
+		// stack will get infra stack files
+		stacks := utils.GetInfraStacksExist()
+		if len(stacks) > 0 {
+			// change infra stack files into stack directory files.
+			stacks = utils.FindStackDirectoriesByConfigStacks(stacks)
+			message := "Infra setup is already exist for the following stacks,\n\n"
+			for i, stack := range stacks {
+				message = fmt.Sprintf("%s %d. %s\n", message, i+1, stack)
+			}
+			fmt.Printf("%s\n", message)
+			p.Label = "Do you want to change the existing stacks"
+			p.GoBack = PromptSetupInfra
+			response = p.PromptYesOrNoSelect()
+		}
+		if response {
+			stacks = PromptSelectExistingStacks()
+			err := CreateInfra(stacks, cloudProvider, environment)
+			errorhandler.CheckNilErr(err)
+		}
+		err := PromptDeployAfterInfra(stacks, environment)
 		errorhandler.CheckNilErr(err)
-		PromptDeployAfterInfra(stacks, environment)
 	}
 	PromptHome()
 }
@@ -56,39 +69,91 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 	case constants.AWS:
 		status := pickyhelpers.IsInfraFilesExist()
 		var (
-			stack, database string
-			stackInfo       map[string]interface{}
-			err             error
+			stackInfo map[string]interface{}
+			err       error
 		)
-		done := make(chan bool)
-		go pickyhelpers.ProgressBar(20, "Generating", done)
-
 		if !status {
 			err = pickyhelpers.CreateInfraSetup()
 			errorhandler.CheckNilErr(err)
 		}
+		var response bool
 		for _, dirName := range directories {
-			service := utils.FindService(dirName)
-			stack, database = utils.FindStackAndDatabase(dirName)
-			stackInfo = pickyhelpers.GetStackInfo(stack, database, environment)
+			var infra pickyhelpers.Infra
+			infra.Service = utils.FindService(dirName)
+			infra.Stack, infra.Database = utils.FindStackAndDatabase(dirName)
+			infra.DirName = dirName
+			infra.CamelCaseDirName = strcase.ToCamel(dirName)
+			infra.Environment = environment
+			infra.ForceCreate = false
 
-			err = pickyhelpers.CreateInfraStacks(service, stack, database, dirName, environment)
+			stackInfo = pickyhelpers.GetStackInfo(infra.Stack, infra.Database, environment)
+
+			err = infra.CreateInfraStack()
 			if err != nil {
-				if err.Error() != errorhandler.ErrExist.Error() {
+				if err.Error() == errorhandler.ErrExist.Error() {
+					response = PromptAlreadyExist(dirName)
+					if response {
+						infra.ForceCreate = true
+						err = infra.CreateInfraStack()
+						errorhandler.CheckNilErr(err)
+					}
+				} else {
 					errorhandler.CheckNilErr(err)
 				}
 			}
-			if service == constants.Backend {
+			if infra.Service == constants.Backend {
 				err = pickyhelpers.UpdateEnvByEnvironment(dirName, environment)
 				errorhandler.CheckNilErr(err)
 			}
 		}
 		err = pickyhelpers.CreateSstConfigFile(stackInfo, directories)
 		errorhandler.CheckNilErr(err)
-		<-done
+
 		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 	default:
 		fmt.Printf("\nWork in Progress. Please stay tuned..!\n")
+	}
+	return nil
+}
+
+// PromptCreateInfraStacksWhenDeploy will setup the infra of stacks which are not already set up.
+func PromptCreateInfraStacksWhenDeploy(directories []string, environment string) error {
+	count := 0
+	for {
+		var p PromptInput
+		p.Label = "Do you want to setup infra for newly selected stacks"
+		p.GoBack = PromptDeploy
+		response := p.PromptYesOrNoSelect()
+		if response {
+			var err error
+			var infra pickyhelpers.Infra
+			for _, dirName := range directories {
+				infra.DirName = dirName
+				infra.CamelCaseDirName = strcase.ToCamel(dirName)
+				infra.Service = utils.FindService(dirName)
+				infra.Stack, infra.Database = utils.FindStackAndDatabase(dirName)
+				infra.Environment = environment
+				infra.ForceCreate = false
+				err = infra.CreateInfraStack()
+				if err != nil {
+					if err.Error() == errorhandler.ErrExist.Error() {
+						response := PromptAlreadyExist(infra.DirName)
+						if response {
+							infra.ForceCreate = true
+							err = infra.CreateInfraStack()
+							errorhandler.CheckNilErr(err)
+						}
+					}
+					errorhandler.CheckNilErr(err)
+				}
+			}
+			fmt.Println(errorhandler.DoneMessage)
+			break
+		}
+		count++
+		if count > 1 {
+			break
+		}
 	}
 	return nil
 }
