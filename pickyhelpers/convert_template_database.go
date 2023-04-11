@@ -8,18 +8,18 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func ConvertTemplateDatabase(stack, database, dirName string, stackInfo map[string]interface{}) error {
+func (s StackDetails) ConvertTemplateDatabase() error {
 
 	isDatabaseSupported := true
 
-	switch stack {
+	switch s.Stack {
 	case constants.NodeHapiTemplate:
-		if database == constants.PostgreSQL {
+		if s.Database == constants.PostgreSQL {
 			isDatabaseSupported = false
 		}
 
 	case constants.NodeExpressGraphqlTemplate:
-		if database == constants.MySQL {
+		if s.Database == constants.MySQL {
 			isDatabaseSupported = false
 		}
 	default:
@@ -28,28 +28,28 @@ func ConvertTemplateDatabase(stack, database, dirName string, stackInfo map[stri
 
 	if !isDatabaseSupported {
 		// Add new dependencies to package.json
-		err := UpdatePackageDotJson(stack, dirName)
+		err := UpdatePackageDotJson(s.Stack, s.DirName)
 		errorhandler.CheckNilErr(err)
 
 		// Update env files with respect to new database
-		err = UpdateEnvFiles(stack, dirName)
+		err = UpdateEnvFiles(s.Stack, s.DirName)
 		errorhandler.CheckNilErr(err)
 
 		// Convert DB Connection into MySQL.
-		dbConfigFile := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), dirName, "config/db.js")
-		err = UpdateDBConfig(stack, dbConfigFile, stackInfo)
+		dbConfigFile := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(), s.DirName, "config/db.js")
+		err = UpdateDBConfig(s.Stack, dbConfigFile, s.StackInfo)
 		errorhandler.CheckNilErr(err)
 
 		// Convert queries
-		err = ConvertQueries(stack, dirName)
+		err = ConvertQueries(s.Stack, s.DirName)
 		errorhandler.CheckNilErr(err)
 
 		// Update docker-compose file
-		err = UpdateDockerCompose(stack, dirName, stackInfo)
+		err = UpdateDockerCompose(s.Stack, s.DirName, s.StackInfo)
 		errorhandler.CheckNilErr(err)
 	} else {
 		// Update DB_HOST in .env.docker file
-		err := UpdateEnvDockerFileForDefaultDBInTemplate(stack, dirName)
+		err := UpdateEnvDockerFileForDefaultDBInTemplate(s.Stack, s.DirName)
 		errorhandler.CheckNilErr(err)
 	}
 	return nil

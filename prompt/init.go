@@ -11,15 +11,22 @@ import (
 	"github.com/wednesday-solutions/picky/pickyhelpers"
 )
 
-func PromptSelectInit(service, stack, database, dirName string) {
+type InitInfo struct {
+	Service  string
+	Stack    string
+	Database string
+	DirName  string
+}
+
+func (i *InitInfo) PromptSelectInit() {
 	var p PromptInput
 	p.GoBack = PromptSelectService
 	response := true
 	for response {
-		p.Label = fmt.Sprintf("Do you want to initialize '%s' as '%s'", stack, dirName)
+		p.Label = fmt.Sprintf("Do you want to initialize '%s' as '%s'", i.Stack, i.DirName)
 		response = p.PromptYesOrNoSelect()
 		if response {
-			Init(service, stack, database, dirName)
+			i.Init()
 		} else {
 			response = PromptConfirm()
 			if response {
@@ -31,18 +38,18 @@ func PromptSelectInit(service, stack, database, dirName string) {
 	}
 }
 
-func Init(service, stack, database, dirName string) {
+func (i *InitInfo) Init() {
 	var p PromptInput
 	p.GoBack = PromptSelectService
 	currentDir := utils.CurrentDirectory()
-	if stack == constants.GolangEchoTemplate {
-		stack = fmt.Sprintf("%s-%s", strings.Split(stack, " ")[0], database)
+	if i.Stack == constants.GolangEchoTemplate {
+		i.Stack = fmt.Sprintf("%s-%s", strings.Split(i.Stack, " ")[0], i.Database)
 	}
-	destination := filepath.Join(currentDir, dirName)
+	destination := filepath.Join(currentDir, i.DirName)
 	status, _ := utils.IsExists(destination)
 	var response bool
 	for status {
-		p.Label = fmt.Sprintf("The '%s' already exists, do you want to update it", dirName)
+		p.Label = fmt.Sprintf("The '%s' already exists, do you want to update it", i.DirName)
 		response = p.PromptYesOrNoSelect()
 		if response {
 			// Delete all contents of existing directory.
@@ -54,7 +61,7 @@ func Init(service, stack, database, dirName string) {
 	}
 	if !status {
 		// Create directory with directory name we got.
-		err := utils.MakeDirectory(currentDir, dirName)
+		err := utils.MakeDirectory(currentDir, i.DirName)
 		errorhandler.CheckNilErr(err)
 		response = true
 	}
@@ -63,23 +70,28 @@ func Init(service, stack, database, dirName string) {
 		go pickyhelpers.ProgressBar(100, "Downloading", done)
 
 		// Clone the selected repo into service directory.
-		err := pickyhelpers.CloneRepo(stack, dirName, currentDir)
+		var s pickyhelpers.StackDetails
+		s.Stack = i.Stack
+		s.DirName = i.DirName
+		s.CurrentDir = currentDir
+		s.Database = i.Database
+		err := s.CloneRepo()
 		errorhandler.CheckNilErr(err)
 
 		// Delete .git folder inside the cloned repo.
-		err = pickyhelpers.DeleteDotGitFolder(dirName)
-		errorhandler.CheckNilErr(err)
+		// err = s.DeleteDotGitFolder()
+		// errorhandler.CheckNilErr(err)
 
 		// stackInfo gives the information about the stacks which is present in the root.
-		stackInfo := pickyhelpers.GetStackInfo(stack, database, constants.Environment)
-
+		s.Environment = constants.Environment
+		s.StackInfo = s.GetStackInfo()
 		// Database conversion
-		if service == constants.Backend {
-			err = pickyhelpers.ConvertTemplateDatabase(stack, database, dirName, stackInfo)
+		if i.Service == constants.Backend {
+			err = s.ConvertTemplateDatabase()
 			errorhandler.CheckNilErr(err)
 		}
 		// create and update docker files
-		err = pickyhelpers.CreateDockerFiles(dirName, stackInfo)
+		err = s.CreateDockerFiles()
 		errorhandler.CheckNilErr(err)
 
 		<-done

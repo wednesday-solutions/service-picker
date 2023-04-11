@@ -7,18 +7,18 @@ func PromptSelectService() {
 	p.Label = "Pick a service"
 	p.Items = AllServices()
 	p.GoBack = PromptHome
-	service := p.PromptSelect()
-	PromptSelectStack(service)
+
+	var i InitInfo
+	i.Service = p.PromptSelect()
+	i.PromptSelectStack()
 }
 
-func PromptSelectStack(service string) {
+func (i *InitInfo) PromptSelectStack() {
 
-	stack := PromptStack(service)
-
-	var database string
-	if service == constants.Backend {
-		database = PromptSelectStackDatabase(service, stack)
+	i.Stack = i.PromptStack()
+	if i.Service == constants.Backend {
+		i.PromptSelectStackDatabase()
 	}
-	dirName := PromptGetDirectoryName(stack, database)
-	PromptSelectInit(service, stack, database, dirName)
+	i.DirName = i.PromptGetDirectoryName()
+	i.PromptSelectInit()
 }

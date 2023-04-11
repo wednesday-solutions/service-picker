@@ -7,7 +7,7 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func GetStackInfo(stack, database, environment string) map[string]interface{} {
+func (s StackDetails) GetStackInfo() map[string]interface{} {
 
 	var webDir, mobileDir, backendDir, service string
 	var webDirectories, backendPgDirectories, backendMysqlDirectories []string
@@ -46,14 +46,14 @@ func GetStackInfo(stack, database, environment string) map[string]interface{} {
 			stackInfo[status] = false
 		}
 	}
-	stackInfo[constants.Stack] = stack
-	stackInfo[constants.Database] = database
+	stackInfo[constants.Stack] = s.Stack
+	stackInfo[constants.Database] = s.Database
 	stackInfo[constants.ProjectName] = projectName
 	stackInfo[constants.WebDirName] = webDir
 	stackInfo[constants.MobileDirName] = mobileDir
 	stackInfo[constants.BackendDirName] = backendDir
 	stackInfo[constants.ExistingDirectories] = directories
-	stackInfo[constants.Environment] = environment
+	stackInfo[constants.Environment] = s.Environment
 	stackInfo[constants.WebDirectories] = webDirectories
 	stackInfo[constants.BackendPgDirectories] = backendPgDirectories
 	stackInfo[constants.BackendMysqlDirectories] = backendMysqlDirectories

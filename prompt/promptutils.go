@@ -13,49 +13,26 @@ func AllServices() []string {
 	return []string{constants.Web, constants.Mobile, constants.Backend}
 }
 
-func AllStacksOfService(service string) []string {
-	var items []string
-	switch service {
-	case constants.Web:
-		items = []string{constants.ReactJS, constants.NextJS}
-	case constants.Backend:
-		items = []string{constants.NodeHapiTemplate,
-			constants.NodeExpressGraphqlTemplate,
-			constants.NodeExpressTemplate,
-			constants.GolangEchoTemplate,
-		}
-	case constants.Mobile:
-		items = []string{constants.ReactNative,
-			constants.Android,
-			constants.IOS,
-			constants.Flutter,
-		}
-	default:
-		errorhandler.CheckNilErr(fmt.Errorf("Selected stack is invalid"))
-	}
-	return items
-}
-
-func PromptGetDirectoryName(stack, database string) string {
+func (i *InitInfo) PromptGetDirectoryName() string {
 	var p PromptInput
-	suffix := utils.GetSuffixOfStack(stack, database)
+	suffix := utils.GetSuffixOfStack(i.Stack, i.Database)
 	exampleLabel := fmt.Sprintf("('-%s' suffix will be added). Eg: test-%s ", suffix, suffix)
-	p.Label = fmt.Sprintf("Please enter a name for the '%s' stack %s", stack, exampleLabel)
+	p.Label = fmt.Sprintf("Please enter a name for the '%s' stack %s", i.Stack, exampleLabel)
 	p.GoBack = PromptSelectService
-	dirName := p.PromptGetInput()
-	dirName = utils.CreateStackDirectory(dirName, stack, database)
+	i.DirName = p.PromptGetInput()
+	i.DirName = utils.CreateStackDirectory(i.DirName, i.Stack, i.Database)
 	status := true
 	var err error
 	for status {
-		status, err = utils.IsExists(filepath.Join(utils.CurrentDirectory(), dirName))
+		status, err = utils.IsExists(filepath.Join(utils.CurrentDirectory(), i.DirName))
 		errorhandler.CheckNilErr(err)
 		if status {
 			p.Label = "Entered name already exists. Please enter another name"
-			dirName = p.PromptGetInput()
-			dirName = utils.CreateStackDirectory(dirName, stack, database)
+			i.DirName = p.PromptGetInput()
+			i.DirName = utils.CreateStackDirectory(i.DirName, i.Stack, i.Database)
 		}
 	}
-	return dirName
+	return i.DirName
 }
 
 func PromptExit() {
@@ -109,15 +86,15 @@ func PromptSelectExistingStacks() []string {
 }
 
 // GetDetailsTemplatesOfStacks return the details template for the given service.
-func GetDetailsTemplatesOfStacks(service string) string {
+func (i *InitInfo) GetDetailsTemplatesOfStacks() string {
 	details := fmt.Sprintf(`
   -------- %s --------
 {{ "Name:" | faint }}       {{ .Name }}
 {{ "Language:" | faint }}   {{ .Language }}
 {{ "Framework:" | faint }}  {{ .Framework }}
-{{ "Type:" | faint }}       {{ .Type }}`, service)
+{{ "Type:" | faint }}       {{ .Type }}`, i.Service)
 
-	if service == constants.Backend {
+	if i.Service == constants.Backend {
 		details = fmt.Sprintf(`%s
 {{ "Databases:" | faint }}  {{ .Databases }}
 `, details)

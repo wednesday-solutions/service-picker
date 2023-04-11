@@ -6,14 +6,23 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func CloneRepo(stack, dirName, path string) error {
+type StackDetails struct {
+	Stack       string
+	DirName     string
+	CurrentDir  string
+	Database    string
+	Environment string
+	StackInfo   map[string]interface{}
+}
+
+func (s StackDetails) CloneRepo() error {
 
 	// Download the selected stack.
-	err := utils.RunCommandWithoutLogs("", "git", "clone", constants.Repos()[stack], dirName)
+	err := utils.RunCommandWithoutLogs("", "git", "clone", constants.Repos()[s.Stack], s.DirName)
 	errorhandler.CheckNilErr(err)
 
 	// Delete cd.yml file from the cloned repo.
-	cdFilePatch := path + "/" + dirName + constants.CDFilePathURL
+	cdFilePatch := s.CurrentDir + "/" + s.DirName + constants.CDFilePathURL
 	status, _ := utils.IsExists(cdFilePatch)
 	if status {
 		err = utils.RemoveFile(cdFilePatch)
