@@ -51,11 +51,31 @@ func CreateCDFile(service, stack, database, dirName string) error {
 			constants.ReactGraphqlTemplateRepo,
 			constants.CDFilePathURL,
 		)
+	case constants.ReactNative:
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.ReactNativeTemplateRepo,
+			constants.CDFilePathURL, // build.yml
+		)
+	case constants.Android:
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.AndroidTemplateRepo,
+			constants.CDFilePathURL,
+		)
+	case constants.IOS:
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.IOSTemplateRepo,
+			constants.CDFilePathURL, // ci.yml
+		)
+	case constants.Flutter:
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.FlutterTemplateRepo,
+			constants.CDFilePathURL,
+		)
 	default:
 		return fmt.Errorf("Selected stack is invalid")
 	}
 
-	cdDestination := fmt.Sprintf("%s/%s/cd-%s.yaml",
+	cdDestination := fmt.Sprintf("%s/%s/cd-%s.yml",
 		utils.CurrentDirectory(),
 		constants.GithubWorkflowsDir,
 		dirName,
@@ -76,8 +96,12 @@ func CreateCDFile(service, stack, database, dirName string) error {
 		errorhandler.CheckNilErr(err)
 
 		// Create CD File
-		err = utils.CreateFile(cdDestination)
-		errorhandler.CheckNilErr(err)
+		cdFileExist, _ := utils.IsExists(cdDestination)
+		if !cdFileExist {
+			utils.CreateGithubWorkflowDir()
+			err = utils.CreateFile(cdDestination)
+			errorhandler.CheckNilErr(err)
+		}
 
 		// Write CDFileData to CD File
 		err = utils.WriteToFile(cdDestination, string(cdFileData))

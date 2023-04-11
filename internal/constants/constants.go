@@ -98,6 +98,10 @@ const (
 	ReactTemplateRepo              = "react-template/master"
 	NextjsTemplateRepo             = "nextjs-template/master"
 	ReactGraphqlTemplateRepo       = "react-graphql-ts-template/master"
+	ReactNativeTemplateRepo        = "react-native-template/master"
+	AndroidTemplateRepo            = "android-template/main"
+	IOSTemplateRepo                = "ios-template/develop"
+	FlutterTemplateRepo            = "flutter_template/main"
 )
 
 // Infra Files

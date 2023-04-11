@@ -13,29 +13,19 @@ func CreateCI(stackDirs []string) error {
 	currentDir := utils.CurrentDirectory()
 	workflowsPath := fmt.Sprintf("%s/%s", currentDir,
 		constants.GithubWorkflowsDir)
-	rootCIPath := fmt.Sprintf("%s/ci-%s.yaml",
+	rootCIPath := fmt.Sprintf("%s/ci-%s.yml",
 		workflowsPath,
 		projectName,
 	)
 	status, _ := utils.IsExists(rootCIPath)
 	if !status {
-		workflowStatus, _ := utils.IsExists(workflowsPath)
-		if !workflowStatus {
-			githubFolderPath := fmt.Sprintf("%s/%s", currentDir, ".github")
-			githubStatus, _ := utils.IsExists(githubFolderPath)
-			if !githubStatus {
-				err := utils.CreateDirectory(githubFolderPath)
-				errorhandler.CheckNilErr(err)
-			}
-			err := utils.CreateDirectory(workflowsPath)
-			errorhandler.CheckNilErr(err)
-		}
+		utils.CreateGithubWorkflowDir()
 		err := CreateRootCI(rootCIPath, projectName)
 		errorhandler.CheckNilErr(err)
 	}
 	var stackCIPath string
 	for _, dir := range stackDirs {
-		stackCIPath = fmt.Sprintf("%s/ci-%s.yaml",
+		stackCIPath = fmt.Sprintf("%s/ci-%s.yml",
 			workflowsPath,
 			dir,
 		)
