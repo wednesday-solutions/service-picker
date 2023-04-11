@@ -10,6 +10,7 @@ import (
 	"github.com/wednesday-solutions/picky/pickyhelpers"
 )
 
+// PromptDockerCompose is a prompt function for create docker-compose of Home prompt.
 func PromptDockerCompose() {
 	var p PromptInput
 	p.Label = fmt.Sprintf("Do you want to create '%s' file for this project", constants.DockerComposeFile)
@@ -22,9 +23,10 @@ func PromptDockerCompose() {
 	}
 }
 
+// GenerateDockerCompose generates docker-compose file for all the existing
+// stacks as a monorepo in the root directory.
 func GenerateDockerCompose() {
 	var p PromptInput
-	p.Label = "Pick a service"
 	p.GoBack = PromptDockerCompose
 	var stack, database string
 	response := true
@@ -50,6 +52,7 @@ func GenerateDockerCompose() {
 	PromptHome()
 }
 
+// ShowCreateDockerCompose returns true if a backend service exists.
 func ShowCreateDockerCompose(databases []string) bool {
 	var backendStatus, frontendStatus bool
 	for _, db := range databases {
