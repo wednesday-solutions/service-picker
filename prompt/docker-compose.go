@@ -10,22 +10,56 @@ import (
 	"github.com/wednesday-solutions/picky/pickyhelpers"
 )
 
-// PromptDockerCompose is a prompt function for create docker-compose of Home prompt.
 func PromptDockerCompose() {
+	var p PromptInput
+	p.Label = "Choose an option"
+	p.GoBack = PromptHome
+	p.Items = []string{constants.CreateDockerCompose, constants.RunDockerCompose}
+	response := p.PromptSelect()
+	if response == constants.CreateDockerCompose {
+		err := GenerateDockerCompose()
+		errorhandler.CheckNilErr(err)
+		PromptRunDockerCompose()
+	} else if response == constants.RunDockerCompose {
+		err := RunDockerCompose()
+		errorhandler.CheckNilErr(err)
+	}
+	PromptHome()
+}
+
+// PromptCreateDockerCompose is a prompt function for create docker-compose.
+func PromptCreateDockerCompose() {
 	var p PromptInput
 	p.Label = fmt.Sprintf("Do you want to create '%s' file for this project", constants.DockerComposeFile)
 	p.GoBack = PromptHome
 	response := p.PromptYesOrNoSelect()
 	if response {
-		GenerateDockerCompose()
+		err := GenerateDockerCompose()
+		errorhandler.CheckNilErr(err)
 	} else {
-		PromptHome()
+		PromptDockerCompose()
 	}
+	PromptRunDockerCompose()
+}
+
+// PromptRunDockerCompose is a prompt function for run docker-compose.
+func PromptRunDockerCompose() {
+	var p PromptInput
+	p.Label = fmt.Sprintf("Do you want to run '%s' ", constants.DockerComposeFile)
+	p.GoBack = PromptDockerCompose
+	response := p.PromptYesOrNoSelect()
+	if response {
+		err := RunDockerCompose()
+		errorhandler.CheckNilErr(err)
+	} else {
+		PromptDockerCompose()
+	}
+	PromptHome()
 }
 
 // GenerateDockerCompose generates docker-compose file for all the existing
 // stacks as a monorepo in the root directory.
-func GenerateDockerCompose() {
+func GenerateDockerCompose() error {
 	var p PromptInput
 	p.GoBack = PromptDockerCompose
 	var stack, database string
@@ -48,8 +82,26 @@ func GenerateDockerCompose() {
 		err := pickyhelpers.CreateDockerComposeFile(stackInfo)
 		errorhandler.CheckNilErr(err)
 		fmt.Printf("\n%s\n", errorhandler.DoneMessage)
+	} else {
+		PromptRunDockerCompose()
 	}
-	PromptHome()
+	return nil
+}
+
+// RunDockerCompose runs 'docker-compose up' from the root directory.
+func RunDockerCompose() error {
+	status, _ := utils.IsExists(filepath.Join(utils.CurrentDirectory(), constants.DockerComposeFile))
+	if status {
+		err := utils.PrintInfoMessage("Running docker-compose..")
+		errorhandler.CheckNilErr(err)
+		err = utils.RunCommandWithLogs("", "docker", "compose", "up")
+		errorhandler.CheckNilErr(err)
+	} else {
+		err := utils.PrintWarningMessage(fmt.Sprintf("%s file is not exist in the root directory.", constants.DockerComposeFile))
+		errorhandler.CheckNilErr(err)
+		PromptCreateDockerCompose()
+	}
+	return nil
 }
 
 // ShowCreateDockerCompose returns true if a backend service exists.
