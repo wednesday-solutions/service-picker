@@ -126,6 +126,9 @@ const (
 	ExistingDirectories      = "existingDirectories"
 	Yarn                     = "yarn"
 	Npm                      = "npm"
+	WebDirectories           = "webDirectories"
+	BackendPgDirectories     = "backendPgDirectories"
+	BackendMysqlDirectories  = "backendMysqlDirectories"
 )
 
 // Docker related files
