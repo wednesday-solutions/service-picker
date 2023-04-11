@@ -66,6 +66,10 @@ func Init(service, stack, database, dirName string) {
 		err := pickyhelpers.CloneRepo(stack, dirName, currentDir)
 		errorhandler.CheckNilErr(err)
 
+		// Delete .git folder inside the cloned repo.
+		err = pickyhelpers.DeleteDotGitFolder(dirName)
+		errorhandler.CheckNilErr(err)
+
 		// stackInfo gives the information about the stacks which is present in the root.
 		stackInfo := pickyhelpers.GetStackInfo(stack, database, constants.Environment)
 
