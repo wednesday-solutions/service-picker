@@ -364,8 +364,8 @@ func GetStackDetails(service string) []StackDetails {
 	return stacksDetails
 }
 
-// GetInfraStacksExist fetch stack files inside the stacks directory.
-func GetInfraStacksExist() []string {
+// GetExistingInfraStacks fetch stack files inside the stacks directory.
+func GetExistingInfraStacks() []string {
 	path := fmt.Sprintf("%s/%s", CurrentDirectory(), constants.Stacks)
 	status, _ := IsExists(path)
 	if !status {

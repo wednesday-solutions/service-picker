@@ -28,7 +28,7 @@ const (
 // Home options
 const (
 	InitService   = "Init Service"
-	DockerCompose = "Docker-compose"
+	DockerCompose = "Docker Compose"
 	CreateCD      = "Create CD"
 	SetupInfra    = "Setup Infra"
 	Deploy        = "Deploy"
@@ -74,8 +74,8 @@ const (
 
 // Docker compose actions
 const (
-	CreateDockerCompose = "Create docker-compose"
-	RunDockerCompose    = "Run docker-compose"
+	CreateDockerCompose = "Create Docker Compose"
+	RunDockerCompose    = "Run Docker Compose"
 )
 
 // Github Repo download URL
@@ -144,6 +144,7 @@ const (
 	BackendSuffixSize        = 3
 	WebSuffixSize            = 2
 	DotSstDirectory          = ".sst"
+	PostgresqlData           = "postgresql/data"
 )
 
 // Docker related files

@@ -23,16 +23,16 @@ func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 	)
 	var snakeCaseDirName string
 	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
-	for i, d := range directories {
-		service := utils.FindService(d)
+	for index, directory := range directories {
+		service := utils.FindService(directory)
 		if service == constants.Backend {
-			if databases[i] == constants.MySQL {
-				backendMysqlDirectories = append(backendMysqlDirectories, d)
-				snakeCaseDirName = strcase.ToSnake(d)
+			if databases[index] == constants.MySQL {
+				backendMysqlDirectories = append(backendMysqlDirectories, directory)
+				snakeCaseDirName = strcase.ToSnake(directory)
 				backendMysqlSnakeCased = append(backendMysqlSnakeCased, snakeCaseDirName)
-			} else if databases[i] == constants.PostgreSQL {
-				backendPgDirectories = append(backendPgDirectories, d)
-				snakeCaseDirName = strcase.ToSnake(d)
+			} else if databases[index] == constants.PostgreSQL {
+				backendPgDirectories = append(backendPgDirectories, directory)
+				snakeCaseDirName = strcase.ToSnake(directory)
 				backendPgSnakeCased = append(backendPgSnakeCased, snakeCaseDirName)
 			}
 		}

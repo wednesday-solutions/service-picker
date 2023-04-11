@@ -8,7 +8,7 @@ import (
 
 func DatabaseVolumeConnection(db string) string {
 	if db == constants.PostgreSQL {
-		return fmt.Sprintf("-db-volume:/var/lib/%s", "postgresql/data")
+		return fmt.Sprintf("-db-volume:/var/lib/%s", constants.PostgresqlData)
 	} else if db == constants.MySQL {
 		return fmt.Sprintf("-db-volume:/var/lib/%s", constants.Mysql)
 	} else {
@@ -57,35 +57,6 @@ func PortConnection(stack string) string {
 	default:
 		return portConnectionStr
 	}
-}
-
-var postgresService, mysqlService = 1, 1
-
-func DBServiceName(stack, database string) string {
-	var serviceName string
-	switch stack {
-	case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
-		if database == constants.PostgreSQL {
-			if postgresService > 1 {
-				serviceName = fmt.Sprintf("%s_%d", "db_postgres", postgresService)
-			} else {
-				serviceName = "db_postgres"
-			}
-			postgresService++
-			return serviceName
-		} else if database == constants.MySQL {
-			if mysqlService > 1 {
-				serviceName = fmt.Sprintf("%s_%d", "db_mysql", mysqlService)
-			} else {
-				serviceName = "db_mysql"
-			}
-			mysqlService++
-			return serviceName
-		}
-	case constants.GolangPostgreSQLTemplate, constants.GolangMySQLTemplate:
-		return constants.DB
-	}
-	return constants.DB
 }
 
 func GlobalAddDependencies(database string) string {

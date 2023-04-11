@@ -30,7 +30,7 @@ func DeployStacks(stacks []string, environment string) error {
 	}
 	response, afterInfra := true, false
 	if len(stacks) == 0 {
-		stacks = utils.GetInfraStacksExist()
+		stacks = utils.GetExistingInfraStacks()
 	} else {
 		// afterInfra will become true if the DeployStacks function is called from DeployAfterInfra
 		afterInfra = true
