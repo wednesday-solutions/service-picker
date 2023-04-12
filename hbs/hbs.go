@@ -11,7 +11,6 @@ func init() {
 	raymond.RegisterHelper("databaseVolumeConnection", DatabaseVolumeConnection)
 	raymond.RegisterHelper("dbVersion", DBVersion)
 	raymond.RegisterHelper("portConnection", PortConnection)
-	raymond.RegisterHelper("dbServiceName", DBServiceName)
 	raymond.RegisterHelper("globalAddDependencies", GlobalAddDependencies)
 	raymond.RegisterHelper("addDependencies", AddDependencies)
 	raymond.RegisterHelper("runBuildEnvironment", RunBuildEnvironment)

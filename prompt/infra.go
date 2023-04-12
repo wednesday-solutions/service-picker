@@ -21,7 +21,7 @@ func PromptSetupInfra() {
 		environment := PromptEnvironment()
 		response := true
 		// stack will get infra stack files
-		stacks := utils.GetInfraStacksExist()
+		stacks := utils.GetExistingInfraStacks()
 		if len(stacks) > 0 {
 			// change infra stack files into stack directory files.
 			stacks = utils.FindStackDirectoriesByConfigStacks(stacks)

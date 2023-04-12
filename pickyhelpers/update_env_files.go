@@ -107,7 +107,7 @@ APP_NAME=app`, snakeCaseDirName, snakeCaseDirName)
 	return nil
 }
 
-func UpdateEnvDockerFile(stack, dirName string) error {
+func UpdateEnvDockerFileForDefaultDBInTemplate(stack, dirName string) error {
 	snakeCaseDirName := strcase.ToSnake(dirName)
 	var envDockerSource string
 	switch stack {
