@@ -62,7 +62,9 @@ func PromptSelectExistingStacks() []string {
 	p.GoBack = PromptHome
 	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
 	p.Items = directories
-	p.Items = append(p.Items, "All")
+	if len(directories) > 1 {
+		p.Items = append(p.Items, "All")
+	}
 	var results []string
 	var responses []int
 	count := 0
@@ -107,4 +109,10 @@ func PromptAlreadyExist(existingFile string) bool {
 	p.Label = fmt.Sprintf("'%s' already exists, do you want to rewrite it", existingFile)
 	p.GoBack = PromptHome
 	return p.PromptYesOrNoSelect()
+}
+
+func PromptAlertMessage() {
+	err := utils.PrintWarningMessage("Click Ctrl+C to exit.")
+	errorhandler.CheckNilErr(err)
+	PromptHome()
 }
