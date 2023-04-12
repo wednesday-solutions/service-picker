@@ -23,7 +23,7 @@ func CreateCI(stackDirs []string) error {
 		err := CreateRootCI(rootCIPath, projectName)
 		errorhandler.CheckNilErr(err)
 	}
-	var stackCIPath string
+	var stackCIPath, stack string
 	for _, dir := range stackDirs {
 		stackCIPath = fmt.Sprintf("%s/ci-%s.yml",
 			workflowsPath,
@@ -31,7 +31,8 @@ func CreateCI(stackDirs []string) error {
 		)
 		status, _ = utils.IsExists(stackCIPath)
 		if !status {
-			err := CreateStackCI(stackCIPath, dir)
+			stack, _ = utils.FindStackAndDatabase(dir)
+			err := CreateStackCI(stackCIPath, dir, stack)
 			errorhandler.CheckNilErr(err)
 		}
 	}
@@ -57,16 +58,22 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Run the logs
-        run: SERVICE PICKER, %s
-`, projectName, projectName)
+        run: echo SERVICE PICKER`, projectName)
 
 	err := utils.WriteToFile(path, source)
 	return err
 }
 
 // CreateStackCI creates and writes CI for the given stack.
-func CreateStackCI(path, stackDir string) error {
-	source := fmt.Sprintf(`name: CI %s
+func CreateStackCI(path, stackDir, stack string) error {
+	var environment, source string
+	if stack == constants.NodeExpressGraphqlTemplate {
+		environment = constants.Development
+	} else {
+		environment = constants.Dev
+	}
+	if stack != constants.GolangEchoTemplate {
+		source = fmt.Sprintf(`name: CI %s
 on:
   push:
     branches: ["master", "develop", "qa"]
@@ -78,15 +85,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_test:
+  build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.14.x]
 
     steps:
       - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: ./%s/package.json
+
       - name: Install dependencies
         working-directory: ./%s
         run: yarn
@@ -97,12 +111,15 @@ jobs:
 
       - name: Build
         working-directory: ./%s
-        run: yarn build:dev
+        run: yarn build:%s
 
       - name: Test
         working-directory: ./%s
-        run: yarn test
-`, stackDir, stackDir, stackDir, stackDir, stackDir, stackDir, stackDir)
+        run: yarn test`,
+			stackDir, stackDir, stackDir, stackDir, stackDir,
+			stackDir, stackDir, environment, stackDir,
+		)
+	}
 
 	err := utils.WriteToFile(path, source)
 	return err

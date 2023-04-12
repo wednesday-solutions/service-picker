@@ -61,5 +61,8 @@ func ParseAndWriteToFile(source, filePath string, stackInfo map[string]interface
 	err = utils.WriteToFile(filePath, executedTemplate)
 	errorhandler.CheckNilErr(err)
 
+	// Resetting port numbers to default port numbers.
+	utils.ResetPortNumbers()
+
 	return nil
 }

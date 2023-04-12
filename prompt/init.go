@@ -55,6 +55,7 @@ func (i *InitInfo) Init() {
 			// Delete all contents of existing directory.
 			err := utils.RemoveAllContents(destination)
 			errorhandler.CheckNilErr(err)
+			break
 		} else {
 			PromptHome()
 		}

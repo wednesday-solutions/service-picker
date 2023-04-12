@@ -27,6 +27,7 @@ func PromptCICD() {
 			errorhandler.CheckNilErr(err)
 		}
 	}
+	PromptHome()
 }
 
 func CreateCD(directories []string) error {
