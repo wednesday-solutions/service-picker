@@ -32,7 +32,7 @@ func (i *InitInfo) FlagInit() error {
 
 	status, _ := utils.IsExists(fmt.Sprintf("%s/%s", utils.CurrentDirectory(), i.Directory))
 	if status {
-		return fmt.Errorf("Entered directory %s already exists", i.Directory)
+		return fmt.Errorf("Entered directory %s already exists\n", i.Directory)
 	}
 	err := utils.MakeDirectory(utils.CurrentDirectory(), i.Directory)
 	errorhandler.CheckNilErr(err)

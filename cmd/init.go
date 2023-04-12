@@ -40,7 +40,7 @@ func InitService(cmd *cobra.Command, args []string) error {
 			"add stack with the flag of '--stack'",
 		)
 	}
-	if i.Database == "" && service != constants.Backend {
+	if i.Database == "" && service == constants.Backend {
 		allFlagsExist = false
 		errorMessage = fmt.Sprintf("%s%s\n", errorMessage,
 			"add database with the flag of '--database'",
