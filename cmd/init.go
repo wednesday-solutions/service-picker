@@ -79,6 +79,6 @@ func init() {
 	ServiceSelection.AddCommand(InitFlag)
 	InitFlag.Flags().StringVarP(&service, "service", "s", "", utils.UsageService())
 	InitFlag.Flags().StringVarP(&stack, "stack", "t", "", utils.UsageStack())
-	InitFlag.Flags().StringVarP(&database, "database", "b", "", utils.UsageDatabase())
-	InitFlag.Flags().StringVarP(&directory, "directory", "d", "", utils.UsageDirectory())
+	InitFlag.Flags().StringVarP(&database, "database", "d", "", utils.UsageDatabase())
+	InitFlag.Flags().StringVarP(&directory, "directory", "f", "", utils.UsageDirectory())
 }
