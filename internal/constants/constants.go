@@ -24,6 +24,7 @@ const (
 	Picky   = "picky"
 	Service = "service"
 	Test    = "test"
+	Init    = "init"
 )
 
 // Home options
@@ -206,4 +207,19 @@ var (
 	IconSelect = promptui.Styler(promptui.FGGreen)("✔")
 	IconWarn   = promptui.Styler(promptui.FGYellow)("⚠")
 	IconWrong  = promptui.Styler(promptui.FGRed)("✗")
+)
+
+// Stack short name for flags
+const (
+	ReactjsLower      = "reactjs"
+	NextjsLower       = "nextjs"
+	ReactGraphqlLower = "reactgraphql"
+	ReactNativeLower  = "reactnative"
+	AndroidLower      = "android"
+	IOSLower          = "ios"
+	FlutterLower      = "flutter"
+	NodeHapi          = "nodehapi"
+	NodeGraphql       = "nodegraphql"
+	NodeExpress       = "nodeexpress"
+	Golang            = "golang"
 )
