@@ -25,6 +25,7 @@ const (
 	Service = "service"
 	Test    = "test"
 	Init    = "init"
+	Infra   = "infra"
 )
 
 // Home options
