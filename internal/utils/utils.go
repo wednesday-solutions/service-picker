@@ -134,3 +134,18 @@ func CreateGithubWorkflowDir() {
 		errorhandler.CheckNilErr(err)
 	}
 }
+
+var (
+	WebPortNumber      = 3000
+	BackendPortNumber  = 9000
+	PostgresPortNumber = 5432
+	MysqlPortNumber    = 3306
+)
+
+// ResetPortNumbers resets the port numbers to default.
+func ResetPortNumbers() {
+	WebPortNumber = 3000
+	BackendPortNumber = 9000
+	PostgresPortNumber = 5432
+	MysqlPortNumber = 3306
+}

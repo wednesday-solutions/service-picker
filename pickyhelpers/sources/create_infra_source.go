@@ -42,8 +42,8 @@ func PackageDotJsonSource() string {
 
 func EnvFileSource() string {
 
-	source := `APP_NAME=app
-WEB_AWS_REGION=ap-south-1`
+	source := `APP_NAME=web-app
+AWS_REGION=ap-south-1`
 
 	return source
 }
@@ -58,7 +58,7 @@ export default {
 	config(_input) {
 		return {
 			name: process.env.APP_NAME || "web-app",
-			region: process.env.WEB_AWS_REGION || "ap-south-1",
+			region: process.env.AWS_REGION || "ap-south-1",
 		};
 	},
 	stacks(app) {
@@ -72,10 +72,12 @@ export default {
 }
 
 func WebStackSource(dirName, camelCaseDirName, environment string) string {
+	var shortEnvironment string
 	if environment == constants.Development {
-		environment = constants.Dev
+		environment = "develop"
+		shortEnvironment = constants.Dev
 	}
-	var buildOutput string
+	buildOutput, singleQuote := "", "`"
 	stack, _ := utils.FindStackAndDatabase(dirName)
 	if stack == constants.ReactJS {
 		buildOutput = "build"
@@ -84,21 +86,37 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	}
 
 	source := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
-		
-export function %s({ stack }) {
-	// Deploy our web app
-	const site = new StaticSite(stack, "%sSite", {
-		path: "%s",
-		buildCommand: "yarn run build:%s",
-		buildOutput: "%s",
-	});
 
-	// Show the URLs in the output
-	stack.addOutputs({
-		SiteUrl: site.url || "http://localhost:3000/",
-	});
-}
-`, camelCaseDirName, camelCaseDirName, dirName, environment, buildOutput)
+	export function %s({ stack }) {
+		const bucketprefix = "%s";
+		const environment = "%s";
+		const bucketName = %s${bucketprefix}-${environment}%s;
+	
+		// Deploy our web app
+		const site = new StaticSite(stack, "%sSite", {
+			path: "%s",
+			buildCommand: "yarn run build:%s",
+			buildOutput: "%s",
+			cdk: {
+				bucket: {
+					bucketName,
+				},
+				distribution: {
+					comment: %sDistribution for ${bucketName}%s,
+				},
+			},
+		});
+	
+		// Show the URLs in the output
+		stack.addOutputs({
+			SiteUrl: site.url || "http://localhost:3000/",
+			distributionId: site.cdk?.distribution?.distributionId,
+			bucketName: site.cdk?.bucket?.bucketName,
+		});
+	}
+`, camelCaseDirName, dirName, environment, singleQuote, singleQuote, camelCaseDirName,
+		dirName, shortEnvironment, buildOutput, singleQuote, singleQuote)
+
 	return source
 }
 
@@ -117,25 +135,27 @@ func BackendStackSource(database, dirName, environment string) string {
 		userInputStackName,
 		constants.Database,
 	)
+	dbUsername := "username"
+	awsRegion := "process.env.AWS_REGION"
 	camelCaseDirName := strcase.ToCamel(dirName)
 	var (
 		dbEngineVersion string
 		dbPortNumber    string
 		dbEngine        string
-		db_uri          string
+		dbUri           string
 		dbHost          string
 	)
 	if database == constants.PostgreSQL {
 		dbEngineVersion = "PostgresEngineVersion"
 		dbPortNumber = "5432"
 		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
-		db_uri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
+		dbUri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
 		dbPortNumber = "3306"
 		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_23,\n\t\t\t})"
-		db_uri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
+		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
 	}
 	singleQuote := "`"
@@ -161,6 +181,8 @@ export function %s({ stack }) {
 	const environment = "%s";
 	const clientPrefix = %s${clientName}-${environment}%s;
 	const dbName = "%s";
+	const dbUsername = "%s";
+	const awsRegion = %s;
 
 	const vpc = new ec2.Vpc(stack, %s${clientPrefix}-vpc%s, {
 		maxAzs: 3,
@@ -218,9 +240,6 @@ export function %s({ stack }) {
 		ec2.Port.tcp(%s),
 		"Permit the database to accept requests from the fargate service"
 	);
-
-	// database
-	const dbUsername = "username";
 
 	const databaseCredentialsSecret = new secretsManager.Secret(
 		stack,
@@ -322,6 +341,7 @@ export function %s({ stack }) {
 			vpc,
 			vpcSubnets: { subnets: vpc.publicSubnets },
 			internetFacing: true,
+			loadBalancerName: %s${clientPrefix}-alb%s,
 		}
 	);
 
@@ -376,7 +396,7 @@ export function %s({ stack }) {
 		.secretValueFromJson("password")
 		.toString();
 
-	const DB_URI = %s;
+	const dbURI = %s;
 
 	const image = ecs.ContainerImage.fromAsset("%s/", {
 		exclude: ["node_modules", ".git"],
@@ -392,7 +412,7 @@ export function %s({ stack }) {
 		environment: {
 			BUILD_NAME: "%s",
 			ENVIRONMENT_NAME: "%s",
-			DB_URI,
+			DB_URI: dbURI,
 			%s,
 			REDIS_HOST: redisCache.attrRedisEndpointAddress,
 		},
@@ -427,18 +447,79 @@ export function %s({ stack }) {
 		exportName: "redis-host",
 		value: redisCache.attrRedisEndpointAddress,
 	});
+
+	new CfnOutput(stack, "load-balancer-dns", {
+		exportName: "load-balancer-dns",
+		value: elb.loadBalancerDnsName,
+	});
+
+	new CfnOutput(stack, "aws-region", {
+		exportName: "aws-region",
+		value: awsRegion,
+	});
+
+  new CfnOutput(stack, "elastic-container-registry-repo", {
+    exportName: "elastic-container-registry-repo",
+    value: stack.synthesizer.repositoryName,
+  });
+
+  new CfnOutput(stack, "image", {
+    exportName: "image",
+    value: container.imageName,
+  });
+
+  new CfnOutput(stack, "task-definition-arn", {
+    exportName: "task-definition",
+    value: taskDefinition.taskDefinitionArn,
+  });
+
+  new CfnOutput(stack, "task-role", {
+    exportName: "task-role",
+    value: taskRole.roleArn,
+  });
+
+  new CfnOutput(stack, "execution-role", {
+    exportName: "execution-role",
+    value: taskDefinition.executionRole.roleArn,
+  });
+
+  new CfnOutput(stack, "family", {
+    exportName: "family",
+    value: taskDefinition.family,
+  });
+
+  new CfnOutput(stack, "container-name", {
+    exportName: "container-name",
+    value: container.containerName,
+  });
+
+  new CfnOutput(stack, "container-port", {
+    exportName: "container-port",
+    value: container.containerPort.toString(),
+  });
+
+  new CfnOutput(stack, "log-driver", {
+    exportName: "log-driver",
+    value: JSON.stringify(container.logDriverConfig.logDriver),
+  });
+
+  new CfnOutput(stack, "log-driver-options", {
+    exportName: "log-driver-options",
+    value: JSON.stringify(container.logDriverConfig.options),
+  });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
-		singleQuote, singleQuote, dbName, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, dbPortNumber,
+		singleQuote, singleQuote, dbName, dbUsername, awsRegion, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		dbEngine, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, dbPortNumber, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, dbEngine, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, db_uri, dirName,
-		environment, singleQuote, singleQuote, shortEnvironment, environment, dbHost,
-		singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, dbUri, dirName, environment, singleQuote, singleQuote,
+		shortEnvironment, environment, dbHost, singleQuote, singleQuote, singleQuote,
+		singleQuote,
 	)
 
 	return source

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func DatabaseVolumeConnection(db string) string {
@@ -26,31 +27,26 @@ func DBVersion(db string) string {
 	}
 }
 
-var webPortNumber = 3000
-var backendPortNumber = 9000
-var postgresPortNumber = 5432
-var mysqlPortNumber = 3306
-
 func PortConnection(stack string) string {
 	var portConnectionStr string
 	switch stack {
 	case constants.PostgreSQL:
-		portConnectionStr = fmt.Sprintf("%d:5432", postgresPortNumber)
-		postgresPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:5432", utils.PostgresPortNumber)
+		utils.PostgresPortNumber++
 		return portConnectionStr
 	case constants.MySQL:
-		portConnectionStr = fmt.Sprintf("%d:3306", mysqlPortNumber)
-		mysqlPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:3306", utils.MysqlPortNumber)
+		utils.MysqlPortNumber++
 		return portConnectionStr
 	case constants.MongoDB:
 		return "27017:27017"
 	case constants.Web, constants.Mobile:
-		portConnectionStr = fmt.Sprintf("%d:3000", webPortNumber)
-		webPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:3000", utils.WebPortNumber)
+		utils.WebPortNumber++
 		return portConnectionStr
 	case constants.Backend:
-		portConnectionStr = fmt.Sprintf("%d:9000", backendPortNumber)
-		backendPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:9000", utils.BackendPortNumber)
+		utils.BackendPortNumber++
 		return portConnectionStr
 	case constants.Redis:
 		return "6379:6379"

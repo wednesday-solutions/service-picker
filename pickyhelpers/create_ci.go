@@ -13,12 +13,14 @@ func CreateCI(stackDirs []string) error {
 		constants.GithubWorkflowsDir)
 
 	utils.CreateGithubWorkflowDir()
-	var stackCIPath string
+	var stackCIPath, stack string
+	var status bool
 	for _, dir := range stackDirs {
 		stackCIPath = fmt.Sprintf("%s/ci-%s.yml", workflowsPath, dir)
-		status, _ := utils.IsExists(stackCIPath)
+		status, _ = utils.IsExists(stackCIPath)
 		if !status {
-			err := CreateStackCI(stackCIPath, dir)
+			stack, _ = utils.FindStackAndDatabase(dir)
+			err := CreateStackCI(stackCIPath, dir, stack)
 			errorhandler.CheckNilErr(err)
 		}
 	}
@@ -26,8 +28,15 @@ func CreateCI(stackDirs []string) error {
 }
 
 // CreateStackCI creates and writes CI for the given stack.
-func CreateStackCI(path, stackDir string) error {
-	source := fmt.Sprintf(`name: CI %s
+func CreateStackCI(path, stackDir, stack string) error {
+	var environment, source string
+	if stack == constants.NodeExpressGraphqlTemplate {
+		environment = constants.Development
+	} else {
+		environment = constants.Dev
+	}
+	if stack != constants.GolangEchoTemplate {
+		source = fmt.Sprintf(`name: CI %s
 on:
   push:
     branches: ["master", "develop", "qa"]
@@ -39,7 +48,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_test:
+  build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
     defaults: 
@@ -65,12 +74,19 @@ jobs:
         run: yarn lint
 
       - name: Build
-        run: yarn build:dev
+        run: yarn build:%s
 
       - name: Test
         run: yarn test
-`, stackDir, stackDir, stackDir, stackDir, stackDir)
+`, stackDir, stackDir, stackDir, stackDir, stackDir, environment)
 
-	err := utils.WriteToFile(path, source)
-	return err
+		err := utils.WriteToFile(path, source)
+		errorhandler.CheckNilErr(err)
+	} else {
+		err := utils.PrintWarningMessage(fmt.Sprintf(
+			"CI of '%s' is in work in progress..!", stack,
+		))
+		errorhandler.CheckNilErr(err)
+	}
+	return nil
 }
