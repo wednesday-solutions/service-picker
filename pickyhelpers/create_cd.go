@@ -2,8 +2,6 @@ package pickyhelpers
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
@@ -12,8 +10,15 @@ import (
 
 func CreateCDFile(service, stack, database, dirName string) error {
 
-	// Need to write the CD file.
-	var cdFileUrl string
+	err := utils.PrintWarningMessage(fmt.Sprintf(
+		"CD of %s is in work in progress..!", stack),
+	)
+	errorhandler.CheckNilErr(err)
+	if err == nil {
+		return nil
+	}
+
+	utils.CreateGithubWorkflowDir()
 	cdDestination := fmt.Sprintf("%s/%s/cd-%s.yml",
 		utils.CurrentDirectory(),
 		constants.GithubWorkflowsDir,
@@ -25,25 +30,14 @@ func CreateCDFile(service, stack, database, dirName string) error {
 		done := make(chan bool)
 		go ProgressBar(20, "Generating", done)
 
-		// Access CD File which is present in the Github.
-		resp, err := http.Get(cdFileUrl)
-		errorhandler.CheckNilErr(err)
-		defer resp.Body.Close()
-
-		// Read the body of the response.
-		cdFileData, err := io.ReadAll(resp.Body)
-		errorhandler.CheckNilErr(err)
-
 		// Create CD File
-		cdFileExist, _ := utils.IsExists(cdDestination)
-		if !cdFileExist {
-			utils.CreateGithubWorkflowDir()
-			err = utils.CreateFile(cdDestination)
-			errorhandler.CheckNilErr(err)
-		}
+		err := utils.CreateFile(cdDestination)
+		errorhandler.CheckNilErr(err)
 
+		// Need to write the CD source to cdSource.
+		var cdSource string
 		// Write CDFileData to CD File
-		err = utils.WriteToFile(cdDestination, string(cdFileData))
+		err = utils.WriteToFile(cdDestination, cdSource)
 		errorhandler.CheckNilErr(err)
 
 		<-done
