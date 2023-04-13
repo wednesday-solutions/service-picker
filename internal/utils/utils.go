@@ -450,3 +450,17 @@ func GetEnvironment(environment string) string {
 		return environment
 	}
 }
+
+// GetProjectName returns projectName
+func GetProjectName() string {
+	currentDir := CurrentDirectory()
+	splitDirs := strings.Split(currentDir, "/")
+	projectName := splitDirs[len(splitDirs)-1]
+	return projectName
+}
+
+// GetProjectNameInSnakeCase returns projectName in snakeCase.
+func GetProjectNameInSnakeCase() string {
+	projectName := strcase.ToSnake(GetProjectName())
+	return projectName
+}

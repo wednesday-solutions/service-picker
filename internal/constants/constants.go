@@ -29,7 +29,7 @@ const (
 const (
 	InitService   = "Init Service"
 	DockerCompose = "Docker Compose"
-	CreateCD      = "Create CD"
+	CICD          = "CI/CD"
 	SetupInfra    = "Setup Infra"
 	Deploy        = "Deploy"
 	RemoveDeploy  = "Remove Deploy"
@@ -76,6 +76,12 @@ const (
 const (
 	CreateDockerCompose = "Create Docker Compose"
 	RunDockerCompose    = "Run Docker Compose"
+)
+
+// CICD actions
+const (
+	CreateCI = "Create CI"
+	CreateCD = "Create CD"
 )
 
 // Github Repo download URL
@@ -145,6 +151,7 @@ const (
 	WebSuffixSize            = 2
 	DotSstDirectory          = ".sst"
 	PostgresqlData           = "postgresql/data"
+	GithubWorkflowsDir       = ".github/workflows"
 )
 
 // Docker related files

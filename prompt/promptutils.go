@@ -81,7 +81,7 @@ func Exit() {
 // PromptSelectExistingStacks is a prompt function will ask for selecting available stacks.
 func PromptSelectExistingStacks() []string {
 	var p PromptInput
-	p.Label = "Select available stacks to create infrastructure"
+	p.Label = "Select available stacks"
 	p.GoBack = PromptHome
 	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
 	p.Items = directories
