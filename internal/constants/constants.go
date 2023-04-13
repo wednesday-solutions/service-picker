@@ -25,6 +25,7 @@ const (
 	Service = "service"
 	Test    = "test"
 	Init    = "init"
+	Create  = "create"
 )
 
 // Home options
