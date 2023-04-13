@@ -17,7 +17,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 		database = constants.PostgreSQL
 		if stackSuffix == "hapi" {
 			stack = constants.NodeHapiTemplate
-		} else if stackSuffix == "graphql" {
+		} else if stackSuffix == constants.Graphql {
 			if langSuffix == "node" {
 				stack = constants.NodeExpressGraphqlTemplate
 			} else if langSuffix == "golang" {
@@ -28,7 +28,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 		database = constants.MySQL
 		if stackSuffix == "hapi" {
 			stack = constants.NodeHapiTemplate
-		} else if stackSuffix == "graphql" {
+		} else if stackSuffix == constants.Graphql {
 			if langSuffix == "node" {
 				stack = constants.NodeExpressGraphqlTemplate
 			} else if langSuffix == "golang" {
@@ -42,7 +42,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 			} else if langSuffix == "next" {
 				stack = constants.NextJS
 			}
-		} else if stackSuffix == "graphql" {
+		} else if stackSuffix == constants.Graphql {
 			if langSuffix == "react" {
 				stack = constants.ReactGraphqlTS
 			}

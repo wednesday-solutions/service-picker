@@ -7,7 +7,7 @@ import (
 	"github.com/wednesday-solutions/picky/internal/constants"
 )
 
-func UsageService() string {
+func UseService() string {
 	usageString := fmt.Sprintf(`Choose a service
   %d. %s
   %d. %s
@@ -17,7 +17,7 @@ func UsageService() string {
 	return usageString
 }
 
-func UsageStack() string {
+func UseStack() string {
 	usageString := fmt.Sprintf(`Choose a stack (select the second name)
  Web stacks:
   %d. %s          -> %s
@@ -49,7 +49,7 @@ func UsageStack() string {
 	return usageString
 }
 
-func UsageDatabase() string {
+func UseDatabase() string {
 	usageString := fmt.Sprintf(`Choose a database
   %d. %s
   %d. %s
@@ -61,12 +61,12 @@ func UsageDatabase() string {
 	return usageString
 }
 
-func UsageDirectory() string {
+func UseDirectory() string {
 	return `Provide a directory name (suffix will be added.)
   Eg: directory-react-js-web | directory-node-hapi-pg`
 }
 
-func GetStackConstantNameFromLower(stack string) string {
+func GetStackByFlags(stack string) string {
 	switch stack {
 	case constants.ReactjsLower:
 		return constants.ReactJS

@@ -147,6 +147,7 @@ const (
 	DotGitFolder             = ".git"
 	CDFilePathURL            = "/.github/workflows/cd.yml"
 	GitHub                   = "GitHub"
+	Graphql                  = "graphql"
 )
 
 // Docker related files
