@@ -24,7 +24,7 @@ linters:
   enable:
     - bodyclose
     - depguard
-    - dogsled
+    # - dogsled
     - dupl
     - errcheck
     - exportloopref

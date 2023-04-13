@@ -46,6 +46,11 @@ func CreateCDFile(service, stack, database, dirName string) error {
 			constants.NextjsTemplateRepo,
 			constants.CDFilePathURL,
 		)
+	case constants.ReactGraphqlTS:
+		cdFileUrl = fmt.Sprintf("%s%s%s", constants.GitHubBaseURL,
+			constants.ReactGraphqlTemplateRepo,
+			constants.CDFilePathURL,
+		)
 	default:
 		return fmt.Errorf("Selected stack is invalid")
 	}

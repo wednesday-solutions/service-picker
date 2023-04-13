@@ -4,17 +4,18 @@ import "github.com/spaceweasel/promptui"
 
 var Repos = func() map[string]string {
 	return map[string]string{
-		"ReactJS":                     "https://github.com/wednesday-solutions/react-template",
-		"NextJS":                      "https://github.com/wednesday-solutions/nextjs-template",
-		"Node (Hapi- REST API)":       "https://github.com/wednesday-solutions/nodejs-hapi-template",
-		"Node (Express- GraphQL API)": "https://github.com/wednesday-solutions/node-express-graphql-template",
-		"Node (Express- REST API)":    "https://github.com/wednesday-solutions/node-mongo-express",
-		"Golang-PostgreSQL":           "https://github.com/wednesday-solutions/go-template",
-		"Golang-MySQL":                "https://github.com/wednesday-solutions/go-template-mysql",
-		"React Native":                "https://github.com/wednesday-solutions/react-native-template",
-		"Android":                     "https://github.com/wednesday-solutions/android-template",
-		"IOS":                         "https://github.com/wednesday-solutions/ios-template",
-		"Flutter":                     "https://github.com/wednesday-solutions/flutter_template",
+		ReactJS:                    "https://github.com/wednesday-solutions/react-template",
+		NextJS:                     "https://github.com/wednesday-solutions/nextjs-template",
+		ReactGraphqlTS:             "https://github.com/wednesday-solutions/react-graphql-ts-template",
+		NodeHapiTemplate:           "https://github.com/wednesday-solutions/nodejs-hapi-template",
+		NodeExpressGraphqlTemplate: "https://github.com/wednesday-solutions/node-express-graphql-template",
+		NodeExpressTemplate:        "https://github.com/wednesday-solutions/node-mongo-express",
+		GolangPostgreSQLTemplate:   "https://github.com/wednesday-solutions/go-template",
+		GolangMySQLTemplate:        "https://github.com/wednesday-solutions/go-template-mysql",
+		ReactNative:                "https://github.com/wednesday-solutions/react-native-template",
+		Android:                    "https://github.com/wednesday-solutions/android-template",
+		IOS:                        "https://github.com/wednesday-solutions/ios-template",
+		Flutter:                    "https://github.com/wednesday-solutions/flutter_template",
 	}
 }
 
@@ -45,8 +46,9 @@ const (
 
 // Frontend stacks
 const (
-	ReactJS = "ReactJS"
-	NextJS  = "NextJS"
+	ReactJS        = "React JS"
+	NextJS         = "Next JS"
+	ReactGraphqlTS = "React GraphQL TS"
 )
 
 // Backend stacks
@@ -95,6 +97,7 @@ const (
 	GoEchoTemplateMysqlRepo        = "go-template-mysql/main"
 	ReactTemplateRepo              = "react-template/master"
 	NextjsTemplateRepo             = "nextjs-template/master"
+	ReactGraphqlTemplateRepo       = "react-graphql-ts-template/master"
 )
 
 // Infra Files
@@ -147,8 +150,10 @@ const (
 	Zero                     = 0
 	One                      = 1
 	Two                      = 2
+	Three                    = 3
 	BackendSuffixSize        = 3
-	WebSuffixSize            = 2
+	WebSuffixSize            = 3
+	MobileSuffixSize         = 2
 	DotSstDirectory          = ".sst"
 	PostgresqlData           = "postgresql/data"
 	GithubWorkflowsDir       = ".github/workflows"
@@ -170,10 +175,11 @@ const (
 	NodeGraphqlPgTemplate    = "node-graphql-pg"
 	NodeGraphqlMySqlTemplate = "node-graphql-mysql"
 	NodeExpressMongoTemplate = "node-express-mongo"
-	GolangPgTemplate         = "golang-pg"
-	GolangMySqlTemplate      = "golang-mysql"
-	ReactTemplate            = "react-web"
-	NextTemplate             = "next-web"
+	GolangPgTemplate         = "golang-graphql-pg"
+	GolangMySqlTemplate      = "golang-graphql-mysql"
+	ReactTemplate            = "react-js-web"
+	NextTemplate             = "next-js-web"
+	ReactGraphqlTemplate     = "react-graphql-web"
 	ReactNativeTemplate      = "reactnative-mobile"
 	AndroidTemplate          = "android-mobile"
 	IOSTemplate              = "ios-mobile"

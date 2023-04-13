@@ -111,15 +111,15 @@ func PromptSelectExistingStacks() []string {
 // GetDetailsTemplatesOfStacks return the details template for the given service.
 func GetDetailsTemplatesOfStacks(service string) string {
 	details := fmt.Sprintf(`
--------- %s --------
+  -------- %s --------
 {{ "Name:" | faint }}       {{ .Name }}
 {{ "Language:" | faint }}   {{ .Language }}
-{{ "Framework:" | faint }}  {{ .Framework }}`, service)
+{{ "Framework:" | faint }}  {{ .Framework }}
+{{ "Type:" | faint }}       {{ .Type }}`, service)
 
 	if service == constants.Backend {
 		details = fmt.Sprintf(`%s
 {{ "Databases:" | faint }}  {{ .Databases }}
-{{ "Type:" | faint }}       {{ .Type }}
 `, details)
 	}
 	return details
