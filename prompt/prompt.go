@@ -115,13 +115,13 @@ func (p PromptInput) PromptMultiSelect() ([]string, []int) {
 }
 
 // PromptStack is prompt for selecting stack. It will come up after user selecting the service.
-func PromptStack(service string) string {
-	stacksWithDetails := utils.GetStackDetails(service)
+func (i *InitInfo) PromptStack() string {
+	stacksWithDetails := utils.GetStackDetails(i.Service)
 	templates := &promptui.SelectTemplates{
 		Active:   fmt.Sprintf("%s {{ .Name | magenta | underline }}", constants.IconChoose),
 		Inactive: "{{ .Name }}",
 		Selected: fmt.Sprintf("%s {{ .Name | cyan }}", constants.IconSelect),
-		Details:  GetDetailsTemplatesOfStacks(service),
+		Details:  i.GetDetailsTemplatesOfStacks(),
 	}
 
 	prompt := promptui.Select{

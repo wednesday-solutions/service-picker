@@ -8,11 +8,11 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-// DeleteDotGitFolder deleted .git folder from stack folder.
-func DeleteDotGitFolder(dirName string) error {
+// DeleteDotGitFolder deletes .git folder from stack folder.
+func (s StackDetails) DeleteDotGitFolder() error {
 
 	path := fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
-		dirName,
+		s.DirName,
 		constants.DotGitFolder,
 	)
 	status, _ := utils.IsExists(path)

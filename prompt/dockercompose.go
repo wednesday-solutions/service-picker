@@ -61,8 +61,9 @@ func PromptRunDockerCompose() {
 // stacks as a monorepo in the root directory.
 func GenerateDockerCompose() error {
 	var p PromptInput
+	var s pickyhelpers.StackDetails
+
 	p.GoBack = PromptDockerCompose
-	var stack, database string
 	response := true
 	status, _ := utils.IsExists(filepath.Join(utils.CurrentDirectory(), constants.DockerComposeFile))
 	if status {
@@ -73,13 +74,14 @@ func GenerateDockerCompose() error {
 		stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
 		for i, db := range databases {
 			if db != "" {
-				database = db
-				stack = stacks[i]
+				s.Database = db
+				s.Stack = stacks[i]
 				break
 			}
 		}
-		stackInfo := pickyhelpers.GetStackInfo(stack, database, constants.Environment)
-		err := pickyhelpers.CreateDockerComposeFile(stackInfo)
+		s.Environment = constants.Environment
+		s.StackInfo = s.GetStackInfo()
+		err := pickyhelpers.CreateDockerComposeFile(s.StackInfo)
 		errorhandler.CheckNilErr(err)
 		fmt.Printf("\n%s\n", errorhandler.DoneMessage)
 	} else {

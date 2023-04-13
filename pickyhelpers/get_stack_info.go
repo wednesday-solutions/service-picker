@@ -3,16 +3,17 @@ package pickyhelpers
 import (
 	"fmt"
 
+	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func GetStackInfo(stack, database, environment string) map[string]interface{} {
+func (s StackDetails) GetStackInfo() map[string]interface{} {
 
 	var webDir, mobileDir, backendDir, service string
 	var webDirectories, backendPgDirectories, backendMysqlDirectories []string
 	currentDir := utils.CurrentDirectory()
-	projectName := utils.GetProjectNameInSnakeCase()
+	projectName := strcase.ToSnake(utils.GetProjectName())
 
 	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
 	for i, dirName := range directories {
@@ -46,14 +47,14 @@ func GetStackInfo(stack, database, environment string) map[string]interface{} {
 			stackInfo[status] = false
 		}
 	}
-	stackInfo[constants.Stack] = stack
-	stackInfo[constants.Database] = database
+	stackInfo[constants.Stack] = s.Stack
+	stackInfo[constants.Database] = s.Database
 	stackInfo[constants.ProjectName] = projectName
 	stackInfo[constants.WebDirName] = webDir
 	stackInfo[constants.MobileDirName] = mobileDir
 	stackInfo[constants.BackendDirName] = backendDir
 	stackInfo[constants.ExistingDirectories] = directories
-	stackInfo[constants.Environment] = environment
+	stackInfo[constants.Environment] = s.Environment
 	stackInfo[constants.WebDirectories] = webDirectories
 	stackInfo[constants.BackendPgDirectories] = backendPgDirectories
 	stackInfo[constants.BackendMysqlDirectories] = backendMysqlDirectories

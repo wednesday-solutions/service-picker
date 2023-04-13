@@ -68,15 +68,14 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 	switch cloudProvider {
 	case constants.AWS:
 		status := pickyhelpers.IsInfraFilesExist()
-		var (
-			stackInfo map[string]interface{}
-			err       error
-		)
+
+		var err error
 		if !status {
 			err = pickyhelpers.CreateInfraSetup()
 			errorhandler.CheckNilErr(err)
 		}
 		var response bool
+		var s pickyhelpers.StackDetails
 		for _, dirName := range directories {
 			var infra pickyhelpers.Infra
 			infra.Service = utils.FindService(dirName)
@@ -86,7 +85,10 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 			infra.Environment = environment
 			infra.ForceCreate = false
 
-			stackInfo = pickyhelpers.GetStackInfo(infra.Stack, infra.Database, environment)
+			s.Stack = infra.Stack
+			s.Database = infra.Database
+			s.Environment = environment
+			s.StackInfo = s.GetStackInfo()
 
 			err = infra.CreateInfraStack()
 			if err != nil {
@@ -106,7 +108,7 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 				errorhandler.CheckNilErr(err)
 			}
 		}
-		err = pickyhelpers.CreateSstConfigFile(stackInfo, directories)
+		err = pickyhelpers.CreateSstConfigFile(s.StackInfo, directories)
 		errorhandler.CheckNilErr(err)
 
 		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)

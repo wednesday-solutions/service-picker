@@ -9,7 +9,7 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func CreateDockerFiles(dirName string, stackInfo map[string]interface{}) error {
+func (s StackDetails) CreateDockerFiles() error {
 
 	var (
 		path      string
@@ -18,10 +18,10 @@ func CreateDockerFiles(dirName string, stackInfo map[string]interface{}) error {
 		err       error
 	)
 
-	if stackInfo[constants.WebStatus].(bool) {
+	if s.StackInfo[constants.WebStatus].(bool) {
 
 		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
-			dirName,
+			s.DirName,
 			constants.DockerFile,
 		)
 		fileFound, _ = utils.IsExists(path)
@@ -37,11 +37,11 @@ FROM baseimage
 CMD {{{cmdDockerfile stack}}}
 EXPOSE 3000`
 
-			err = hbs.ParseAndWriteToFile(source, path, stackInfo)
+			err = hbs.ParseAndWriteToFile(source, path, s.StackInfo)
 			errorhandler.CheckNilErr(err)
 		}
 		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
-			dirName,
+			s.DirName,
 			constants.DockerEnvFile,
 		)
 		fileFound, _ = utils.IsExists(path)
@@ -52,7 +52,7 @@ EXPOSE 3000`
 			errorhandler.CheckNilErr(err)
 		}
 		path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
-			dirName,
+			s.DirName,
 			constants.DockerIgnoreFile,
 		)
 		fileFound, _ = utils.IsExists(path)
@@ -66,13 +66,13 @@ EXPOSE 3000`
 	// Add mobile related files.
 	// if stackInfo[constants.MobileStatus].(bool) {}
 
-	if stackInfo[constants.BackendStatus].(bool) {
+	if s.StackInfo[constants.BackendStatus].(bool) {
 
-		switch stackInfo[constants.Stack] {
+		switch s.StackInfo[constants.Stack] {
 		case constants.NodeExpressGraphqlTemplate, constants.NodeHapiTemplate:
 
 			path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
-				dirName,
+				s.DirName,
 				constants.DockerIgnoreFile,
 			)
 			fileFound, _ = utils.IsExists(path)
@@ -83,7 +83,7 @@ EXPOSE 3000`
 			}
 
 			path = fmt.Sprintf("%s/%s/%s", utils.CurrentDirectory(),
-				dirName,
+				s.DirName,
 				constants.DockerFile,
 			)
 			fileFound, _ = utils.IsExists(path)
@@ -112,7 +112,7 @@ COPY --from=0 /app-build/dist ./dist
 CMD ["sh", "./migrate-and-run.sh"]
 EXPOSE 9000`
 
-				err = hbs.ParseAndWriteToFile(source, path, stackInfo)
+				err = hbs.ParseAndWriteToFile(source, path, s.StackInfo)
 				errorhandler.CheckNilErr(err)
 			}
 		}

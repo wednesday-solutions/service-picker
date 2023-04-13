@@ -63,8 +63,10 @@ func DeployStacks(stacks []string, environment string) error {
 			errorhandler.CheckNilErr(err)
 		}
 	}
-	stackInfo := pickyhelpers.GetStackInfo("", "", environment)
-	err := pickyhelpers.CreateSstConfigFile(stackInfo, stacks)
+	var s pickyhelpers.StackDetails
+	s.Environment = environment
+	s.StackInfo = s.GetStackInfo()
+	err := pickyhelpers.CreateSstConfigFile(s.StackInfo, stacks)
 	errorhandler.CheckNilErr(err)
 
 	// Deploy infrastructure

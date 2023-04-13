@@ -117,12 +117,6 @@ func GetProjectName() string {
 	return projectName
 }
 
-// GetProjectNameInSnakeCase returns projectName in snakeCase.
-func GetProjectNameInSnakeCase() string {
-	projectName := strcase.ToSnake(GetProjectName())
-	return projectName
-}
-
 func CreateGithubWorkflowDir() {
 	currentDir := CurrentDirectory()
 	workflowsPath := fmt.Sprintf("%s/%s", currentDir,
