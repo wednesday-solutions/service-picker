@@ -9,18 +9,19 @@ import (
 )
 
 func CreateCI(stackDirs []string) error {
-	projectName := utils.GetProjectName()
 	currentDir := utils.CurrentDirectory()
 	workflowsPath := fmt.Sprintf("%s/%s", currentDir,
 		constants.GithubWorkflowsDir)
-	rootCIPath := fmt.Sprintf("%s/ci-%s.yml",
-		workflowsPath,
-		projectName,
-	)
-	status, _ := utils.IsExists(rootCIPath)
+
+	status, _ := utils.IsExists(workflowsPath)
 	if !status {
-		utils.CreateGithubWorkflowDir()
-		err := CreateRootCI(rootCIPath, projectName)
+		githubFolderPath := fmt.Sprintf("%s/%s", currentDir, ".github")
+		githubStatus, _ := utils.IsExists(githubFolderPath)
+		if !githubStatus {
+			err := utils.CreateDirectory(githubFolderPath)
+			errorhandler.CheckNilErr(err)
+		}
+		err := utils.CreateDirectory(workflowsPath)
 		errorhandler.CheckNilErr(err)
 	}
 	var stackCIPath string
@@ -36,32 +37,6 @@ func CreateCI(stackDirs []string) error {
 		}
 	}
 	return nil
-}
-
-// CreateRootCI will create and write CI for root.
-func CreateRootCI(path, projectName string) error {
-	source := fmt.Sprintf(`name: CI %s
-on:
-  push:
-    branches: ["master", "develop", "qa"]
-  pull_request:
-
-  # Allows to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run the logs
-        run: SERVICE PICKER, %s
-`, projectName, projectName)
-
-	err := utils.WriteToFile(path, source)
-	return err
 }
 
 // CreateStackCI creates and writes CI for the given stack.
@@ -81,28 +56,34 @@ jobs:
   build_and_test:
     name: Build & Test
     runs-on: ubuntu-latest
+    defaults: 
+      run:
+        working-directory: ./%s
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.14.x]
 
     steps:
       - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+          cache-dependency-path: ./%s/package.json
+
       - name: Install dependencies
-        working-directory: ./%s
         run: yarn
 
       - name: Lint
-        working-directory: ./%s
         run: yarn lint
 
       - name: Build
-        working-directory: ./%s
         run: yarn build:dev
 
       - name: Test
-        working-directory: ./%s
         run: yarn test
-`, stackDir, stackDir, stackDir, stackDir, stackDir, stackDir, stackDir)
+`, stackDir, stackDir, stackDir, stackDir, stackDir)
 
 	err := utils.WriteToFile(path, source)
 	return err
