@@ -86,20 +86,6 @@ const (
 	CreateCD = "Create CD"
 )
 
-// Github Repo download URL
-const (
-	GitHubBaseURL                  = "https://raw.githubusercontent.com/wednesday-solutions/"
-	CDFilePathURL                  = "/.github/workflows/cd.yml"
-	NodeHapiTemplateRepo           = "nodejs-hapi-template/main"
-	NodeExpressGraphqlTemplateRepo = "node-express-graphql-template/develop"
-	NodeExpressTemplateRepo        = "node-mongo-express/main"
-	GoEchoTemplatePostgresRepo     = "go-template/master"
-	GoEchoTemplateMysqlRepo        = "go-template-mysql/main"
-	ReactTemplateRepo              = "react-template/master"
-	NextjsTemplateRepo             = "nextjs-template/master"
-	ReactGraphqlTemplateRepo       = "react-graphql-ts-template/master"
-)
-
 // Infra Files
 const (
 	PackageDotJsonFile = "package.json"
@@ -158,6 +144,8 @@ const (
 	PostgresqlData           = "postgresql/data"
 	GithubWorkflowsDir       = ".github/workflows"
 	DotGitFolder             = ".git"
+	CDFilePathURL            = "/.github/workflows/cd.yml"
+	GitHub                   = "GitHub"
 )
 
 // Docker related files

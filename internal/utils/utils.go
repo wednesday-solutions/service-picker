@@ -122,3 +122,21 @@ func GetProjectNameInSnakeCase() string {
 	projectName := strcase.ToSnake(GetProjectName())
 	return projectName
 }
+
+func CreateGithubWorkflowDir() {
+	currentDir := CurrentDirectory()
+	workflowsPath := fmt.Sprintf("%s/%s", currentDir,
+		constants.GithubWorkflowsDir,
+	)
+	workflowStatus, _ := IsExists(workflowsPath)
+	if !workflowStatus {
+		githubFolderPath := fmt.Sprintf("%s/%s", currentDir, ".github")
+		githubStatus, _ := IsExists(githubFolderPath)
+		if !githubStatus {
+			err := CreateDirectory(githubFolderPath)
+			errorhandler.CheckNilErr(err)
+		}
+		err := CreateDirectory(workflowsPath)
+		errorhandler.CheckNilErr(err)
+	}
+}
