@@ -136,7 +136,6 @@ func BackendStackSource(database, dirName, environment string) string {
 		constants.Database,
 	)
 	dbUsername := "username"
-	awsRegion := "process.env.AWS_REGION"
 	camelCaseDirName := strcase.ToCamel(dirName)
 	var (
 		dbEngineVersion string
@@ -182,7 +181,6 @@ export function %s({ stack }) {
 	const clientPrefix = %s${clientName}-${environment}%s;
 	const dbName = "%s";
 	const dbUsername = "%s";
-	const awsRegion = %s;
 
 	const vpc = new ec2.Vpc(stack, %s${clientPrefix}-vpc%s, {
 		maxAzs: 3,
@@ -246,7 +244,7 @@ export function %s({ stack }) {
 		%s${clientPrefix}-database-credentials-secret%s,
 		{
 			secretName: %s${clientPrefix}-database-credentials%s,
-			description: "Database Credentials",
+			description: %sDatabase credentials for ${clientName}-develop%s,
 			generateSecretString: {
 				excludeCharacters: "\"@/\\ '",
 				generateStringKey: "password",
@@ -333,7 +331,7 @@ export function %s({ stack }) {
 		vpc,
 	});
 
-	// // Creating your Load Balancer
+	// Creating your Load Balancer
 	const elb = new elasticloadbalancing.ApplicationLoadBalancer(
 		stack,
 		%s${clientPrefix}-elb%s,
@@ -455,7 +453,7 @@ export function %s({ stack }) {
 
 	new CfnOutput(stack, "aws-region", {
 		exportName: "aws-region",
-		value: awsRegion,
+		value: stack.region,
 	});
 
   new CfnOutput(stack, "elastic-container-registry-repo", {
@@ -509,17 +507,17 @@ export function %s({ stack }) {
   });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
-		singleQuote, singleQuote, dbName, dbUsername, awsRegion, singleQuote,
+		singleQuote, singleQuote, dbName, dbUsername, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, dbPortNumber, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, dbEngine, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		dbPortNumber, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, dbEngine, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, dbUri, dirName, environment, singleQuote, singleQuote,
-		shortEnvironment, environment, dbHost, singleQuote, singleQuote, singleQuote,
-		singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, dbUri, dirName, environment,
+		singleQuote, singleQuote, shortEnvironment, environment, dbHost, singleQuote,
+		singleQuote, singleQuote, singleQuote,
 	)
 
 	return source

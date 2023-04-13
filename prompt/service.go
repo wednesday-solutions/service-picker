@@ -6,7 +6,7 @@ func PromptSelectService() {
 	var p PromptInput
 	p.Label = "Pick a service"
 	p.Items = AllServices()
-	p.GoBack = PromptHome
+	p.GoBack = PromptAlertMessage
 
 	var i InitInfo
 	i.Service = p.PromptSelect()

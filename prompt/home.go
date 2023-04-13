@@ -8,7 +8,7 @@ import (
 func PromptHome() {
 	var p PromptInput
 	p.Label = "Pick an option"
-	p.GoBack = PromptHome
+	p.GoBack = PromptAlertMessage
 	var initService bool
 	stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
 	if len(stacks) > 0 {
