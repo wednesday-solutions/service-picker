@@ -67,7 +67,7 @@ func RemoveFile(path string) error {
 	return os.Remove(path)
 }
 
-// Remove all the files in the directory of the path.
+// Remove all the files existing in the path directory and the path.
 func RemoveAll(path string) error {
 	return os.RemoveAll(path)
 }

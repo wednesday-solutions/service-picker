@@ -152,6 +152,7 @@ const (
 	DotSstDirectory          = ".sst"
 	PostgresqlData           = "postgresql/data"
 	GithubWorkflowsDir       = ".github/workflows"
+	DotGitFolder             = ".git"
 )
 
 // Docker related files
