@@ -20,7 +20,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 		} else if stackSuffix == constants.Graphql {
 			if langSuffix == "node" {
 				stack = constants.NodeExpressGraphqlTemplate
-			} else if langSuffix == "golang" {
+			} else if langSuffix == constants.Golang {
 				stack = constants.GolangEchoTemplate
 			}
 		}
@@ -31,7 +31,7 @@ func FindStackAndDatabase(dirName string) (string, string) {
 		} else if stackSuffix == constants.Graphql {
 			if langSuffix == "node" {
 				stack = constants.NodeExpressGraphqlTemplate
-			} else if langSuffix == "golang" {
+			} else if langSuffix == constants.Golang {
 				stack = constants.GolangEchoTemplate
 			}
 		}

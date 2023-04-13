@@ -109,6 +109,8 @@ const (
 	DB                       = "db"
 	Pg                       = "pg"
 	Mysql                    = "mysql"
+	Postgresql               = "postgresql"
+	Mongodb                  = "mongodb"
 	Mongo                    = "mongo"
 	Redis                    = "redis"
 	Postgres                 = "postgres"
