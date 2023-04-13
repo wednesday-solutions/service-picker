@@ -7,32 +7,38 @@ import (
 	"github.com/wednesday-solutions/picky/internal/constants"
 )
 
-func UsageService() string {
+func UseService() string {
 	usageString := fmt.Sprintf(`Choose a service
   %d. %s
   %d. %s
-  %d. %s`, 1, constants.Web,
+  %d. %s
+`,
+		1, constants.Web,
 		2, constants.Mobile,
 		3, constants.Backend)
 	return usageString
 }
 
-func UsageStack() string {
+func UseStack() string {
 	usageString := fmt.Sprintf(`Choose a stack (select the second name)
+
  Web stacks:
   %d. %s          -> %s
   %d. %s           -> %s
   %d. %s  -> %s
+
  Mobile stacks:
   %d. %s -> %s
   %d. %s      -> %s
   %d. %s          -> %s
   %d. %s      -> %s
+
  Backend stacks:
   %d. %s       -> %s
   %d. %s -> %s
   %d. %s    -> %s
-  %d. %s  -> %s`,
+  %d. %s  -> %s
+`,
 		1, constants.ReactJS, constants.ReactjsLower,
 		2, constants.NextJS, constants.NextjsLower,
 		3, constants.ReactGraphqlTS, constants.ReactGraphqlLower,
@@ -49,48 +55,49 @@ func UsageStack() string {
 	return usageString
 }
 
-func UsageDatabase() string {
+func UseDatabase() string {
 	usageString := fmt.Sprintf(`Choose a database
   %d. %s
   %d. %s
-  %d. %s`,
-		1, constants.PostgreSQL,
-		2, constants.MySQL,
-		3, constants.MongoDB,
+  %d. %s
+`,
+		1, constants.Postgresql,
+		2, constants.Mysql,
+		3, constants.Mongodb,
 	)
 	return usageString
 }
 
-func UsageDirectory() string {
+func UseDirectory() string {
 	return `Provide a directory name (suffix will be added.)
-  Eg: directory-react-js-web | directory-node-hapi-pg`
+  Eg: example-react-js-web | example-node-hapi-pg`
 }
 
-func GetStackConstantNameFromLower(stack string) string {
+func GetStackByFlags(stack string) string {
 	switch stack {
-	case constants.ReactjsLower:
+	case constants.ReactjsLower, constants.ReactJS:
 		return constants.ReactJS
-	case constants.NextjsLower:
+	case constants.NextjsLower, constants.NextJS:
 		return constants.NextJS
-	case constants.ReactGraphqlLower:
+	case constants.ReactGraphqlLower, constants.ReactGraphqlTS:
 		return constants.ReactGraphqlTS
 
-	case constants.ReactNativeLower:
+	case constants.ReactNativeLower, constants.ReactNative:
 		return constants.ReactNative
-	case constants.AndroidLower:
+	case constants.AndroidLower, constants.Android:
 		return constants.Android
-	case constants.IOSLower:
+	case constants.IOSLower, constants.IOS:
 		return constants.IOS
-	case constants.Flutter:
+	case constants.Flutter, constants.FlutterLower:
 		return constants.FlutterLower
 
-	case constants.NodeHapi:
+	case constants.NodeHapi, constants.NodeHapiTemplate:
 		return constants.NodeHapiTemplate
-	case constants.NodeGraphql:
+	case constants.NodeGraphql, constants.NodeExpressGraphqlTemplate:
 		return constants.NodeExpressGraphqlTemplate
-	case constants.NodeExpress:
+	case constants.NodeExpress, constants.NodeExpressTemplate:
 		return constants.NodeExpressTemplate
-	case constants.Golang:
+	case constants.Golang, constants.GolangEchoTemplate:
 		return constants.GolangEchoTemplate
 
 	default:
@@ -100,11 +107,11 @@ func GetStackConstantNameFromLower(stack string) string {
 
 func GetDatabase(db string) string {
 	db = strings.ToLower(db)
-	if db == "postgresql" {
+	if db == constants.Postgresql || db == constants.Postgres {
 		return constants.PostgreSQL
-	} else if db == "mysql" {
+	} else if db == constants.Mysql {
 		return constants.MySQL
-	} else if db == "mongodb" {
+	} else if db == constants.Mongodb {
 		return constants.MongoDB
 	} else {
 		return db

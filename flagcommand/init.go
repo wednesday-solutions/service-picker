@@ -21,7 +21,7 @@ func (i *InitInfo) FlagInit() error {
 
 	i.Database = utils.GetDatabase(i.Database)
 
-	i.Stack = utils.GetStackConstantNameFromLower(i.Stack)
+	i.Stack = utils.GetStackByFlags(i.Stack)
 	if i.Stack == "" {
 		return fmt.Errorf("Entered stack is invalid")
 	}

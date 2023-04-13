@@ -59,7 +59,7 @@ func InitService(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-func InitFlagFn() *cobra.Command {
+func InitCmdFn() *cobra.Command {
 	var InitCommand = &cobra.Command{
 		Use:  constants.Init,
 		RunE: InitService,
@@ -67,7 +67,7 @@ func InitFlagFn() *cobra.Command {
 	return InitCommand
 }
 
-var InitFlag = InitFlagFn()
+var InitCmd = InitCmdFn()
 var (
 	service   string
 	stack     string
@@ -76,9 +76,9 @@ var (
 )
 
 func init() {
-	ServiceSelection.AddCommand(InitFlag)
-	InitFlag.Flags().StringVarP(&service, "service", "s", "", utils.UsageService())
-	InitFlag.Flags().StringVarP(&stack, "stack", "t", "", utils.UsageStack())
-	InitFlag.Flags().StringVarP(&database, "database", "d", "", utils.UsageDatabase())
-	InitFlag.Flags().StringVarP(&directory, "directory", "f", "", utils.UsageDirectory())
+	ServiceSelection.AddCommand(InitCmd)
+	InitCmd.Flags().StringVarP(&service, "service", "s", "", utils.UseService())
+	InitCmd.Flags().StringVarP(&stack, "stack", "t", "", utils.UseStack())
+	InitCmd.Flags().StringVarP(&database, "database", "d", "", utils.UseDatabase())
+	InitCmd.Flags().StringVarP(&directory, "directory", "f", "", utils.UseDirectory())
 }
