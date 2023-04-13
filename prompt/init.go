@@ -67,36 +67,8 @@ func (i *InitInfo) Init() {
 		response = true
 	}
 	if response {
-		done := make(chan bool)
-		go pickyhelpers.ProgressBar(100, "Downloading", done)
-
-		// Clone the selected repo into service directory.
-		var s pickyhelpers.StackDetails
-		s.Stack = i.Stack
-		s.DirName = i.DirName
-		s.CurrentDir = currentDir
-		s.Database = i.Database
-		err := s.CloneRepo()
+		err := i.StackInitialize()
 		errorhandler.CheckNilErr(err)
-
-		// Delete .git folder inside the cloned repo.
-		err = s.DeleteDotGitFolder()
-		errorhandler.CheckNilErr(err)
-
-		// stackInfo gives the information about the stacks which is present in the root.
-		s.Environment = constants.Environment
-		s.StackInfo = s.GetStackInfo()
-		// Database conversion
-		if i.Service == constants.Backend {
-			err = s.ConvertTemplateDatabase()
-			errorhandler.CheckNilErr(err)
-		}
-		// create and update docker files
-		err = s.CreateDockerFiles()
-		errorhandler.CheckNilErr(err)
-
-		<-done
-		fmt.Printf("\nDownloading %s", errorhandler.CompleteMessage)
 	}
 	p.Label = "Do you want to initialize another service"
 	response = p.PromptYesOrNoSelect()
@@ -105,4 +77,40 @@ func (i *InitInfo) Init() {
 	} else {
 		PromptHome()
 	}
+}
+
+func (i InitInfo) StackInitialize() error {
+
+	done := make(chan bool)
+	go pickyhelpers.ProgressBar(100, "Downloading", done)
+
+	// Clone the selected repo into service directory.
+	var s pickyhelpers.StackDetails
+	s.Stack = i.Stack
+	s.DirName = i.DirName
+	s.CurrentDir = utils.CurrentDirectory()
+	s.Database = i.Database
+	err := s.CloneRepo()
+	errorhandler.CheckNilErr(err)
+
+	// Delete .git folder inside the cloned repo.
+	err = s.DeleteDotGitFolder()
+	errorhandler.CheckNilErr(err)
+
+	// stackInfo gives the information about the stacks which is present in the root.
+	s.Environment = constants.Environment
+	s.StackInfo = s.GetStackInfo()
+	// Database conversion
+	if i.Service == constants.Backend {
+		err = s.ConvertTemplateDatabase()
+		errorhandler.CheckNilErr(err)
+	}
+	// create and update docker files
+	err = s.CreateDockerFiles()
+	errorhandler.CheckNilErr(err)
+
+	<-done
+	fmt.Printf("\nDownloading %s", errorhandler.CompleteMessage)
+
+	return err
 }
