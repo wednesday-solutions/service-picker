@@ -72,10 +72,12 @@ export default {
 }
 
 func WebStackSource(dirName, camelCaseDirName, environment string) string {
+	var shortEnvironment string
 	if environment == constants.Development {
-		environment = constants.Dev
+		environment = "develop"
+		shortEnvironment = constants.Dev
 	}
-	var buildOutput string
+	buildOutput, singleQuote := "", "`"
 	stack, _ := utils.FindStackAndDatabase(dirName)
 	if stack == constants.ReactJS {
 		buildOutput = "build"
@@ -84,21 +86,37 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	}
 
 	source := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
-		
-export function %s({ stack }) {
-	// Deploy our web app
-	const site = new StaticSite(stack, "%sSite", {
-		path: "%s",
-		buildCommand: "yarn run build:%s",
-		buildOutput: "%s",
-	});
 
-	// Show the URLs in the output
-	stack.addOutputs({
-		SiteUrl: site.url || "http://localhost:3000/",
-	});
-}
-`, camelCaseDirName, camelCaseDirName, dirName, environment, buildOutput)
+	export function %s({ stack }) {
+		const bucketprefix = "%s";
+		const environment = "%s";
+		const bucketName = %s${bucketprefix}-${environment}%s;
+	
+		// Deploy our web app
+		const site = new StaticSite(stack, "%sSite", {
+			path: "%s",
+			buildCommand: "yarn run build:%s",
+			buildOutput: "%s",
+			cdk: {
+				bucket: {
+					bucketName,
+				},
+				distribution: {
+					comment: %sDistribution for ${bucketName}%s,
+				},
+			},
+		});
+	
+		// Show the URLs in the output
+		stack.addOutputs({
+			SiteUrl: site.url || "http://localhost:3000/",
+			distributionId: site.cdk?.distribution?.distributionId,
+			bucketName: site.cdk?.bucket?.bucketName,
+		});
+	}
+`, camelCaseDirName, dirName, environment, singleQuote, singleQuote, camelCaseDirName,
+		dirName, shortEnvironment, buildOutput, singleQuote, singleQuote)
+
 	return source
 }
 
@@ -323,6 +341,7 @@ export function %s({ stack }) {
 			vpc,
 			vpcSubnets: { subnets: vpc.publicSubnets },
 			internetFacing: true,
+			loadBalancerName: %s${clientPrefix}-alb%s,
 		}
 	);
 
@@ -434,15 +453,60 @@ export function %s({ stack }) {
 		value: elb.loadBalancerDnsName,
 	});
 
-	new CfnOutput(stack, "elastic-container-registry", {
-		exportName: "elastic-container-registry",
-		value: %scdk-hnb659fds-container-assets-${stack.account}-${awsRegion}%s,
-	});
-
 	new CfnOutput(stack, "aws-region", {
 		exportName: "aws-region",
 		value: awsRegion,
 	});
+
+  new CfnOutput(stack, "elastic-container-registry-repo", {
+    exportName: "elastic-container-registry-repo",
+    value: stack.synthesizer.repositoryName,
+  });
+
+  new CfnOutput(stack, "image", {
+    exportName: "image",
+    value: container.imageName,
+  });
+
+  new CfnOutput(stack, "task-definition-arn", {
+    exportName: "task-definition",
+    value: taskDefinition.taskDefinitionArn,
+  });
+
+  new CfnOutput(stack, "task-role", {
+    exportName: "task-role",
+    value: taskRole.roleArn,
+  });
+
+  new CfnOutput(stack, "execution-role", {
+    exportName: "execution-role",
+    value: taskDefinition.executionRole.roleArn,
+  });
+
+  new CfnOutput(stack, "family", {
+    exportName: "family",
+    value: taskDefinition.family,
+  });
+
+  new CfnOutput(stack, "container-name", {
+    exportName: "container-name",
+    value: container.containerName,
+  });
+
+  new CfnOutput(stack, "container-port", {
+    exportName: "container-port",
+    value: container.containerPort.toString(),
+  });
+
+  new CfnOutput(stack, "log-driver", {
+    exportName: "log-driver",
+    value: JSON.stringify(container.logDriverConfig.logDriver),
+  });
+
+  new CfnOutput(stack, "log-driver-options", {
+    exportName: "log-driver-options",
+    value: JSON.stringify(container.logDriverConfig.options),
+  });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
 		singleQuote, singleQuote, dbName, dbUsername, awsRegion, singleQuote,
@@ -453,9 +517,9 @@ export function %s({ stack }) {
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, dbUri, dirName, environment, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, dbUri, dirName, environment, singleQuote, singleQuote,
 		shortEnvironment, environment, dbHost, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote,
+		singleQuote,
 	)
 
 	return source
