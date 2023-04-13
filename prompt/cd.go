@@ -10,7 +10,7 @@ import (
 func PromptCICD() {
 	var p PromptInput
 	p.Label = "Select an option"
-	p.Items = []string{constants.CreateCI, constants.CreateCD}
+	p.Items = []string{constants.CreateCI}
 	p.GoBack = PromptHome
 	selectedOptions, _ := p.PromptMultiSelect()
 	services := PromptSelectExistingStacks()
@@ -27,6 +27,7 @@ func PromptCICD() {
 			errorhandler.CheckNilErr(err)
 		}
 	}
+	PromptHome()
 }
 
 func CreateCD(directories []string) error {
