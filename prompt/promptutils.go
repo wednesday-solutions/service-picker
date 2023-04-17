@@ -9,8 +9,22 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func AllServices() []string {
-	return []string{constants.Web, constants.Mobile, constants.Backend}
+// ResetItems reset the values of items. index means last selected item's index.
+func ResetItems(items []string, index *int) []string {
+	if index != nil {
+		var updatedItems []string
+		var selectedItem string
+		for idx, item := range items {
+			if idx != *index {
+				updatedItems = append(updatedItems, item)
+			} else {
+				selectedItem = item
+			}
+		}
+		updatedItems = append(updatedItems, selectedItem)
+		items = updatedItems
+	}
+	return items
 }
 
 func (i *InitInfo) PromptGetDirectoryName() string {

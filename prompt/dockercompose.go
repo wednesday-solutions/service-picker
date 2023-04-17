@@ -15,7 +15,7 @@ func PromptDockerCompose() {
 	p.Label = "Choose an option"
 	p.GoBack = PromptHome
 	p.Items = []string{constants.CreateDockerCompose, constants.RunDockerCompose}
-	response := p.PromptSelect()
+	response, _ := p.PromptSelect()
 	if response == constants.CreateDockerCompose {
 		err := GenerateDockerCompose()
 		errorhandler.CheckNilErr(err)

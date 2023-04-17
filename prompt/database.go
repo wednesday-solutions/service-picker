@@ -23,7 +23,7 @@ func (i *InitInfo) SelectDatabase() {
 	default:
 		errorhandler.CheckNilErr(fmt.Errorf("\nSelected stack is invalid%s\n", errorhandler.Exclamation))
 	}
-	i.Database = p.PromptSelect()
+	i.Database, _ = p.PromptSelect()
 }
 
 func PromptAllDatabases() string {
@@ -31,5 +31,6 @@ func PromptAllDatabases() string {
 	p.Label = "Choose a database"
 	p.GoBack = PromptSelectService
 	p.Items = []string{constants.PostgreSQL, constants.MySQL, constants.MongoDB}
-	return p.PromptSelect()
+	db, _ := p.PromptSelect()
+	return db
 }

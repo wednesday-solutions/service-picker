@@ -51,7 +51,8 @@ func PromptCloudProvider() string {
 	p.Label = "Choose a cloud provider"
 	p.Items = []string{constants.AWS}
 	p.GoBack = PromptHome
-	return p.PromptSelect()
+	cp, _ := p.PromptSelect()
+	return cp
 }
 
 // PromptEnvironment is a prompt for selecting an environment.
@@ -60,7 +61,8 @@ func PromptEnvironment() string {
 	p.Label = "Choose an environment"
 	p.Items = []string{constants.Development, constants.QA, constants.Production}
 	p.GoBack = PromptHome
-	return p.PromptSelect()
+	env, _ := p.PromptSelect()
+	return env
 }
 
 // CreateInfra execute all the functionalities of infra setup.
