@@ -35,6 +35,7 @@ const (
 	SetupInfra    = "Setup Infra"
 	Deploy        = "Deploy"
 	RemoveDeploy  = "Remove Deploy"
+	GitInit       = "Git Init"
 	Exit          = "Exit"
 )
 
@@ -150,6 +151,7 @@ const (
 	CDFilePathURL            = "/.github/workflows/cd.yml"
 	GitHub                   = "GitHub"
 	Graphql                  = "graphql"
+	Git                      = "git"
 )
 
 // Docker related files
