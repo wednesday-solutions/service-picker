@@ -34,5 +34,22 @@ func PromptGitInit() {
 
 func GitInit() error {
 	err := utils.RunCommandWithLogs("", constants.Git, constants.Init)
+	if err != nil {
+		return err
+	}
+	// create .gitignore file
+	file := fmt.Sprintf("%s/%s",
+		utils.CurrentDirectory(),
+		constants.DotGitIgnore,
+	)
+	err = utils.CreateFile(file)
+	errorhandler.CheckNilErr(err)
+
+	source := constants.NodeModules
+	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
+	for _, dir := range directories {
+		source = fmt.Sprintf("%s\n%s/%s", source, dir, constants.NodeModules)
+	}
+	err = utils.WriteToFile(file, source)
 	return err
 }

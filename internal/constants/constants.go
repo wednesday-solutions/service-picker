@@ -152,6 +152,8 @@ const (
 	GitHub                   = "GitHub"
 	Graphql                  = "graphql"
 	Git                      = "git"
+	DotGitIgnore             = ".gitignore"
+	NodeModules              = "node_modules"
 )
 
 // Docker related files
