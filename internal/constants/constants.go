@@ -152,6 +152,7 @@ const (
 	GitHub                   = "GitHub"
 	Graphql                  = "graphql"
 	CloudProvider            = "cloudprovider"
+	Directory                = "directory"
 )
 
 // Docker related files
