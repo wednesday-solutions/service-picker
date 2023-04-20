@@ -17,7 +17,7 @@ func InfraSetup(cmd *cobra.Command, args []string) error {
 		cloudProvider string
 		environment   string
 	)
-	stacks, err = cmd.Flags().GetStringSlice("stacks")
+	stacks, err = cmd.Flags().GetStringSlice(constants.Stacks)
 	errorhandler.CheckNilErr(err)
 
 	if len(stacks) == 0 {
@@ -34,9 +34,9 @@ func InfraSetup(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("Entered stack '%s' not exists\n", stack)
 		}
 	}
-	cloudProvider, err = cmd.Flags().GetString("cloudprovider")
+	cloudProvider, err = cmd.Flags().GetString(constants.CloudProvider)
 	errorhandler.CheckNilErr(err)
-	environment, err = cmd.Flags().GetString("environment")
+	environment, err = cmd.Flags().GetString(constants.Environment)
 	errorhandler.CheckNilErr(err)
 
 	cloudProvider = utils.GetCloudProvider(cloudProvider)
@@ -66,12 +66,12 @@ var (
 func init() {
 	ServiceSelection.AddCommand(InfraCmd)
 	InfraCmd.Flags().StringSliceVarP(
-		&stacks, "stacks", "t", utils.ExistingStacks(), utils.UsageInfraStacks(),
+		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UsageInfraStacks(),
 	)
 	InfraCmd.Flags().StringVarP(
-		&cloudProvider, "cloudprovider", "p", constants.AWS, utils.UsageCloudProvider(),
+		&cloudProvider, constants.CloudProvider, "p", constants.AWS, utils.UsageCloudProvider(),
 	)
 	InfraCmd.Flags().StringVarP(
-		&environment, "environment", "e", constants.Development, utils.UsageEnvironment(),
+		&environment, constants.Environment, "e", constants.Development, utils.UsageEnvironment(),
 	)
 }

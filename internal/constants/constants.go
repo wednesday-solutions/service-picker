@@ -151,6 +151,7 @@ const (
 	CDFilePathURL            = "/.github/workflows/cd.yml"
 	GitHub                   = "GitHub"
 	Graphql                  = "graphql"
+	CloudProvider            = "cloudprovider"
 )
 
 // Docker related files
