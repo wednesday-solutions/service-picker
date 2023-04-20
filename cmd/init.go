@@ -60,11 +60,11 @@ func InitStack(cmd *cobra.Command, args []string) error {
 }
 
 func InitCmdFn() *cobra.Command {
-	var InitCmd = &cobra.Command{
+	var InitCommand = &cobra.Command{
 		Use:  constants.Init,
 		RunE: InitStack,
 	}
-	return InitCmd
+	return InitCommand
 }
 
 var InitCmd = InitCmdFn()
@@ -77,8 +77,8 @@ var (
 
 func init() {
 	ServiceSelection.AddCommand(InitCmd)
-	InitCmd.Flags().StringVarP(&service, "service", "s", "", utils.UsageService())
-	InitCmd.Flags().StringVarP(&stack, "stack", "t", "", utils.UsageStack())
-	InitCmd.Flags().StringVarP(&database, "database", "d", "", utils.UsageDatabase())
-	InitCmd.Flags().StringVarP(&directory, "directory", "f", "", utils.UsageDirectory())
+	InitCmd.Flags().StringVarP(&service, "service", "s", "", utils.UseService())
+	InitCmd.Flags().StringVarP(&stack, "stack", "t", "", utils.UseStack())
+	InitCmd.Flags().StringVarP(&database, "database", "d", "", utils.UseDatabase())
+	InitCmd.Flags().StringVarP(&directory, "directory", "f", "", utils.UseDirectory())
 }
