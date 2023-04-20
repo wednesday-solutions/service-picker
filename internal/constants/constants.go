@@ -193,10 +193,11 @@ const (
 
 // UI icons
 var (
-	IconChoose = promptui.Styler(promptui.FGBold)("▸")
-	IconSelect = promptui.Styler(promptui.FGGreen)("✔")
-	IconWarn   = promptui.Styler(promptui.FGYellow)("⚠")
-	IconWrong  = promptui.Styler(promptui.FGRed)("✗")
+	IconChoose   = promptui.Styler(promptui.FGBold)("▸")
+	IconSelect   = promptui.Styler(promptui.FGGreen)("✔")
+	IconWarn     = promptui.Styler(promptui.FGYellow)("⚠")
+	IconWrong    = promptui.Styler(promptui.FGRed)("✗")
+	IconQuestion = promptui.Styler(promptui.FGMagenta)("?")
 )
 
 // Stack short name for flags

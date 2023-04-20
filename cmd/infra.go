@@ -7,6 +7,7 @@ import (
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
+	"github.com/wednesday-solutions/picky/prompt"
 )
 
 func InfraSetup(cmd *cobra.Command, args []string) error {
@@ -42,9 +43,15 @@ func InfraSetup(cmd *cobra.Command, args []string) error {
 	cloudProvider = utils.GetCloudProvider(cloudProvider)
 	environment = utils.GetEnvironmentValue(environment)
 
-	fmt.Printf("\nStacks: %v\nCloud Provider: %s\nEnvironment: %s\n\n",
-		stacks, cloudProvider, environment,
+	userOutput := "\nSelected stacks:"
+	for idx, stack := range stacks {
+		userOutput = fmt.Sprintf("%s\n  %d. %s", userOutput, idx+1, stack)
+	}
+	fmt.Printf("%s\nCloud Provider: %s\nEnvironment: %s\n\n",
+		userOutput, cloudProvider, environment,
 	)
+	err = prompt.CreateInfra(stacks, cloudProvider, environment)
+	errorhandler.CheckNilErr(err)
 	return err
 }
 
