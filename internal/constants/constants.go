@@ -26,6 +26,7 @@ const (
 	Test    = "test"
 	Init    = "init"
 	Create  = "create"
+	Infra   = "infra"
 )
 
 // Home options
@@ -151,6 +152,8 @@ const (
 	CDFilePathURL            = "/.github/workflows/cd.yml"
 	GitHub                   = "GitHub"
 	Graphql                  = "graphql"
+	CloudProvider            = "cloudprovider"
+	Directory                = "directory"
 )
 
 // Docker related files
@@ -191,10 +194,11 @@ const (
 
 // UI icons
 var (
-	IconChoose = promptui.Styler(promptui.FGBold)("▸")
-	IconSelect = promptui.Styler(promptui.FGGreen)("✔")
-	IconWarn   = promptui.Styler(promptui.FGYellow)("⚠")
-	IconWrong  = promptui.Styler(promptui.FGRed)("✗")
+	IconChoose   = promptui.Styler(promptui.FGBold)("▸")
+	IconSelect   = promptui.Styler(promptui.FGGreen)("✔")
+	IconWarn     = promptui.Styler(promptui.FGYellow)("⚠")
+	IconWrong    = promptui.Styler(promptui.FGRed)("✗")
+	IconQuestion = promptui.Styler(promptui.FGMagenta)("?")
 )
 
 // Stack short name for flags
