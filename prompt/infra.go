@@ -85,6 +85,7 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 			infra.Environment = environment
 			infra.ForceCreate = false
 
+			s.Service = infra.Service
 			s.Stack = infra.Stack
 			s.Database = infra.Database
 			s.Environment = environment

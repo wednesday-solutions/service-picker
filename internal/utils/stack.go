@@ -50,7 +50,7 @@ func CreateStackDirectory(dirName, stack, database string) string {
 	return dirName
 }
 
-type StackDetails struct {
+type stackDetails struct {
 	Name      string
 	Language  string
 	Framework string
@@ -60,32 +60,32 @@ type StackDetails struct {
 
 // GetStackDetails returns an array of StackDetails for showing details
 // when user selects stacks prompt.
-func GetStackDetails(service string) []StackDetails {
-	var stacksDetails []StackDetails
+func GetStackDetails(service string) []stackDetails {
+	var stacksDetails []stackDetails
 	switch service {
 	case constants.Backend:
-		nodeHapi := StackDetails{
+		nodeHapi := stackDetails{
 			Name:      constants.NodeHapiTemplate,
 			Language:  "JavaScript",
 			Framework: "Node JS & Hapi",
 			Type:      "REST API",
 			Databases: fmt.Sprintf("%s & %s", constants.PostgreSQL, constants.MySQL),
 		}
-		nodeGraphql := StackDetails{
+		nodeGraphql := stackDetails{
 			Name:      constants.NodeExpressGraphqlTemplate,
 			Language:  "JavaScript",
 			Framework: "Node JS & Express",
 			Type:      "GraphQL API",
 			Databases: fmt.Sprintf("%s & %s", constants.PostgreSQL, constants.MySQL),
 		}
-		nodeExpress := StackDetails{
+		nodeExpress := stackDetails{
 			Name:      constants.NodeExpressTemplate,
 			Language:  "JavaScript",
 			Framework: "Node JS & Express",
 			Type:      "REST API",
 			Databases: constants.MongoDB,
 		}
-		golangGraphql := StackDetails{
+		golangGraphql := stackDetails{
 			Name:      constants.GolangEchoTemplate,
 			Language:  "Golang",
 			Framework: "Echo",
@@ -94,12 +94,12 @@ func GetStackDetails(service string) []StackDetails {
 		}
 		_, _, mobileStackExist := IsBackendWebAndMobileExist()
 		if mobileStackExist {
-			stacksDetails = []StackDetails{
+			stacksDetails = []stackDetails{
 				nodeHapi,
 				nodeExpress,
 			}
 		} else {
-			stacksDetails = []StackDetails{
+			stacksDetails = []stackDetails{
 				nodeHapi,
 				nodeGraphql,
 				nodeExpress,
@@ -107,28 +107,28 @@ func GetStackDetails(service string) []StackDetails {
 			}
 		}
 	case constants.Web:
-		reactGraphqlTs := StackDetails{
+		reactGraphqlTs := stackDetails{
 			Name:      constants.ReactGraphqlTS,
 			Language:  "TypeScript",
 			Framework: "React",
 			Type:      "GraphQL API",
 		}
-		reactJs := StackDetails{
+		reactJs := stackDetails{
 			Name:      constants.ReactJS,
 			Language:  "JavaScript",
 			Framework: "React",
 			Type:      "REST API",
 		}
-		nextJs := StackDetails{
+		nextJs := stackDetails{
 			Name:      constants.NextJS,
 			Language:  "JavaScript",
 			Framework: "Next",
 			Type:      "REST API",
 		}
-		stacksDetails = []StackDetails{reactJs, nextJs, reactGraphqlTs}
+		stacksDetails = []stackDetails{reactJs, nextJs, reactGraphqlTs}
 
 	case constants.Mobile:
-		stacksDetails = []StackDetails{
+		stacksDetails = []stackDetails{
 			{
 				Name:      constants.ReactNative,
 				Language:  "JavaScript",

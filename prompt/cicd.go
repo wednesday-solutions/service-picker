@@ -45,9 +45,11 @@ func (p PromptInput) PromptPlatform() string {
 
 func CreateCD(directories []string) error {
 	for _, dirName := range directories {
-		service := utils.FindService(dirName)
-		stack, database := utils.FindStackAndDatabase(dirName)
-		err := pickyhelpers.CreateCDFile(service, stack, database, dirName)
+		var s pickyhelpers.StackDetails
+		s.DirName = dirName
+		s.Service = utils.FindService(dirName)
+		s.Stack, s.Database = utils.FindStackAndDatabase(dirName)
+		err := s.CreateCDFile()
 		if err != nil {
 			if err.Error() != errorhandler.ErrExist.Error() {
 				errorhandler.CheckNilErr(err)

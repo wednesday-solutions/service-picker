@@ -86,6 +86,7 @@ func (i InitInfo) StackInitialize() error {
 
 	// Clone the selected repo into service directory.
 	var s pickyhelpers.StackDetails
+	s.Service = i.Service
 	s.Stack = i.Stack
 	s.DirName = i.DirName
 	s.CurrentDir = utils.CurrentDirectory()

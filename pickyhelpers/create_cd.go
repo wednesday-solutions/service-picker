@@ -8,10 +8,10 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func CreateCDFile(service, stack, database, dirName string) error {
+func (s StackDetails) CreateCDFile() error {
 
 	err := utils.PrintWarningMessage(fmt.Sprintf(
-		"CD of %s is in work in progress..!", stack),
+		"CD of %s is in work in progress..!", s.Stack),
 	)
 	errorhandler.CheckNilErr(err)
 	if err == nil {
@@ -22,7 +22,7 @@ func CreateCDFile(service, stack, database, dirName string) error {
 	cdDestination := fmt.Sprintf("%s/%s/cd-%s.yml",
 		utils.CurrentDirectory(),
 		constants.GithubWorkflowsDir,
-		dirName,
+		s.DirName,
 	)
 	status, _ := utils.IsExists(cdDestination)
 	if !status {
@@ -44,7 +44,7 @@ func CreateCDFile(service, stack, database, dirName string) error {
 		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 
 	} else {
-		fmt.Println("The", service, stack, "CD you are looking to create already exists")
+		fmt.Println("The", s.Service, s.Stack, "CD you are looking to create already exists")
 		return errorhandler.ErrExist
 	}
 	return nil
