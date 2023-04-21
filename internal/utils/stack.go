@@ -232,3 +232,27 @@ func CheckStacksExist(stacks []string) error {
 	}
 	return nil
 }
+
+func IsWebStack(stack string) (string, bool) {
+	_, _, _, lastSuffix := SplitStackDirectoryName(stack)
+	if lastSuffix == constants.Web {
+		return stack, true
+	}
+	return "", false
+}
+
+func IsMobileStack(stack string) (string, bool) {
+	_, _, _, lastSuffix := SplitStackDirectoryName(stack)
+	if lastSuffix == constants.Mobile {
+		return stack, true
+	}
+	return "", false
+}
+
+func IsBackendStack(stack string) (string, bool) {
+	_, _, _, lastSuffix := SplitStackDirectoryName(stack)
+	if lastSuffix == constants.Pg || lastSuffix == constants.Mysql {
+		return stack, true
+	}
+	return "", false
+}

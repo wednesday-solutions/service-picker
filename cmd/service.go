@@ -6,17 +6,17 @@ import (
 	"github.com/wednesday-solutions/picky/prompt"
 )
 
-var ServiceSelection = ServiceSelectionFn()
+var ServiceCmd = ServiceCmdFn()
 
 func RunService(*cobra.Command, []string) error {
 	prompt.PromptHome()
 	return nil
 }
 
-// ServiceSelectionFn represents the ServiceSelection command
-func ServiceSelectionFn() *cobra.Command {
+// ServiceCmdFn represents the ServiceCmd command
+func ServiceCmdFn() *cobra.Command {
 
-	var ServiceSelection = &cobra.Command{
+	var ServiceCmd = &cobra.Command{
 		Use:   constants.Service,
 		Short: "Pick a Service",
 		Long: `Pick a service for your:
@@ -29,12 +29,12 @@ func ServiceSelectionFn() *cobra.Command {
 `,
 		RunE: RunService,
 	}
-	return ServiceSelection
+	return ServiceCmd
 }
 
 func init() {
 
-	RootCmd.AddCommand(ServiceSelection)
+	RootCmd.AddCommand(ServiceCmd)
 
-	ServiceSelection.Flags().BoolP("help", "h", false, "Help for service selection")
+	ServiceCmd.Flags().BoolP("help", "h", false, "Help for service selection")
 }

@@ -76,7 +76,7 @@ var (
 )
 
 func init() {
-	ServiceSelection.AddCommand(InitCmd)
+	ServiceCmd.AddCommand(InitCmd)
 	InitCmd.Flags().StringVarP(&service, constants.Service, "s", "", utils.UseService())
 	InitCmd.Flags().StringVarP(&stack, constants.Stack, "t", "", utils.UseStack())
 	InitCmd.Flags().StringVarP(&database, constants.Database, "d", "", utils.UseDatabase())
