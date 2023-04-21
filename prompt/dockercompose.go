@@ -68,7 +68,7 @@ func GenerateDockerCompose() error {
 	status, _ := utils.IsExists(filepath.Join(utils.CurrentDirectory(), constants.DockerComposeFile))
 	if status {
 		p.Label = fmt.Sprintf("'%s' already exist, do you want to update it", constants.DockerComposeFile)
-		response = p.PromptYesOrNoSelect()
+		response = p.PromptYesOrNoConfirm()
 	}
 	if response {
 		stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
@@ -83,9 +83,7 @@ func GenerateDockerCompose() error {
 		s.StackInfo = s.GetStackInfo()
 		err := pickyhelpers.CreateDockerComposeFile(s.StackInfo)
 		errorhandler.CheckNilErr(err)
-		fmt.Printf("\n%s\n", errorhandler.DoneMessage)
-	} else {
-		PromptRunDockerCompose()
+		fmt.Printf("%s", errorhandler.DoneMessage)
 	}
 	return nil
 }
