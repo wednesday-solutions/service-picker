@@ -118,7 +118,7 @@ func GetDatabase(db string) string {
 	}
 }
 
-func UsageInfraStacks() string {
+func UseInfraStacks() string {
 	_, _, directories := ExistingStacksDatabasesAndDirectories()
 	var usageString string
 	if len(directories) == 0 {
@@ -137,7 +137,7 @@ func ExistingStacks() []string {
 	return directories
 }
 
-func UsageCloudProvider() string {
+func UseCloudProvider() string {
 	usageString := fmt.Sprintf(`Choose a cloud provider
  %d. %s
 aws is the default cloud provider.
@@ -145,7 +145,7 @@ aws is the default cloud provider.
 	return usageString
 }
 
-func UsageEnvironment() string {
+func UseEnvironment() string {
 	usageString := fmt.Sprintf(`Choose an environment
  %d. %s
  %d. %s

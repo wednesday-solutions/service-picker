@@ -10,6 +10,13 @@ import (
 	"github.com/wednesday-solutions/picky/prompt"
 )
 
+var InfraCmd = InfraCmdFn()
+var (
+	stacks        []string
+	cloudProvider string
+	environment   string
+)
+
 func InfraSetup(cmd *cobra.Command, args []string) error {
 	var (
 		err           error
@@ -22,7 +29,7 @@ func InfraSetup(cmd *cobra.Command, args []string) error {
 	errorhandler.CheckNilErr(err)
 
 	if len(stacks) == 0 {
-		return fmt.Errorf("Provide existing stacks\n")
+		return fmt.Errorf("No stacks exist.\n")
 	}
 	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
 	for _, stack := range stacks {
@@ -32,7 +39,7 @@ func InfraSetup(cmd *cobra.Command, args []string) error {
 			}
 		}
 		if !stackExist {
-			return fmt.Errorf("Entered stack '%s' not exists\n", stack)
+			return fmt.Errorf("Entered stack '%s' not exists.\n", stack)
 		}
 	}
 	cloudProvider, err = cmd.Flags().GetString(constants.CloudProvider)
@@ -63,22 +70,15 @@ func InfraCmdFn() *cobra.Command {
 	return InfraCmd
 }
 
-var InfraCmd = InfraCmdFn()
-var (
-	stacks        []string
-	cloudProvider string
-	environment   string
-)
-
 func init() {
 	ServiceSelection.AddCommand(InfraCmd)
 	InfraCmd.Flags().StringSliceVarP(
-		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UsageInfraStacks(),
+		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UseInfraStacks(),
 	)
 	InfraCmd.Flags().StringVarP(
-		&cloudProvider, constants.CloudProvider, "p", constants.AWS, utils.UsageCloudProvider(),
+		&cloudProvider, constants.CloudProvider, "p", constants.AWS, utils.UseCloudProvider(),
 	)
 	InfraCmd.Flags().StringVarP(
-		&environment, constants.Environment, "e", constants.Development, utils.UsageEnvironment(),
+		&environment, constants.Environment, "e", constants.Development, utils.UseEnvironment(),
 	)
 }
