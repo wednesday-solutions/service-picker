@@ -73,9 +73,14 @@ export default {
 
 func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	var shortEnvironment string
-	if environment == constants.Development {
+	switch environment {
+	case constants.Development:
 		environment = "develop"
 		shortEnvironment = constants.Dev
+	case constants.QA:
+		shortEnvironment = constants.QA
+	case constants.Production:
+		shortEnvironment = constants.Prod
 	}
 	buildOutput, singleQuote := "", "`"
 	stack, _ := utils.FindStackAndDatabase(dirName)
@@ -174,6 +179,7 @@ import {
 import { CfnOutput } from "aws-cdk-lib";
 import * as elasticcache from "aws-cdk-lib/aws-elasticache";
 import { Platform } from "aws-cdk-lib/aws-ecr-assets";
+import * as fs from "fs";
 
 export function %s({ stack }) {
 	const clientName = "%s";
@@ -524,6 +530,26 @@ export function %s({ stack }) {
   //   LogDriver: JSON.stringify(container.logDriverConfig.logDriver),
   //   LogDriverOptions: JSON.stringify(container.logDriverConfig.options),
   // });
+
+	fs.writeFile(
+    "aws.config",
+    %s
+DATABASE_HOST=${database.dbInstanceEndpointAddress}
+DATABASE_NAME=${dbName}
+REDIS_HOST=${redisCache.attrConfigurationEndpointAddress}
+LOAD_BALANCER_DNS_NAME=${elb.loadBalancerDnsName}
+AWS_REGION=${stack.region}
+ELASTIC_CONTAINER_REGISTRY_REPO=${stack.synthesizer.repositoryName}
+CONTAINER_IMAGE_NAME: ${container.imageName},
+TASK_DEFINITION: ${taskDefinition.taskDefinitionArn},
+TASK_ROLE: ${taskRole.roleArn},
+EXECUTION_ROLE: ${taskDefinition.executionRole.roleArn},
+FAMILY: ${taskDefinition.family},
+CONTAINER_NAME: ${container.ContainerName},
+CONTAINER_PORT: ${container.containerPort.toString()},
+LOG_DRIVER: ${JSON.stringify(container.logDriverConfig.logDriver)},
+LOG_DRIVER_OPTIONS: ${JSON.stringify(container.logDriverConfig.options)},
+	%s,
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
 		singleQuote, singleQuote, dbName, dbUsername, singleQuote, singleQuote,
@@ -536,7 +562,7 @@ export function %s({ stack }) {
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, dbUri, dirName, environment,
 		singleQuote, singleQuote, shortEnvironment, environment, dbHost, singleQuote,
-		singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 	)
 
 	return source
