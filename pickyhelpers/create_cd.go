@@ -6,17 +6,10 @@ import (
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
+	"github.com/wednesday-solutions/picky/pickyhelpers/sources"
 )
 
 func (s StackDetails) CreateCDFile() error {
-
-	err := utils.PrintWarningMessage(fmt.Sprintf(
-		"CD of %s is in work in progress..!", s.Stack),
-	)
-	errorhandler.CheckNilErr(err)
-	if err == nil {
-		return nil
-	}
 
 	utils.CreateGithubWorkflowDir()
 	cdDestination := fmt.Sprintf("%s/%s/cd-%s.yml",
@@ -35,7 +28,8 @@ func (s StackDetails) CreateCDFile() error {
 		errorhandler.CheckNilErr(err)
 
 		// Need to write the CD source to cdSource.
-		var cdSource string
+		cdSource := sources.CDSource(s.Stack, s.Environment)
+
 		// Write CDFileData to CD File
 		err = utils.WriteToFile(cdDestination, cdSource)
 		errorhandler.CheckNilErr(err)
