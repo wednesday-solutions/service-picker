@@ -18,9 +18,9 @@ func PackageDotJsonSource() string {
 	"scripts": {
 		"dev": "sst dev",
 		"build": "sst build",
-		"deploy:dev": "sst deploy --stage dev",
-		"deploy:qa": "sst deploy --stage qa",
-		"deploy:prod": "sst deploy --stage prod",
+		"deploy:dev": "sst deploy --stage dev --outputs-file outputs.json",
+		"deploy:qa": "sst deploy --stage qa --outputs-file outputs.json",
+		"deploy:prod": "sst deploy --stage prod --outputs-file outputs.json",
 		"remove:dev": "sst remove --stage dev",
 		"remove:qa": "sst remove --stage qa",
 		"remove:prod": "sst remove --stage prod",
@@ -179,7 +179,6 @@ import {
 import { CfnOutput } from "aws-cdk-lib";
 import * as elasticcache from "aws-cdk-lib/aws-elasticache";
 import { Platform } from "aws-cdk-lib/aws-ecr-assets";
-import * as fs from "fs";
 
 export function %s({ stack }) {
 	const clientName = "%s";
@@ -511,45 +510,6 @@ export function %s({ stack }) {
     exportName: "log-driver-options",
     value: JSON.stringify(container.logDriverConfig.options),
   });
-
-	// Show these in the output.
-  // stack.addOutputs({
-  //   DatabaseHost: database.dbInstanceEndpointAddress,
-  //   DatabaseName: dbName,
-  //   RedisHost: redisCache.attrConfigurationEndpointAddress,
-  //   LoadBalancerDnsName: elb.loadBalancerDnsName,
-  //   AwsRegion: stack.region,
-  //   ElasticContainerRegistryRepo: stack.synthesizer.repositoryName,
-  //   ContainerImageName: container.imageName,
-  //   TaskDefinition: taskDefinition.taskDefinitionArn,
-  //   TaskRole: taskRole.roleArn,
-  //   ExecutionRole: taskDefinition.executionRole.roleArn,
-  //   Family: taskDefinition.family,
-  //   ContainerName: container.ContainerName,
-  //   ContainerPort: container.containerPort.toString(),
-  //   LogDriver: JSON.stringify(container.logDriverConfig.logDriver),
-  //   LogDriverOptions: JSON.stringify(container.logDriverConfig.options),
-  // });
-
-	fs.writeFile(
-    "aws.config",
-    %s
-DATABASE_HOST=${database.dbInstanceEndpointAddress}
-DATABASE_NAME=${dbName}
-REDIS_HOST=${redisCache.attrConfigurationEndpointAddress}
-LOAD_BALANCER_DNS_NAME=${elb.loadBalancerDnsName}
-AWS_REGION=${stack.region}
-ELASTIC_CONTAINER_REGISTRY_REPO=${stack.synthesizer.repositoryName}
-CONTAINER_IMAGE_NAME: ${container.imageName},
-TASK_DEFINITION: ${taskDefinition.taskDefinitionArn},
-TASK_ROLE: ${taskRole.roleArn},
-EXECUTION_ROLE: ${taskDefinition.executionRole.roleArn},
-FAMILY: ${taskDefinition.family},
-CONTAINER_NAME: ${container.ContainerName},
-CONTAINER_PORT: ${container.containerPort.toString()},
-LOG_DRIVER: ${JSON.stringify(container.logDriverConfig.logDriver)},
-LOG_DRIVER_OPTIONS: ${JSON.stringify(container.logDriverConfig.options)},
-	%s,
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
 		singleQuote, singleQuote, dbName, dbUsername, singleQuote, singleQuote,
@@ -562,7 +522,7 @@ LOG_DRIVER_OPTIONS: ${JSON.stringify(container.logDriverConfig.options)},
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, dbUri, dirName, environment,
 		singleQuote, singleQuote, shortEnvironment, environment, dbHost, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote,
 	)
 
 	return source
