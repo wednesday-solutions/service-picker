@@ -16,9 +16,13 @@ func PromptCICD() {
 	p.Items = []string{constants.CreateCI, constants.CreateCD}
 	p.GoBack = PromptHome
 	selectedOptions, _ := p.PromptMultiSelect()
+	for len(selectedOptions) == 0 {
+		selectedOptions, _ = p.PromptMultiSelect()
+	}
 	services := PromptSelectExistingStacks()
 
 	if platform == constants.GitHub {
+		showGitHubSecretsInfo := false
 		for _, option := range selectedOptions {
 			if option == constants.CreateCI {
 
@@ -27,11 +31,15 @@ func PromptCICD() {
 
 			} else if option == constants.CreateCD {
 
+				showGitHubSecretsInfo = true
 				err := CreateCD(services)
 				errorhandler.CheckNilErr(err)
 			}
 		}
 		fmt.Printf("%s", errorhandler.DoneMessage)
+		if showGitHubSecretsInfo {
+			PrintGitHubSecretsInfo()
+		}
 	}
 	PromptHome()
 }
@@ -41,6 +49,18 @@ func (p PromptInput) PromptPlatform() string {
 	p.Items = []string{constants.GitHub}
 	p.GoBack = PromptHome
 	return p.PromptSelect()
+}
+
+func PrintGitHubSecretsInfo() {
+	err := utils.PrintInfoMessage("Save the following config data in GitHub secrets.")
+	errorhandler.CheckNilErr(err)
+	secrets := fmt.Sprintf("\n  %d. %s\n  %d. %s\n  %d. %s\n  %d. %s\n\n",
+		1, "AWS_ACCESS_KEY_ID",
+		2, "AWS_SECRET_ACCESS_KEY",
+		3, "AWS_REGION",
+		4, "AWS_ECR_REPOSITORY",
+	)
+	fmt.Printf("%s", secrets)
 }
 
 func CreateCD(directories []string) error {
