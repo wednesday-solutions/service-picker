@@ -95,6 +95,7 @@ const (
 	SstConfigFile      = "sst.config.js"
 	EnvFile            = ".env"
 	EnvDevFile         = ".env.development"
+	ParseSstOutputs    = "parseSstOutputs.js"
 )
 
 // Cloud Providers

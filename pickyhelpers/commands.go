@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
@@ -33,6 +34,6 @@ func RemoveDeploy(pkgManager, environment string) error {
 }
 
 func ParseDeployOutputs() error {
-	err := utils.RunCommandWithoutLogs("", "node", "parseOutputs.js")
+	err := utils.RunCommandWithoutLogs("", "node", constants.ParseSstOutputs)
 	return err
 }
