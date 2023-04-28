@@ -1,13 +1,18 @@
 package sources
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/iancoleman/strcase"
+	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func CDSource(stack, environment string) string {
+func CDBackendSource(stack, stackDir, environment string) string {
 	singleQuote, projectName := "`", strcase.ToKebab(utils.GetProjectName())
 	source := fmt.Sprintf(`# CD pipeline for %s for %s branch
 
@@ -17,7 +22,6 @@ on:
   push:
     branches:
       - develop
-      - qa
 
 jobs:
   docker-build-and-push:
@@ -83,7 +87,7 @@ jobs:
         id: %s-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition-${{ steps.vars.outputs.short_ref }}.json
+          task-definition: %s/task-definition-${{ steps.vars.outputs.short_ref }}.json
           container-name: %s-${{ steps.vars.outputs.short_ref }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPOSITORY }}-${{ steps.vars.outputs.short_ref }}:${{ github.sha }}
 
@@ -116,9 +120,228 @@ jobs:
             echo ::set-output name=environment_name::development
           fi
 `,
-		stack, environment, stack, environment, projectName, projectName, projectName,
-		projectName, projectName, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote)
+		stack, environment, stack, environment, projectName, stackDir, projectName,
+		projectName, projectName, projectName, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote)
 
 	return source
+}
+
+func TaskDefinitionSource(environment string) string {
+
+	type Logdriveroptions struct {
+		awslogsgroup        string
+		awslogsstreamprefix string
+		awslogsregion       string
+	}
+
+	type output struct {
+		taskrole          string
+		image             string
+		containername     string
+		containerport     string
+		executionrole     string
+		taskdefinitionarn string
+		logdriver         string
+		logdriveroptions  Logdriveroptions
+		family            string
+		awsregion         string
+	}
+
+	file := fmt.Sprintf(
+		"%s/%s/%s", utils.CurrentDirectory(), ".sst", "outputs.json",
+	)
+	status, _ := utils.IsExists(file)
+	if !status {
+		return ""
+	}
+	sstOutputFile, err := os.Open(file)
+	errorhandler.CheckNilErr(err)
+
+	fileContent, err := ioutil.ReadAll(sstOutputFile)
+	errorhandler.CheckNilErr(err)
+
+	var data interface{}
+	err = json.Unmarshal(fileContent, &data)
+	errorhandler.CheckNilErr(err)
+
+	jsonData, ok := data.(map[string]interface{})
+	if !ok {
+		errorhandler.CheckNilErr(fmt.Errorf("Something error happened when converting map"))
+	}
+
+	for key, value := range jsonData {
+
+		if utils.EndsWith(key, "Pg") || utils.EndsWith(key, "Mysql") {
+
+			var backendObj output
+			var envName string
+			if environment == constants.Development {
+				envName = constants.Develop
+			}
+			backendJson, ok := value.(map[string]interface{})
+			if !ok {
+				errorhandler.CheckNilErr(fmt.Errorf("Something error happened when converting map"))
+			}
+			backendObj.taskrole, _ = backendJson["taskrole"].(string)
+			backendObj.image, _ = backendJson["image"].(string)
+			backendObj.containername, _ = backendJson["containername"].(string)
+			backendObj.containerport, _ = backendJson["containerport"].(string)
+			backendObj.executionrole, _ = backendJson["executionrole"].(string)
+			backendObj.taskdefinitionarn, _ = backendJson["taskdefinitionarn"].(string)
+			backendObj.logdriver, _ = backendJson["logdriver"].(string)
+			backendObj.family, _ = backendJson["family"].(string)
+			backendObj.awsregion, _ = backendJson["awsregion"].(string)
+
+			logdriveroptions, _ := backendJson["logdriveroptions"].(map[string]interface{})
+			backendObj.logdriveroptions.awslogsgroup, _ = logdriveroptions["awslogs-group"].(string)
+			backendObj.logdriveroptions.awslogsstreamprefix, _ = logdriveroptions["awslogs-stream-prefix"].(string)
+			backendObj.logdriveroptions.awslogsregion, _ = logdriveroptions["awslogs-region"].(string)
+
+			source := fmt.Sprintf(`{
+  "ipcMode": null,
+  "executionRoleArn": "%s",
+  "containerDefinitions": [
+    {
+      "dnsSearchDomains": null,
+      "logConfiguration": {
+        "logDriver": "%s",
+        "secretOptions": null,
+        "options": {
+          "awslogs-group": "%s",
+          "awslogs-stream-prefix": "%s",
+          "awslogs-region": "%s"
+        }
+      },
+      "entryPoint": null,
+      "portMappings": [
+        {
+          "hostPort": "9000",
+          "protocol": "tcp",
+          "containerPort": "%s"
+        }
+      ],
+      "command": null,
+      "linuxParameters": null,
+      "cpu": 0,
+      "environment": [
+        {
+          "name": "BUILD_NAME",
+          "value": "%s"
+        },
+        {
+          "name": "ENVIRONMENT_NAME",
+          "value": ".%s"
+        }
+      ],
+      "resourceRequirements": null,
+      "ulimits": null,
+      "dnsServers": null,
+      "mountPoints": [],
+      "workingDirectory": null,
+      "secrets": null,
+      "dockerSecurityOptions": null,
+      "memory": null,
+      "memoryReservation": null,
+      "volumesFrom": [],
+      "stopTimeout": null,
+      "startTimeout": null,
+      "firelensConfiguration": null,
+      "dependsOn": null,
+      "disableNetworking": null,
+      "interactive": null,
+      "healthCheck": null,
+      "essential": true,
+      "links": null,
+      "hostname": null,
+      "extraHosts": null,
+      "pseudoTerminal": null,
+      "user": null,
+      "readonlyRootFilesystem": null,
+      "dockerLabels": null,
+      "systemControls": null,
+      "privileged": null,
+      "image": "%s",
+      "name": "%s"
+    }
+  ],
+  "placementConstraints": [],
+  "memory": "2048",
+  "taskRoleArn": "%s",
+  "compatibilities": ["EC2", "FARGATE"],
+  "taskDefinitionArn": "%s",
+  "family": "%s",
+  "requiresAttributes": [
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.task-eni"
+    }
+  ],
+  "pidMode": null,
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "1024",
+  "revision": 31,
+  "status": "ACTIVE",
+  "inferenceAccelerators": null,
+  "proxyConfiguration": null,
+  "volumes": []
+}
+`,
+				backendObj.executionrole,
+				backendObj.logdriver,
+				backendObj.logdriveroptions.awslogsgroup,
+				backendObj.logdriveroptions.awslogsstreamprefix,
+				backendObj.logdriveroptions.awslogsregion,
+				backendObj.containerport,
+				envName,
+				environment,
+				backendObj.image,
+				backendObj.containername,
+				backendObj.taskrole,
+				backendObj.taskdefinitionarn,
+				backendObj.family,
+			)
+			return source
+		}
+	}
+	return ""
 }

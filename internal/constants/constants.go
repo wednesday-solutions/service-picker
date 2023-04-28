@@ -196,6 +196,7 @@ const (
 	Prod        = "prod"
 	Development = "development"
 	Production  = "production"
+	Develop     = "develop"
 )
 
 // UI icons

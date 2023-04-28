@@ -75,7 +75,7 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
-		environment = "develop"
+		environment = constants.Develop
 		shortEnvironment = constants.Dev
 	case constants.QA:
 		shortEnvironment = constants.QA
@@ -129,7 +129,7 @@ func BackendStackSource(database, dirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
-		shortEnvironment = "develop"
+		shortEnvironment = constants.Develop
 	case constants.QA:
 		shortEnvironment = constants.QA
 	case constants.Production:

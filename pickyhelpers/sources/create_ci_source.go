@@ -48,7 +48,7 @@ jobs:
         run: yarn build:%s
 
       - name: Test
-        run: yarn test
+        run: yarn run test
 	`, stackDir, stackDir, stackDir, stackDir, stackDir, environment)
 
 	return source

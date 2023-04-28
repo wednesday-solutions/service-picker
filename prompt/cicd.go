@@ -19,25 +19,35 @@ func PromptCICD() {
 	for len(selectedOptions) == 0 {
 		selectedOptions, _ = p.PromptMultiSelect()
 	}
-	services := PromptSelectExistingStacks()
+	environment := PromptEnvironment()
+	stacks := PromptSelectExistingStacks()
 
 	if platform == constants.GitHub {
-		showGitHubSecretsInfo := false
+		isCreateCD := false
 		for _, option := range selectedOptions {
 			if option == constants.CreateCI {
 
-				err := pickyhelpers.CreateCI(services)
+				err := pickyhelpers.CreateCI(stacks)
 				errorhandler.CheckNilErr(err)
 
 			} else if option == constants.CreateCD {
 
-				showGitHubSecretsInfo = true
-				err := CreateCD(services)
+				isCreateCD = true
+				err := CreateCD(stacks, environment)
 				errorhandler.CheckNilErr(err)
 			}
 		}
 		fmt.Printf("%s", errorhandler.DoneMessage)
-		if showGitHubSecretsInfo {
+		if isCreateCD {
+
+			for _, stackDir := range stacks {
+				service := utils.FindService(stackDir)
+				if service == constants.Backend {
+					// Create task-definition.json if the stack is backend.
+					err := pickyhelpers.CreateTaskDefinition(stackDir, environment)
+					errorhandler.CheckNilErr(err)
+				}
+			}
 			PrintGitHubSecretsInfo()
 		}
 	}
@@ -63,11 +73,12 @@ func PrintGitHubSecretsInfo() {
 	fmt.Printf("%s", secrets)
 }
 
-func CreateCD(directories []string) error {
+func CreateCD(directories []string, environment string) error {
 	for _, dirName := range directories {
 		var s pickyhelpers.StackDetails
 		s.DirName = dirName
 		s.Service = utils.FindService(dirName)
+		s.Environment = environment
 		s.Stack, s.Database = utils.FindStackAndDatabase(dirName)
 		err := s.CreateCDFile()
 		if err != nil {
