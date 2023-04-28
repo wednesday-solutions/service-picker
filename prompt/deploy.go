@@ -132,6 +132,9 @@ func PromptInstallDependenciesAndDeploy(configStacks []string, environment strin
 		err = pickyhelpers.DeploySST(pkgManager, environment)
 		errorhandler.CheckNilErr(err)
 
+		err = pickyhelpers.ParseDeployOutputs()
+		errorhandler.CheckNilErr(err)
+
 	} else {
 		PromptDeploy()
 	}

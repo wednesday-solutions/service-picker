@@ -503,7 +503,7 @@ export function %s({ stack }) {
 
   new CfnOutput(stack, "log-driver", {
     exportName: "log-driver",
-    value: JSON.stringify(container.logDriverConfig.logDriver),
+    value: container.logDriverConfig.logDriver,
   });
 
   new CfnOutput(stack, "log-driver-options", {

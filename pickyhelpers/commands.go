@@ -31,3 +31,8 @@ func RemoveDeploy(pkgManager, environment string) error {
 	err := utils.RunCommandWithLogs("", pkgManager, "run", arg)
 	return err
 }
+
+func ParseDeployOutputs() error {
+	err := utils.RunCommandWithoutLogs("", "node", "parseOutputs.js")
+	return err
+}
