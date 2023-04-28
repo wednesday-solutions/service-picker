@@ -545,7 +545,6 @@ func ParseSstOutputsSource() string {
 function parseOutputs() {
 	const outputFile = "./.sst/outputs.json";
 	let fileContent = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
-	console.log({ fileContent });
 
 	Object.keys(fileContent).some((k) => {
 		if (k.endsWith("Pg") || k.endsWith("Mysql")) {

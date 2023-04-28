@@ -52,7 +52,7 @@ func (p PromptInput) PromptPlatform() string {
 }
 
 func PrintGitHubSecretsInfo() {
-	err := utils.PrintInfoMessage("Save the following config data in GitHub secrets.")
+	err := utils.PrintInfoMessage("Save the following config data in GitHub secrets after the deployment.")
 	errorhandler.CheckNilErr(err)
 	secrets := fmt.Sprintf("\n  %d. %s\n  %d. %s\n  %d. %s\n  %d. %s\n\n",
 		1, "AWS_ACCESS_KEY_ID",
