@@ -137,7 +137,7 @@ func BackendStackSource(database, dirName, environment string) string {
 	}
 	userInputStackName := utils.FindUserInputStackName(dirName)
 	dbName := fmt.Sprintf("%s_%s",
-		userInputStackName,
+		strcase.ToSnake(userInputStackName),
 		constants.Database,
 	)
 	dbUsername := "username"
