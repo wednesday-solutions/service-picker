@@ -6,14 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func CDBackendSource(stack, stackDir, environment string) string {
-	singleQuote, projectName := "`", strcase.ToKebab(utils.GetProjectName())
+	userInput, singleQuote := utils.FindUserInputStackName(stackDir), "`"
 	source := fmt.Sprintf(`# CD pipeline for %s for %s branch
 
 name: %s CD -- %s
@@ -35,8 +34,6 @@ jobs:
       - name: Get branch name
         id: vars
         run: echo ::set-output name=short_ref::${GITHUB_REF_NAME}
-        env:
-          CI: true
 
       # Configure AWS with credentials
       - name: Configure AWS Credentials
@@ -45,27 +42,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      # Populate existing .env with required envs (master only)
-      - name: Append AWS ENVs in the .env file
-        if: github.ref == 'refs/heads/master'
-        run: |
-          echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> .env
-          echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> .env
-
-      # Populate existing .env.qa with required envs (qa only)
-      - name: Append AWS ENVs in the .env.qa file
-        if: github.ref == 'refs/heads/qa'
-        run: |
-          echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> .env.qa
-          echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID}} >> .env.qa
-
-      # Populate existing .env.development with required envs (develop only)
-      - name: Append AWS ENVs in the .env.development file
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> .env.development
-          echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> .env.development
 
       # Login to Amazon ECR
       - name: Login to Amazon ECR
@@ -76,9 +52,10 @@ jobs:
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}-${{ steps.vars.outputs.short_ref }}
+          ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./%s
         run: |
           docker compose build
 
@@ -88,8 +65,8 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: %s/task-definition-${{ steps.vars.outputs.short_ref }}.json
-          container-name: %s-${{ steps.vars.outputs.short_ref }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPOSITORY }}-${{ steps.vars.outputs.short_ref }}:${{ github.sha }}
+          container-name: %s-container-${{ steps.vars.outputs.short_ref }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
 
       # Deploy to Amazon ECS
       - name: Deploy to Amazon ECS
@@ -120,32 +97,32 @@ jobs:
             echo ::set-output name=environment_name::development
           fi
 `,
-		stack, environment, stack, environment, projectName, stackDir, projectName,
-		projectName, projectName, projectName, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote)
-
+		stackDir, environment, stackDir, environment, stackDir, userInput, stackDir,
+		userInput, userInput, userInput, userInput, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote,
+	)
 	return source
 }
 
 func TaskDefinitionSource(environment string) string {
 
-	type Logdriveroptions struct {
-		awslogsgroup        string
-		awslogsstreamprefix string
-		awslogsregion       string
+	type logDriverOptionsType struct {
+		awsLogsGroup        string
+		awsLogsStreamPrefix string
+		awsLogsRegion       string
 	}
 
 	type output struct {
-		taskrole          string
+		taskRole          string
 		image             string
-		containername     string
-		containerport     string
-		executionrole     string
-		taskdefinitionarn string
-		logdriver         string
-		logdriveroptions  Logdriveroptions
+		containerName     string
+		containerPort     string
+		executionRole     string
+		taskDefinitionArn string
+		logDriver         string
+		logDriverOptions  logDriverOptionsType
 		family            string
-		awsregion         string
+		awsRegion         string
 	}
 
 	file := fmt.Sprintf(
@@ -183,20 +160,20 @@ func TaskDefinitionSource(environment string) string {
 			if !ok {
 				errorhandler.CheckNilErr(fmt.Errorf("Something error happened when converting map"))
 			}
-			backendObj.taskrole, _ = backendJson["taskrole"].(string)
+			backendObj.taskRole, _ = backendJson["taskRole"].(string)
 			backendObj.image, _ = backendJson["image"].(string)
-			backendObj.containername, _ = backendJson["containername"].(string)
-			backendObj.containerport, _ = backendJson["containerport"].(string)
-			backendObj.executionrole, _ = backendJson["executionrole"].(string)
-			backendObj.taskdefinitionarn, _ = backendJson["taskdefinitionarn"].(string)
-			backendObj.logdriver, _ = backendJson["logdriver"].(string)
+			backendObj.containerName, _ = backendJson["containerName"].(string)
+			backendObj.containerPort, _ = backendJson["containerPort"].(string)
+			backendObj.executionRole, _ = backendJson["executionRole"].(string)
+			backendObj.taskDefinitionArn, _ = backendJson["taskDefinitionArn"].(string)
+			backendObj.logDriver, _ = backendJson["logDriver"].(string)
 			backendObj.family, _ = backendJson["family"].(string)
-			backendObj.awsregion, _ = backendJson["awsregion"].(string)
+			backendObj.awsRegion, _ = backendJson["awsRegion"].(string)
 
-			logdriveroptions, _ := backendJson["logdriveroptions"].(map[string]interface{})
-			backendObj.logdriveroptions.awslogsgroup, _ = logdriveroptions["awslogs-group"].(string)
-			backendObj.logdriveroptions.awslogsstreamprefix, _ = logdriveroptions["awslogs-stream-prefix"].(string)
-			backendObj.logdriveroptions.awslogsregion, _ = logdriveroptions["awslogs-region"].(string)
+			logdriveroptions, _ := backendJson["logDriverOptions"].(map[string]interface{})
+			backendObj.logDriverOptions.awsLogsGroup, _ = logdriveroptions["awslogs-group"].(string)
+			backendObj.logDriverOptions.awsLogsStreamPrefix, _ = logdriveroptions["awslogs-stream-prefix"].(string)
+			backendObj.logDriverOptions.awsLogsRegion, _ = logdriveroptions["awslogs-region"].(string)
 
 			source := fmt.Sprintf(`{
   "ipcMode": null,
@@ -326,18 +303,18 @@ func TaskDefinitionSource(environment string) string {
   "volumes": []
 }
 `,
-				backendObj.executionrole,
-				backendObj.logdriver,
-				backendObj.logdriveroptions.awslogsgroup,
-				backendObj.logdriveroptions.awslogsstreamprefix,
-				backendObj.logdriveroptions.awslogsregion,
-				backendObj.containerport,
+				backendObj.executionRole,
+				backendObj.logDriver,
+				backendObj.logDriverOptions.awsLogsGroup,
+				backendObj.logDriverOptions.awsLogsStreamPrefix,
+				backendObj.logDriverOptions.awsLogsRegion,
+				backendObj.containerPort,
 				envName,
 				environment,
 				backendObj.image,
-				backendObj.containername,
-				backendObj.taskrole,
-				backendObj.taskdefinitionarn,
+				backendObj.containerName,
+				backendObj.taskRole,
+				backendObj.taskDefinitionArn,
 				backendObj.family,
 			)
 			return source
