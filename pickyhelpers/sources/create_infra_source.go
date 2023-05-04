@@ -454,103 +454,83 @@ export function %s({ stack }) {
 
 	service.attachToApplicationTargetGroup(targetGroupHttp);
 
-	new CfnOutput(stack, "database-host", {
-		exportName: "databaseHost",
+	new CfnOutput(stack, "databaseHost", {
 		value: database.dbInstanceEndpointAddress,
 	});
 
-	new CfnOutput(stack, "database-name", {
-		exportName: "databaseName",
+	new CfnOutput(stack, "databaseName", {
 		value: dbName,
 	});
 
-	new CfnOutput(stack, "redis-host", {
-		exportName: "redisHost",
+	new CfnOutput(stack, "redisHost", {
 		value: redisCache.attrRedisEndpointAddress,
 	});
 
-	new CfnOutput(stack, "load-balancer-dns", {
-		exportName: "loadBalancerDns",
+	new CfnOutput(stack, "loadBalancerDns", {
 		value: elb.loadBalancerDnsName,
 	});
 
-	new CfnOutput(stack, "aws-region", {
-		exportName: "awsRegion",
+	new CfnOutput(stack, "awsRegion", {
 		value: stack.region,
 	});
 
-  new CfnOutput(stack, "elastic-container-registry-repo", {
-    exportName: "elasticContainerRegistryRepo",
+  new CfnOutput(stack, "elasticContainerRegistryRepo", {
     value: stack.synthesizer.repositoryName,
   });
 
   new CfnOutput(stack, "image", {
-    exportName: "image",
     value: container.imageName,
   });
 
-  new CfnOutput(stack, "task-definition-arn", {
-    exportName: "taskDefinition",
+  new CfnOutput(stack, "taskDefinition", {
     value: taskDefinition.taskDefinitionArn,
   });
 
-  new CfnOutput(stack, "task-role", {
-    exportName: "taskRole",
+  new CfnOutput(stack, "taskRole", {
     value: taskRole.roleArn,
   });
 
-  new CfnOutput(stack, "execution-role", {
-    exportName: "executionRole",
+  new CfnOutput(stack, "executionRole", {
     value: taskDefinition.executionRole.roleArn,
   });
 
   new CfnOutput(stack, "family", {
-    exportName: "family",
     value: taskDefinition.family,
   });
 
-  new CfnOutput(stack, "container-name", {
-    exportName: "containerName",
+  new CfnOutput(stack, "containerName", {
     value: container.containerName,
   });
 
-  new CfnOutput(stack, "container-port", {
-    exportName: "containerPort",
+  new CfnOutput(stack, "containerPort", {
     value: container.containerPort.toString(),
   });
 
-  new CfnOutput(stack, "log-driver", {
-    exportName: "logDriver",
+  new CfnOutput(stack, "logDriver", {
     value: container.logDriverConfig.logDriver,
   });
 
-  new CfnOutput(stack, "log-driver-options", {
-    exportName: "logDriverOptions",
+  new CfnOutput(stack, "logDriverOptions", {
     value: JSON.stringify(container.logDriverConfig.options),
   });
 
-	new CfnOutput(stack, "service-name", {
-		exportName: "serviceName",
+	new CfnOutput(stack, "serviceName", {
 		value: service.serviceName,
 	});
 
-	new CfnOutput(stack, "cluster-name", {
-    exportName: "clusterName",
+	new CfnOutput(stack, "clusterName", {
     value: cluster.clusterName,
   });
 
-	new CfnOutput(stack, "secret-name", {
-    exportName: "secretName",
+	new CfnOutput(stack, "secretName", {
     value: databaseCredentialsSecret.secretName,
   });
 
-	new CfnOutput(stack, "secret-arn", {
-    exportName: "secretArn",
-    value: databaseCredentials.secretName,
+	new CfnOutput(stack, "secretArn", {
+    value: databaseCredentialsSecret.secretArn,
   });
 
-	new CfnOutput(stack, "secret-full-arn", {
-    exportName: "secretFullArn",
+	new CfnOutput(stack, "secretFullArn", {
     value: databaseCredentialsSecret.secretFullArn,
   });
 }
@@ -591,9 +571,9 @@ function parseOutputs() {
 
 	Object.keys(fileContent).some((k) => {
 		if (k.endsWith("Pg") || k.endsWith("Mysql")) {
-			if (fileContent[k]?.logdriveroptions) {
-				fileContent[k].logdriveroptions = JSON.parse(
-					fileContent[k].logdriveroptions
+			if (fileContent[k]?.logDriverOptions) {
+				fileContent[k].logDriverOptions = JSON.parse(
+					fileContent[k].logDriverOptions
 				);
 			}
 		}

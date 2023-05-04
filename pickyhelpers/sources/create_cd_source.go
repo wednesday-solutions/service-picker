@@ -322,3 +322,61 @@ func TaskDefinitionSource(environment string) string {
 	}
 	return ""
 }
+
+func CDWebSource(dirName string) string {
+	source := fmt.Sprintf(`name: CD frontend
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - qa
+  
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/qa'
+    strategy:
+      matrix:
+        node-version: [16.13.0]
+      env:
+        SOURCE_DIR: "./build/"
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        PATHS: "/*"
+  
+      steps:
+        - uses: actions/checkout@v2
+  
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v2
+          with:
+            node-version: ${{ matrix.node-version }}
+  
+        - name: Get branch name
+          id: vars
+          run: echo ::set-output name=short_ref::${GITHUB_REF_NAME}
+  
+        - name: Install dependencies
+          run: yarn
+  
+        - name: Build
+          run: yarn build:${{ steps.vars.outputs.short_ref }}
+  
+        - name: AWS Deploy to S3
+          uses: jakejarvis/s3-sync-action@v0.5.0
+          with:
+            args: --acl public-read --follow-symlinks --delete
+          env:
+            AWS_S3_BUCKET: %s-${{ steps.vars.outputs.short_ref }}
+  
+        - name: Invalidate CloudFront
+          uses: chetan/invalidate-cloudfront-action@master
+          env:
+            DISTRIBUTION: ${{ secrets.DISTRIBUTION_ID }}
+`,
+		dirName)
+	return source
+}

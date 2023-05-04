@@ -49,7 +49,8 @@ jobs:
 
       - name: Test
         run: yarn run test
-	`, stackDir, stackDir, stackDir, stackDir, stackDir, environment)
-
+`,
+		stackDir, stackDir, stackDir, stackDir, stackDir, environment,
+	)
 	return source
 }

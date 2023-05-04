@@ -39,16 +39,19 @@ func PromptCICD() {
 		}
 		fmt.Printf("%s", errorhandler.DoneMessage)
 		if isCreateCD {
-
+			var backendExist, webExist bool
 			for _, stackDir := range stacks {
 				service := utils.FindService(stackDir)
 				if service == constants.Backend {
 					// Create task-definition.json if the stack is backend.
 					err := pickyhelpers.CreateTaskDefinition(stackDir, environment)
 					errorhandler.CheckNilErr(err)
+					backendExist = true
+				} else if service == constants.Web {
+					webExist = true
 				}
 			}
-			PrintGitHubSecretsInfo()
+			PrintGitHubSecretsInfo(backendExist, webExist)
 		}
 	}
 	PromptHome()
@@ -61,16 +64,22 @@ func (p PromptInput) PromptPlatform() string {
 	return p.PromptSelect()
 }
 
-func PrintGitHubSecretsInfo() {
+func PrintGitHubSecretsInfo(backendExist, webExist bool) {
 	err := utils.PrintInfoMessage("Save the following config data in GitHub secrets after the deployment.")
 	errorhandler.CheckNilErr(err)
-	secrets := fmt.Sprintf("\n  %d. %s\n  %d. %s\n  %d. %s\n  %d. %s\n\n",
-		1, "AWS_ACCESS_KEY_ID",
-		2, "AWS_SECRET_ACCESS_KEY",
-		3, "AWS_REGION",
-		4, "AWS_ECR_REPOSITORY",
-	)
-	fmt.Printf("%s", secrets)
+	secrets, count := "\n", 1
+
+	secretKeys := []string{"AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_ECR_REPOSITORY"}
+	if backendExist {
+		for _, key := range secretKeys {
+			secrets = fmt.Sprintf("%s  %d. %s\n", secrets, count, key)
+			count++
+		}
+	}
+	if webExist {
+		secrets = fmt.Sprintf("%s  %d. %s\n", secrets, count, "DISTRIBUTION_ID")
+	}
+	fmt.Printf("%s\n", secrets)
 }
 
 func CreateCD(directories []string, environment string) error {
