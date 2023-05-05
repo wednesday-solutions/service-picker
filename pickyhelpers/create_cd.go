@@ -31,7 +31,7 @@ func (s StackDetails) CreateCDFile() error {
 		if s.Service == constants.Backend {
 			cdSource = sources.CDBackendSource(s.Stack, s.DirName, s.Environment)
 		} else if s.Service == constants.Web {
-			cdSource = sources.CDWebSource(s.DirName)
+			cdSource = sources.CDWebSource(s.Stack, s.DirName)
 		}
 
 		// Write CDFileData to CD File
