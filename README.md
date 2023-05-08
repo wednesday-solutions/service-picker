@@ -132,8 +132,11 @@ The complete stack initialization tutorial is given below.
 
 https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4
 
-You can see our tool's home page if you initialized atleast one stack. You can choose any options in the following.
-picky-home.png
+You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
+
+<img width="461" alt="picky-home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
+
+## User Guide
 
 | Option          | Use                                                                                       |
 | --------------- | ----------------------------------------------------------------------------------------- |
@@ -142,10 +145,12 @@ picky-home.png
 | `Setup Infra`   | Setup infrastructure for initialized stacks.                                              |
 | `Deploy`        | Deploy the infrastructure in AWS. It can deploy Frontend, Backend or Full stack projects. |
 | `Remove Deploy` | Remove the deployed infrastructure.                                                       |
-| `Git Init`      | Initialize empty git repository.                                                          |
-| `Exit`          | Exiting from the tool.                                                                    |
+| `Git Init`      | Initialize empty git repository in the current directory.                                                          |
+| `Exit`          | Exit from the tool.                                                                    |
 
-The project structure will be like the following in the current directory.
+## Project Structure
+
+It will be like the following in the current directory.
 
 ```
 my-project
