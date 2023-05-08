@@ -37,8 +37,6 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 
 </div>
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-
 <br>
 
 ## Table of contents
@@ -46,11 +44,12 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 1. [Overview](#overview)
 2. [Tech Stacks](#tech-stacks)
 3. [Installing](#installing)
-4. [Creating an App](#creating-an-app)
+4. [Creating a Project](#creating-a-project)
 5. [User Guide](#user-guide)
 6. [Project Structure](#project-structure)
 7. [Feedback](#feedback)
 8. [License](#license)
+9. [Future Plans](#future-plans)
 
 ## Overview
 
@@ -58,7 +57,7 @@ Service-Picker is a simple library for creating a new full stack project and dep
 
 Keep the repos you're interested in and you're good to go.
 
-`picky` works on macOS, Windows, Linux.<br>
+`picky` works on macOS, Windows and Linux.<br>
 If something doesn't work, please file an [issue](https://github.com/wednesday-solutions/service-picker/issues).<br>
 If you have questions, suggestions or need help, please ask in [GitHub Discussions](https://github.com/wednesday-solutions/service-picker/discussions)
 
@@ -112,10 +111,15 @@ Please make sure the installation is successful by running the following command
 picky -v
 ```
 
-## Creating an App
+## Creating a Project
 
-To create a new app, you need to pick stacks which are mentioned in [tech stacks](#tect-stacks)
-To start using `picky`, first, create a new directory and run the following command.
+To create a new project, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)
+To start using `picky`,
+
+```bash
+mkdir my-project
+cd my-project
+```
 
 ```bash
 picky service
@@ -124,19 +128,14 @@ picky service
 <img width="469" alt="Pick a service" src="https://user-images.githubusercontent.com/114065489/236760233-e3dadf7a-42de-4f98-8cba-7c01161b1d3c.png">
 
 Use the arrow keys to navigate and pick a service you want.<br>
-If you select `web`, the following will come up,
-
-<img width="504" alt="pick-stack" src="https://user-images.githubusercontent.com/114065489/236762803-3e8d6b67-bcf8-4ff3-a70c-a43424ca1457.png">
-
-After selecting the stack, you need to give a name for your selected stack and the `picky` will add some suffix to it. Later on, that name will be your stack's name.
 
 The complete stack initialization tutorial is given below.
 
-https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4
+[<img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">](https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4 "Stacks initialization tutorial")
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
-<img width="461" alt="picky-home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
+<img width="461" alt="Picky Home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
 
 ## User Guide
 
@@ -194,3 +193,7 @@ If you have any feedback, please reach out to us at [GitHub Discussions](https:/
 ## License
 
 This project is under the [MIT License](https://github.com/wednesday-solutions/service-picker).
+
+## Future Plans
+
+As of now, we can build full stack project which consist of the backend `Node JS` and the frontend `React JS` or `Next JS`. We don't have mobile application support. So We are planned to add support for mobile applications, currently we are working on it. And we have only `AWS` support now. Also we will add support of different cloud providers such as `GCP` and `Azure` and other stacks.
