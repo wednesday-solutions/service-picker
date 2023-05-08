@@ -69,32 +69,32 @@ This tool will have support for production applications using the following tech
 - [React JS](https://gitub.com/wednesday-solutions/react-template)
 - [Next JS](https://github.com/wednesday-solutions/nextjs-template)
 
-**Mobile:**
+<!-- **Mobile:**
 
 - [Android App](https://github.com/wednesday-solutions/android-template)
 - [iOS App](https://github.com/wednesday-solutions/ios-template)
 - [React Native App](https://github.com/wednesday-solutions/react-native-template)
-- [Flutter App](https://github.com/wednesday-solutions/flutter_template)
+- [Flutter App](https://github.com/wednesday-solutions/flutter_template) -->
 
 **Backend:**
 
 - [Node (Hapi - REST API)](https://github.com/wednesday-solutions/nodejs-hapi-template)
 - [Node (Express - GraphQL API)](https://github.com/wednesday-solutions/node-express-graphql-template)
-- [Node (Express - REST API)](https://github.com/wednesday-solutions/node-mongo-express)
-- [Golang (Echo - GraphQL API)](https://github.com/wednesday-solutions/go-template)
+<!-- - [Node (Express - REST API)](https://github.com/wednesday-solutions/node-mongo-express)
+- [Golang (Echo - GraphQL API)](https://github.com/wednesday-solutions/go-template) -->
 
 **Databases:**
 
 - MySQL
 - PostgreSQL
-- MongoDB
+<!-- - MongoDB
 - DynamoDB
-- Neo4j
+- Neo4j -->
 
 **Infrastructure:**
 
 - Redis
-- Kafka
+<!-- - Kafka -->
 
 ## Installing
 
@@ -131,6 +131,54 @@ After selecting the stack, you need to give a name for your selected stack and t
 The complete stack initialization tutorial is given below.
 
 https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4
+
+You can see our tool's home page if you initialized atleast one stack. You can choose any options in the following.
+picky-home.png
+
+| Option          | Use                                                                                       |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| `Init`          | Initialize a stack.                                                                       |
+| `CI/CD`         | Create CI/CD Pipeline in GitHub.                                                          |
+| `Setup Infra`   | Setup infrastructure for initialized stacks.                                              |
+| `Deploy`        | Deploy the infrastructure in AWS. It can deploy Frontend, Backend or Full stack projects. |
+| `Remove Deploy` | Remove the deployed infrastructure.                                                       |
+| `Git Init`      | Initialize empty git repository.                                                          |
+| `Exit`          | Exiting from the tool.                                                                    |
+
+The project structure will be like the following in the current directory.
+
+```
+my-project
+├── .github
+│   └── workflows
+│       ├── cd-backend-node-hapi-pg.yml
+│       ├── cd-frontend-next-js-web.yml
+│       ├── ci-backend-node-hapi-pg.yml
+│       └── ci-frontend-next-js-web.yml
+├── .sst
+│   ├── artifacts
+│   ├── dist
+│   ├── types
+│   ├── debug.log
+│   └── outputs.json
+├── node_modules
+├── stacks
+│   ├── BackendNodeHapiPg.js
+│   └── FrontendNextJsWeb.js
+├── backend-node-hapi-pg
+│   └── ...
+├── frontend-next-js-web
+│   └── ...
+├── .env
+├── .git
+├── .gitignore
+├── cdk.context.json
+├── docker-compose.yml
+├── package.json
+├── parseSstOutputs.js
+├── sst.config.js
+└── yarn.lock
+```
 
 ## Feedback
 
