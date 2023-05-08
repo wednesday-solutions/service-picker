@@ -131,9 +131,7 @@ Use the arrow keys to navigate and pick a service you want.<br>
 
 The complete stack initialization tutorial is given below.
 
-<video width="1200" height="350" controls>
-  <source src="https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4" type="video/mp4">
-</video>
+[<img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">](https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4 "Stacks initialization tutorial")
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
