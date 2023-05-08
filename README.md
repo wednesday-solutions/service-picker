@@ -39,7 +39,7 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 
 &nbsp; [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-<br><br>
+<br>
 
 ## Table of contents
 
