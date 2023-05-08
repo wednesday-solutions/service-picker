@@ -37,7 +37,7 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 
 </div>
 
-&nbsp; [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
 <br>
 
@@ -126,7 +126,9 @@ If you select `web`, the following will come up,
 
 <img width="504" alt="pick-stack" src="https://user-images.githubusercontent.com/114065489/236762803-3e8d6b67-bcf8-4ff3-a70c-a43424ca1457.png">
 
-The complete tutorial is given below.
+After selecting the stack, you need to give a name for your selected stack and the `picky` will add some suffix to it. Later on, that name will be your stack's name.
+
+The complete stack initialization tutorial is given below.
 
 https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4
 
