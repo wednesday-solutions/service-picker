@@ -58,7 +58,7 @@ func PromptCloudProvider() string {
 func PromptEnvironment() string {
 	var p PromptInput
 	p.Label = "Choose an environment"
-	p.Items = []string{constants.Development, constants.QA, constants.Production}
+	p.Items = []string{constants.Development, constants.Production}
 	p.GoBack = PromptHome
 	return p.PromptSelect()
 }

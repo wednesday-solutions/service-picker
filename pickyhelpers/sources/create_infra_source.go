@@ -75,11 +75,12 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
-		environment = constants.Develop
+		environment = constants.Dev
 		shortEnvironment = constants.Dev
 	case constants.QA:
 		shortEnvironment = constants.QA
 	case constants.Production:
+		environment = constants.Prod
 		shortEnvironment = constants.Prod
 	}
 	buildOutput, singleQuote := "", "`"
@@ -129,11 +130,11 @@ func BackendStackSource(database, dirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
-		shortEnvironment = constants.Develop
+		shortEnvironment = constants.Dev
 	case constants.QA:
 		shortEnvironment = constants.QA
 	case constants.Production:
-		shortEnvironment = constants.Production
+		shortEnvironment = constants.Prod
 	}
 	userInputStackName := utils.FindUserInputStackName(dirName)
 	singleQuote := "`"
@@ -158,13 +159,13 @@ func BackendStackSource(database, dirName, environment string) string {
 		dbPortNumber = "5432"
 		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
 		dbUri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
-		dbHost = "DB_HOST: database.dbInstanceEndpointAddress"
+		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
 		dbPortNumber = "3306"
 		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_23,\n\t\t\t})"
 		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
-		dbHost = "DB_HOST: database.dbInstanceEndpointAddress"
+		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
 	}
 
 	source := fmt.Sprintf(`import * as cdk from "aws-cdk-lib";
