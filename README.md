@@ -49,6 +49,7 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 6. [Project Structure](#project-structure)
 7. [Feedback](#feedback)
 8. [License](#license)
+9. [Future Plans](#future-plans)
 
 ## Overview
 
@@ -194,3 +195,7 @@ If you have any feedback, please reach out to us at [GitHub Discussions](https:/
 ## License
 
 This project is under the [MIT License](https://github.com/wednesday-solutions/service-picker).
+
+## Future Plans
+
+As of now, we can build full stack project which consist of the backend `Node JS` and the frontend `React JS` or `Next JS`. We don't have mobile application support. So We are planned to add support for mobile applications, currently we are working on it. And we have only `AWS` support now. Also we will add support of different cloud providers such as `GCP` and `Azure` and other stacks.
