@@ -37,8 +37,6 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 
 </div>
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-
 <br>
 
 ## Table of contents
@@ -114,7 +112,7 @@ picky -v
 
 ## Creating an App
 
-To create a new app, you need to pick stacks which are mentioned in [tech stacks](#tect-stacks)
+To create a new app, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)
 To start using `picky`, first, create a new directory and run the following command.
 
 ```bash
@@ -124,19 +122,16 @@ picky service
 <img width="469" alt="Pick a service" src="https://user-images.githubusercontent.com/114065489/236760233-e3dadf7a-42de-4f98-8cba-7c01161b1d3c.png">
 
 Use the arrow keys to navigate and pick a service you want.<br>
-If you select `web`, the following will come up,
-
-<img width="504" alt="pick-stack" src="https://user-images.githubusercontent.com/114065489/236762803-3e8d6b67-bcf8-4ff3-a70c-a43424ca1457.png">
-
-After selecting the stack, you need to give a name for your selected stack and the `picky` will add some suffix to it. Later on, that name will be your stack's name.
 
 The complete stack initialization tutorial is given below.
 
-https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4
+<video width="1200" height="350" controls>
+  <source src="https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4" type="video/mp4">
+</video>
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
-<img width="461" alt="picky-home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
+<img width="461" alt="Picky Home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
 
 ## User Guide
 
