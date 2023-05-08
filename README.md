@@ -1,13 +1,47 @@
-# Service-Picker
+<img align="left" src="" width="480" height="620" />
 
+<div>
+  <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
+    <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">
+  </a>
+  <p>
+    <h1 align="left">Service Picker
+    </h1>
+  </p>
+
+  <p>
 A CLI tool for creating real projects without touching any kind of code.
-It contain a number of [Wednesday Solutions](https://github.com/wednesday-solutions)'s open source projects, connected and working together. Pick whatever you need and build your own ecosystem.
+It contain a number of <a href="https://github.com/wednesday-solutions">Wednesday Solutions</a>'s open source projects, connected and working together. Pick whatever you need and build your own ecosystem.
+  </p>
 
-Keep the repos you're interested in and you're good to go.
+---
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+  <p>
+    <h4>
+      Expert teams of digital product strategists, developers, and designers.
+    </h4>
+  </p>
 
-# Table of contents
+  <div>
+    <a href="https://www.wednesday.is/contact-us?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" target="_blank">
+      <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f6ae88b9005f9ed382fb2a5_button_get_in_touch.svg" width="121" height="34">
+    </a>
+    <a href="https://github.com/wednesday-solutions/" target="_blank">
+      <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f6ae88bb1958c3253756c39_button_follow_on_github.svg" width="168" height="34">
+    </a>
+  </div>
+
+---
+
+<span>We’re always looking for people who value their work, so come and join us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
+
+</div>
+
+&nbsp; [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+
+<br>
+
+## Table of contents
 
 1. [Overview](#overview)
 2. [Tech Stacks](#tech-stacks)
@@ -19,6 +53,8 @@ Keep the repos you're interested in and you're good to go.
 ## Overview
 
 Service-Picker is a simple library for creating a new full stack project and deploy it in aws by just doing some cli stuffs. We are using `picky` as our CLI tool.
+
+Keep the repos you're interested in and you're good to go.
 
 `picky` works on macOS, Windows, Linux.<br>
 If something doesn't work, please file an [issue](https://github.com/wednesday-solutions/service-picker/issues).<br>
@@ -96,7 +132,7 @@ https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17
 
 ## Feedback
 
-If you have any feedback, please reach out to us at [GitHub Issues](https://github.com/wednesday-solutions/service-picker/issues)
+If you have any feedback, please reach out to us at [GitHub Discussions](https://github.com/wednesday-solutions/service-picker/discussions)
 
 ## License
 
