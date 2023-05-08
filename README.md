@@ -44,7 +44,7 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 1. [Overview](#overview)
 2. [Tech Stacks](#tech-stacks)
 3. [Installing](#installing)
-4. [Creating an App](#creating-an-app)
+4. [Creating a Project](#creating-a-project)
 5. [User Guide](#user-guide)
 6. [Project Structure](#project-structure)
 7. [Feedback](#feedback)
@@ -56,7 +56,7 @@ Service-Picker is a simple library for creating a new full stack project and dep
 
 Keep the repos you're interested in and you're good to go.
 
-`picky` works on macOS, Windows, Linux.<br>
+`picky` works on macOS, Windows and Linux.<br>
 If something doesn't work, please file an [issue](https://github.com/wednesday-solutions/service-picker/issues).<br>
 If you have questions, suggestions or need help, please ask in [GitHub Discussions](https://github.com/wednesday-solutions/service-picker/discussions)
 
@@ -110,10 +110,15 @@ Please make sure the installation is successful by running the following command
 picky -v
 ```
 
-## Creating an App
+## Creating a Project
 
-To create a new app, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)
-To start using `picky`, first, create a new directory and run the following command.
+To create a new project, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)
+To start using `picky`,
+
+```bash
+mkdir my-project
+cd my-project
+```
 
 ```bash
 picky service
