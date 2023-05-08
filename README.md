@@ -83,13 +83,16 @@ To start using `picky`, first, create a new directory and run the following comm
 picky service
 ```
 
-![Pick a service](https://gitub.com/service-picker/blob/chore/readme/doc-files/pick-service.png?raw=true)
+<img width="469" alt="Pick a service" src="https://user-images.githubusercontent.com/114065489/236760233-e3dadf7a-42de-4f98-8cba-7c01161b1d3c.png">
+
 Use the arrow keys to navigate and pick a service you want.<br>
-If you select `web`, the following will come up
-![Pick a stack](https://github.com/service-picker/blob/chore/readme/doc-files/pick-stack.png?raw=true)
+If you select `web`, the following will come up,
+
+<img width="504" alt="pick-stack" src="https://user-images.githubusercontent.com/114065489/236762803-3e8d6b67-bcf8-4ff3-a70c-a43424ca1457.png">
 
 The complete tutorial is given below.
-[![Complete tutorial video]()]
+
+https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4
 
 ## Feedback
 
