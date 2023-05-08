@@ -47,8 +47,10 @@ It contain a number of <a href="https://github.com/wednesday-solutions">Wednesda
 2. [Tech Stacks](#tech-stacks)
 3. [Installing](#installing)
 4. [Creating an App](#creating-an-app)
-5. [Feedback](#feedback)
-6. [License](#license)
+5. [User Guide](#user-guide)
+6. [Project Structure](#project-structure)
+7. [Feedback](#feedback)
+8. [License](#license)
 
 ## Overview
 
@@ -145,8 +147,8 @@ You can see `picky`'s home page if you initialized atleast one stack. You can ch
 | `Setup Infra`   | Setup infrastructure for initialized stacks.                                              |
 | `Deploy`        | Deploy the infrastructure in AWS. It can deploy Frontend, Backend or Full stack projects. |
 | `Remove Deploy` | Remove the deployed infrastructure.                                                       |
-| `Git Init`      | Initialize empty git repository in the current directory.                                                          |
-| `Exit`          | Exit from the tool.                                                                    |
+| `Git Init`      | Initialize empty git repository in the current directory.                                 |
+| `Exit`          | Exit from the tool.                                                                       |
 
 ## Project Structure
 
