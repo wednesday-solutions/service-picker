@@ -30,6 +30,8 @@ func (s StackDetails) CreateCDFile() error {
 		var cdSource string
 		if s.Service == constants.Backend {
 			cdSource = sources.CDBackendSource(s.Stack, s.DirName, s.Environment)
+		} else if s.Service == constants.Web {
+			cdSource = sources.CDWebSource(s.Stack, s.DirName)
 		}
 
 		// Write CDFileData to CD File
@@ -59,7 +61,7 @@ func CreateTaskDefinition(stackDir, environment string) error {
 	)
 	source := sources.TaskDefinitionSource(environment)
 	var err error
-	if source == "" {
+	if source != "" {
 		err = utils.WriteToFile(file, source)
 	}
 	return err

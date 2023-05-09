@@ -92,33 +92,33 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 
 	source := fmt.Sprintf(`import { StaticSite } from "sst/constructs";
 
-	export function %s({ stack }) {
-		const bucketprefix = "%s";
-		const environment = "%s";
-		const bucketName = %s${bucketprefix}-${environment}%s;
-	
-		// Deploy our web app
-		const site = new StaticSite(stack, "%sSite", {
-			path: "%s",
-			buildCommand: "yarn run build:%s",
-			buildOutput: "%s",
-			cdk: {
-				bucket: {
-					bucketName,
-				},
-				distribution: {
-					comment: %sDistribution for ${bucketName}%s,
-				},
+export function %s({ stack }) {
+	const bucketprefix = "%s";
+	const environment = "%s";
+	const bucketName = %s${bucketprefix}-${environment}%s;
+
+	// Deploy our web app
+	const site = new StaticSite(stack, "%sSite", {
+		path: "%s",
+		buildCommand: "yarn run build:%s",
+		buildOutput: "%s",
+		cdk: {
+			bucket: {
+				bucketName,
 			},
-		});
-	
-		// Show the URLs in the output
-		stack.addOutputs({
-			SiteUrl: site.url || "http://localhost:3000/",
-			distributionId: site.cdk?.distribution?.distributionId,
-			bucketName: site.cdk?.bucket?.bucketName,
-		});
-	}
+			distribution: {
+				comment: %sDistribution for ${bucketName}%s,
+			},
+		},
+	});
+
+	// Show the URLs in the output
+	stack.addOutputs({
+		siteUrl: site.url || "http://localhost:3000/",
+		distributionId: site.cdk?.distribution?.distributionId,
+		bucketName: site.cdk?.bucket?.bucketName,
+	});
+}
 `, camelCaseDirName, dirName, environment, singleQuote, singleQuote, camelCaseDirName,
 		dirName, shortEnvironment, buildOutput, singleQuote, singleQuote)
 
@@ -136,10 +136,13 @@ func BackendStackSource(database, dirName, environment string) string {
 		shortEnvironment = constants.Production
 	}
 	userInputStackName := utils.FindUserInputStackName(dirName)
-	dbName := fmt.Sprintf("%s_%s_%s",
+	singleQuote := "`"
+	dbName := fmt.Sprintf("%s%s_%s_%s%s",
+		singleQuote,
 		strcase.ToSnake(userInputStackName),
 		constants.Database,
-		shortEnvironment,
+		"${environment}",
+		singleQuote,
 	)
 	dbUsername := "username"
 	camelCaseDirName := strcase.ToCamel(dirName)
@@ -155,15 +158,14 @@ func BackendStackSource(database, dirName, environment string) string {
 		dbPortNumber = "5432"
 		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
 		dbUri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
-		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
+		dbHost = "DB_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
 		dbPortNumber = "3306"
 		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_23,\n\t\t\t})"
 		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
-		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
+		dbHost = "DB_HOST: database.dbInstanceEndpointAddress"
 	}
-	singleQuote := "`"
 
 	source := fmt.Sprintf(`import * as cdk from "aws-cdk-lib";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -184,7 +186,7 @@ import { Platform } from "aws-cdk-lib/aws-ecr-assets";
 export function %s({ stack }) {
 	const clientName = "%s";
 	const environment = "%s";
-	const dbName = "%s";
+	const dbName = %s;
 	const dbUsername = "%s";
 
 	const vpc = new ec2.Vpc(stack, %s${clientName}-vpc-${environment}%s, {
@@ -221,10 +223,14 @@ export function %s({ stack }) {
 	);
 
 	// ECS Security groups
-	const ecsSG = new ec2.SecurityGroup(stack, %s${clientName}-ecsSG%s, {
-		vpc,
-		allowAllOutbound: true,
-	});
+	const ecsSG = new ec2.SecurityGroup(
+		stack,
+		%s${clientName}-ecs-security-group-${environment}%s,
+		{
+			vpc,
+			allowAllOutbound: true,
+		}
+	);
 
 	ecsSG.connections.allowFrom(
 		elbSG,
@@ -255,10 +261,11 @@ export function %s({ stack }) {
 			secretName: %s${clientName}-database-credentials-${environment}%s,
 			description: %sDatabase credentials for ${clientName}-${environment}%s,
 			generateSecretString: {
-				excludeCharacters: "\"@/\\ '",
+				excludeCharacters: "'\\;@$\"%s!/ ",
 				generateStringKey: "password",
 				passwordLength: 30,
 				secretStringTemplate: JSON.stringify({ username: dbUsername }),
+				excludePunctuation: true,
 			},
 		}
 	);
@@ -383,15 +390,24 @@ export function %s({ stack }) {
 
 	const taskRole = new iam.Role(
 		stack,
-		%s${clientName}-task-role-${environment}%s,
+		%s${clientName}-ecs-task-role-${environment}%s,
 		{
 			assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
 			roleName: %s${clientName}-task-role-${environment}%s,
-			description: "Role that the api task definitions use to run the api code",
 		}
 	);
 
-	databaseCredentialsSecret.grantRead(taskRole);
+	const executionRole = new iam.Role(
+    stack,
+    %s${clientName}-ecs-execution-role-${environment}%s,
+    {
+      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+      roleName: %s${clientName}-ecs-execution-role-${environment}%s,
+    }
+  );
+
+  databaseCredentialsSecret.grantRead(taskRole);
+  databaseCredentialsSecret.grantRead(executionRole);
 
 	const taskDefinition = new ecs.TaskDefinition(
 		stack,
@@ -399,10 +415,11 @@ export function %s({ stack }) {
 		{
 			family: %s${clientName}-task-definition-${environment}%s,
 			compatibility: ecs.Compatibility.EC2_AND_FARGATE,
-			cpu: "256",
-			memoryMiB: "512",
+			cpu: "512",
+			memoryMiB: "1024",
 			networkMode: ecs.NetworkMode.AWS_VPC,
 			taskRole: taskRole,
+			executionRole: executionRole
 		}
 	);
 
@@ -425,7 +442,7 @@ export function %s({ stack }) {
 
 	const container = taskDefinition.addContainer(%s${clientName}-container-${environment}%s, {
 		image,
-		memoryLimitMiB: 512,
+		memoryLimitMiB: 1024,
 		environment: {
 			BUILD_NAME: "%s",
 			ENVIRONMENT_NAME: "%s",
@@ -449,123 +466,101 @@ export function %s({ stack }) {
 			taskDefinition,
 			securityGroups: [ecsSG],
 			assignPublicIp: true,
+			serviceName: %s${clientName}-service-${environment}%s,
 		}
 	);
 
 	service.attachToApplicationTargetGroup(targetGroupHttp);
 
-	new CfnOutput(stack, "database-host", {
-		exportName: "databaseHost",
+	new CfnOutput(stack, "databaseHost", {
 		value: database.dbInstanceEndpointAddress,
 	});
 
-	new CfnOutput(stack, "database-name", {
-		exportName: "databaseName",
+	new CfnOutput(stack, "databaseName", {
 		value: dbName,
 	});
 
-	new CfnOutput(stack, "redis-host", {
-		exportName: "redisHost",
+	new CfnOutput(stack, "redisHost", {
 		value: redisCache.attrRedisEndpointAddress,
 	});
 
-	new CfnOutput(stack, "load-balancer-dns", {
-		exportName: "loadBalancerDns",
+	new CfnOutput(stack, "loadBalancerDns", {
 		value: elb.loadBalancerDnsName,
 	});
 
-	new CfnOutput(stack, "aws-region", {
-		exportName: "awsRegion",
+	new CfnOutput(stack, "awsRegion", {
 		value: stack.region,
 	});
 
-  new CfnOutput(stack, "elastic-container-registry-repo", {
-    exportName: "elasticContainerRegistryRepo",
+  new CfnOutput(stack, "elasticContainerRegistryRepo", {
     value: stack.synthesizer.repositoryName,
   });
 
   new CfnOutput(stack, "image", {
-    exportName: "image",
     value: container.imageName,
   });
 
-  new CfnOutput(stack, "task-definition-arn", {
-    exportName: "taskDefinition",
+  new CfnOutput(stack, "taskDefinition", {
     value: taskDefinition.taskDefinitionArn,
   });
 
-  new CfnOutput(stack, "task-role", {
-    exportName: "taskRole",
+  new CfnOutput(stack, "taskRole", {
     value: taskRole.roleArn,
   });
 
-  new CfnOutput(stack, "execution-role", {
-    exportName: "executionRole",
-    value: taskDefinition.executionRole.roleArn,
+  new CfnOutput(stack, "executionRole", {
+    value: executionRole.roleArn,
   });
 
   new CfnOutput(stack, "family", {
-    exportName: "family",
     value: taskDefinition.family,
   });
 
-  new CfnOutput(stack, "container-name", {
-    exportName: "containerName",
+  new CfnOutput(stack, "containerName", {
     value: container.containerName,
   });
 
-  new CfnOutput(stack, "container-port", {
-    exportName: "containerPort",
+  new CfnOutput(stack, "containerPort", {
     value: container.containerPort.toString(),
   });
 
-  new CfnOutput(stack, "log-driver", {
-    exportName: "logDriver",
+  new CfnOutput(stack, "logDriver", {
     value: container.logDriverConfig.logDriver,
   });
 
-  new CfnOutput(stack, "log-driver-options", {
-    exportName: "logDriverOptions",
+  new CfnOutput(stack, "logDriverOptions", {
     value: JSON.stringify(container.logDriverConfig.options),
   });
 
-	new CfnOutput(stack, "service-name", {
-		exportName: "serviceName",
+	new CfnOutput(stack, "serviceName", {
 		value: service.serviceName,
 	});
 
-	new CfnOutput(stack, "cluster-name", {
-    exportName: "clusterName",
+	new CfnOutput(stack, "clusterName", {
     value: cluster.clusterName,
   });
 
-	new CfnOutput(stack, "secret-name", {
-    exportName: "secretName",
+	new CfnOutput(stack, "secretName", {
     value: databaseCredentialsSecret.secretName,
   });
 
-	new CfnOutput(stack, "secret-arn", {
-    exportName: "secretArn",
-    value: databaseCredentials.secretName,
-  });
-
-	new CfnOutput(stack, "secret-full-arn", {
-    exportName: "secretFullArn",
-    value: databaseCredentialsSecret.secretFullArn,
+	new CfnOutput(stack, "secretArn", {
+    value: databaseCredentialsSecret.secretArn,
   });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
-		dbName, dbUsername, singleQuote, singleQuote,
+		dbName, dbUsername, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, dbPortNumber, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		dbPortNumber, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, dbEngine, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, dbEngine, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, dbUri, dirName, environment,
-		singleQuote, singleQuote, shortEnvironment, environment, dbHost, singleQuote,
-		singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, dbUri, dirName, environment, singleQuote, singleQuote, shortEnvironment,
+		environment, dbHost, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote,
 	)
 
 	return source
@@ -591,9 +586,9 @@ function parseOutputs() {
 
 	Object.keys(fileContent).some((k) => {
 		if (k.endsWith("Pg") || k.endsWith("Mysql")) {
-			if (fileContent[k]?.logdriveroptions) {
-				fileContent[k].logdriveroptions = JSON.parse(
-					fileContent[k].logdriveroptions
+			if (fileContent[k]?.logDriverOptions) {
+				fileContent[k].logDriverOptions = JSON.parse(
+					fileContent[k].logDriverOptions
 				);
 			}
 		}

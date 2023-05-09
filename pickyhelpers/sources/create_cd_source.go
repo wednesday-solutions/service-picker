@@ -12,28 +12,56 @@ import (
 )
 
 func CDBackendSource(stack, stackDir, environment string) string {
-	userInput, singleQuote := utils.FindUserInputStackName(stackDir), "`"
+	userInput := utils.FindUserInputStackName(stackDir)
 	source := fmt.Sprintf(`# CD pipeline for %s for %s branch
 
-name: %s CD -- %s
+name: CD %s - %s
 
 on:
   push:
     branches:
       - develop
+      - qa
+      - master
+    paths: "%s/**"
+
+    workflow_dispatch:
 
 jobs:
   docker-build-and-push:
     name: Docker build image and push
     runs-on: ubuntu-latest
+    defaults:
+      run: 
+        working-directory: ./%s
+    strategy:
+      matrix:
+        node-version: [16.14.x]
+
     steps:
       # Checkout
       - name: Checkout to branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
 
       - name: Get branch name
         id: vars
         run: echo ::set-output name=short_ref::${GITHUB_REF_NAME}
+
+      - name: Set environment name
+        id: environment
+        run: |
+          if [[ ${{ steps.vars.outputs.short_ref }} == master ]]; then
+               echo ::set-output name=environment_name::production
+          elif [[ ${{ steps.vars.outputs.short_ref }} == qa ]]; then
+               echo ::set-output name=environment_name::qa
+          else
+               echo ::set-output name=environment_name::development
+          fi
 
       # Configure AWS with credentials
       - name: Configure AWS Credentials
@@ -55,9 +83,10 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           IMAGE_TAG: ${{ github.sha }}
-        working-directory: ./%s
+          DOCKER_BUILDKIT: 1
         run: |
-          docker compose build
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg ENVIRONMENT_NAME=${{ steps.environment.outputs.environment_name }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # Create and configure Amazon ECS task definition
       - name: Render Amazon ECS task definition
@@ -80,26 +109,9 @@ jobs:
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
-
-      # Set %sBRANCH%s variable
-      - name: Set env BRANCH
-        run: echo "BRANCH=$(echo $GITHUB_REF | cur -d'/' -f 3)" >> $GITHUB_ENV
-
-      # Get the current %senvironment%s
-      - name: Get %senvironment_name%s
-        id: env_vars
-        run: |
-          if [[ $BRANCH == 'master' ]]; then
-            echo ::set-output name=environment_name::production
-          elif [[ $BRANCH == 'qa' ]]; then
-            echo ::set-output name=environment_name::qa
-          else
-            echo ::set-output name=environment_name::development
-          fi
 `,
-		stackDir, environment, stackDir, environment, stackDir, userInput, stackDir,
-		userInput, userInput, userInput, userInput, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote,
+		stackDir, environment, stackDir, environment, stackDir, stackDir,
+		userInput, stackDir, userInput, userInput, userInput, userInput,
 	)
 	return source
 }
@@ -321,4 +333,84 @@ func TaskDefinitionSource(environment string) string {
 		}
 	}
 	return ""
+}
+
+func CDWebSource(stack, dirName string) string {
+	var sourceDir string
+	if stack == constants.ReactJS {
+		sourceDir = "build"
+	} else if stack == constants.NextJS {
+		sourceDir = "out"
+	}
+	source := fmt.Sprintf(`name: CD %s
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - qa
+    paths: "%s/**"
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/qa'
+    defaults:
+      run:
+        working-directory: ./%s
+    strategy:
+      matrix:
+        node-version: [16.13.0]
+    env:
+      SOURCE_DIR: "./%s/%s/"
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PATHS: "/*"
+
+    steps:
+      - name: Checkout to branch
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get branch name
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF_NAME}
+
+      - name: Set short environment name
+        id: environment
+        run: |
+          if [[ ${{ steps.vars.outputs.short_ref }} == master ]]; then
+               echo ::set-output name=short_env::prod
+          elif [[ ${{ steps.vars.outputs.short_ref }} == qa ]]; then
+               echo ::set-output name=short_env::qa
+          else
+               echo ::set-output name=short_env::dev
+          fi
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build
+        run: yarn build:${{ steps.environment.outputs.short_env }}
+
+      - name: AWS Deploy to S3
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: %s-${{ steps.vars.outputs.short_ref }}
+
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v2.4
+        env:
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION_ID }}
+`,
+		dirName, dirName, dirName, dirName, sourceDir, dirName)
+	return source
 }
