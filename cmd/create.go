@@ -73,7 +73,7 @@ var (
 )
 
 func init() {
-	ServiceSelection.AddCommand(CreateCmd)
+	ServiceCmd.AddCommand(CreateCmd)
 	CreateCmd.Flags().BoolVarP(&ci, constants.CIFlag, "i", false, utils.UseCI())
 	CreateCmd.Flags().BoolVarP(&cd, constants.CDFlag, "d", false, utils.UseCD())
 	CreateCmd.Flags().BoolVarP(

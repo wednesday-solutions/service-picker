@@ -19,39 +19,62 @@ func UseService() string {
 	return usageString
 }
 
-func UseStack() string {
-	usageString := fmt.Sprintf(`choose a stack (select the second name)
-
- Web stacks:
-  %d. %s          -> %s
-  %d. %s           -> %s
-  %d. %s  -> %s
-
- Mobile stacks:
-  %d. %s -> %s
-  %d. %s      -> %s
-  %d. %s          -> %s
-  %d. %s      -> %s
-
- Backend stacks:
-  %d. %s       -> %s
-  %d. %s -> %s
-  %d. %s    -> %s
-  %d. %s  -> %s
+func AllWebStacksString() string {
+	usage := fmt.Sprintf(`
+	Web stacks:
+	 %d. %s          -> %s
+	 %d. %s           -> %s
+	 %d. %s  -> %s
 `,
 		1, constants.ReactJS, constants.ReactjsLower,
 		2, constants.NextJS, constants.NextjsLower,
 		3, constants.ReactGraphqlTS, constants.ReactGraphqlLower,
+	)
+	return usage
+}
 
+func AllMobileStacksString() string {
+	usage := fmt.Sprintf(`
+	Mobile stacks:
+	 %d. %s -> %s
+	 %d. %s      -> %s
+	 %d. %s          -> %s
+	 %d. %s      -> %s
+`,
 		1, constants.ReactNative, constants.ReactNativeLower,
 		2, constants.Android, constants.AndroidLower,
 		3, constants.IOS, constants.IOSLower,
 		4, constants.Flutter, constants.FlutterLower,
-
+	)
+	return usage
+}
+func AllBackendStacksString() string {
+	usage := fmt.Sprintf(`
+	Backend stacks:
+	 %d. %s       -> %s
+	 %d. %s -> %s
+	 %d. %s    -> %s
+	 %d. %s  -> %s
+`,
 		1, constants.NodeHapiTemplate, constants.NodeHapi,
 		2, constants.NodeExpressGraphqlTemplate, constants.NodeGraphql,
 		3, constants.NodeExpressTemplate, constants.NodeExpress,
-		4, constants.GolangEchoTemplate, constants.Golang)
+		4, constants.GolangEchoTemplate, constants.Golang,
+	)
+	return usage
+}
+
+func AllStacksString() string {
+	usage := fmt.Sprintf(`%s%s%s`,
+		AllWebStacksString(),
+		AllMobileStacksString(),
+		AllBackendStacksString(),
+	)
+	return usage
+}
+
+func UseStack() string {
+	usageString := fmt.Sprintf("choose a stack (select the second name)\n%s", AllStacksString())
 	return usageString
 }
 
@@ -189,4 +212,12 @@ func UsePlatform() string {
 `,
 		1, constants.Github)
 	return usage
+}
+
+func ConvertStacksIntoString(stacks []string) string {
+	var response string
+	for idx, stack := range stacks {
+		response = fmt.Sprintf("%s\n  %d. %s", response, idx+1, stack)
+	}
+	return response
 }

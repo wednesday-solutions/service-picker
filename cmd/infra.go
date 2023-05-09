@@ -60,7 +60,7 @@ func InfraCmdFn() *cobra.Command {
 }
 
 func init() {
-	ServiceSelection.AddCommand(InfraCmd)
+	ServiceCmd.AddCommand(InfraCmd)
 	InfraCmd.Flags().StringSliceVarP(
 		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UseInfraStacks(),
 	)
