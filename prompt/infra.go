@@ -128,6 +128,11 @@ func PromptCreateInfraStacksWhenDeploy(directories []string, environment string)
 		response := p.PromptYesOrNoSelect()
 		if response {
 			var err error
+			status := pickyhelpers.IsInfraFilesExist()
+			if !status {
+				err = pickyhelpers.CreateInfraSetup()
+				errorhandler.CheckNilErr(err)
+			}
 			var infra pickyhelpers.Infra
 			for _, dirName := range directories {
 				infra.DirName = dirName

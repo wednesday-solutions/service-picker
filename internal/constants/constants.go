@@ -109,6 +109,8 @@ const (
 	DB                       = "db"
 	Pg                       = "pg"
 	Mysql                    = "mysql"
+	Postgresql               = "postgresql"
+	Mongodb                  = "mongodb"
 	Mongo                    = "mongo"
 	Redis                    = "redis"
 	Postgres                 = "postgres"
@@ -148,6 +150,7 @@ const (
 	CDFilePathURL            = "/.github/workflows/cd.yml"
 	GitHub                   = "GitHub"
 	Graphql                  = "graphql"
+	Directory                = "directory"
 )
 
 // Docker related files

@@ -38,7 +38,7 @@ func SplitStackDirectoryName(dirName string) (string, string, string, string) {
 		}
 		userInput = splitDirName[constants.Zero]
 		for _, split := range splitDirName[constants.One : len(splitDirName)-suffixSize] {
-			userInput = fmt.Sprintf("%s_%s", userInput, split)
+			userInput = fmt.Sprintf("%s-%s", userInput, split)
 		}
 	}
 	return userInput, langSuffix, stackSuffix, lastSuffix
