@@ -25,6 +25,7 @@ const (
 	Service = "service"
 	Test    = "test"
 	Init    = "init"
+	Infra   = "infra"
 )
 
 // Home options
@@ -154,6 +155,8 @@ const (
 	Git                      = "git"
 	DotGitIgnore             = ".gitignore"
 	NodeModules              = "node_modules"
+	CloudProvider            = "cloudprovider"
+	Directory                = "directory"
 )
 
 // Docker related files
@@ -194,10 +197,11 @@ const (
 
 // UI icons
 var (
-	IconChoose = promptui.Styler(promptui.FGBold)("▸")
-	IconSelect = promptui.Styler(promptui.FGGreen)("✔")
-	IconWarn   = promptui.Styler(promptui.FGYellow)("⚠")
-	IconWrong  = promptui.Styler(promptui.FGRed)("✗")
+	IconChoose   = promptui.Styler(promptui.FGBold)("▸")
+	IconSelect   = promptui.Styler(promptui.FGGreen)("✔")
+	IconWarn     = promptui.Styler(promptui.FGYellow)("⚠")
+	IconWrong    = promptui.Styler(promptui.FGRed)("✗")
+	IconQuestion = promptui.Styler(promptui.FGMagenta)("?")
 )
 
 // Stack short name for flags

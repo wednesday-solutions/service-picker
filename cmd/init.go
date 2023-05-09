@@ -4,27 +4,27 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/wednesday-solutions/picky/flagcommand"
+	"github.com/wednesday-solutions/picky/flagcmd"
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func InitService(cmd *cobra.Command, args []string) error {
+func InitStack(cmd *cobra.Command, args []string) error {
 
 	var (
-		i            flagcommand.InitInfo
+		i            flagcmd.InitInfo
 		err          error
 		errorMessage string
 	)
 
-	i.Service, err = cmd.Flags().GetString("service")
+	i.Service, err = cmd.Flags().GetString(constants.Service)
 	errorhandler.CheckNilErr(err)
-	i.Stack, err = cmd.Flags().GetString("stack")
+	i.Stack, err = cmd.Flags().GetString(constants.Stack)
 	errorhandler.CheckNilErr(err)
-	i.Database, err = cmd.Flags().GetString("database")
+	i.Database, err = cmd.Flags().GetString(constants.Database)
 	errorhandler.CheckNilErr(err)
-	i.Directory, err = cmd.Flags().GetString("directory")
+	i.Directory, err = cmd.Flags().GetString(constants.Directory)
 	errorhandler.CheckNilErr(err)
 
 	allFlagsExist := true
@@ -62,7 +62,7 @@ func InitService(cmd *cobra.Command, args []string) error {
 func InitCmdFn() *cobra.Command {
 	var InitCommand = &cobra.Command{
 		Use:  constants.Init,
-		RunE: InitService,
+		RunE: InitStack,
 	}
 	return InitCommand
 }
@@ -77,8 +77,8 @@ var (
 
 func init() {
 	ServiceSelection.AddCommand(InitCmd)
-	InitCmd.Flags().StringVarP(&service, "service", "s", "", utils.UseService())
-	InitCmd.Flags().StringVarP(&stack, "stack", "t", "", utils.UseStack())
-	InitCmd.Flags().StringVarP(&database, "database", "d", "", utils.UseDatabase())
-	InitCmd.Flags().StringVarP(&directory, "directory", "f", "", utils.UseDirectory())
+	InitCmd.Flags().StringVarP(&service, constants.Service, "s", "", utils.UseService())
+	InitCmd.Flags().StringVarP(&stack, constants.Stack, "t", "", utils.UseStack())
+	InitCmd.Flags().StringVarP(&database, constants.Database, "d", "", utils.UseDatabase())
+	InitCmd.Flags().StringVarP(&directory, constants.Directory, "f", "", utils.UseDirectory())
 }

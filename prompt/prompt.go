@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spaceweasel/promptui"
 	"github.com/wednesday-solutions/picky/internal/constants"
@@ -39,6 +40,60 @@ func (p PromptInput) PromptSelect() (string, int) {
 		errorhandler.CheckNilErr(err)
 	}
 	return result, index
+}
+
+type Label struct {
+	InvalidPrefix string
+	ValidPrefix   string
+	Question      string
+	Suffix        string
+}
+
+func (p PromptInput) PromptYesOrNoConfirm() bool {
+	var l Label
+	l.Question = p.Label
+	l.InvalidPrefix = constants.IconQuestion
+	l.ValidPrefix = constants.IconSelect
+	l.Suffix = "[y/N]"
+
+	validateFn := func(input string) error {
+		if len(input) < 1 {
+			return fmt.Errorf("Please enter 'y' or 'n'")
+		}
+		return nil
+	}
+	templates := &promptui.PromptTemplates{
+		Valid:   "{{ .ValidPrefix | bold }} {{ .Question | bold }} {{ .Suffix | faint }} ",
+		Invalid: "{{ .InvalidPrefix | bold }} {{ .Question | bold }} {{ .Suffix | faint }} ",
+		Success: "{{ .Question | faint }} {{ .Suffix | faint }} ",
+	}
+	// Refer official doc of promptui for prompt label templates.
+	prompt := promptui.Prompt{
+		Label:     l,
+		Templates: templates,
+		Validate:  validateFn,
+	}
+	for {
+		result, err := prompt.Run()
+		if err != nil {
+			if err.Error() == errorhandler.ErrInterrupt.Error() {
+				err = errorhandler.ExitMessage
+			} else if err == promptui.ErrEOF {
+				p.GoBack()
+				fmt.Printf("\nSomething error happened in GoBack.\n")
+			}
+			errorhandler.CheckNilErr(err)
+		}
+		result = strings.ToLower(result)
+		if result == "y" || result == "yes" {
+			return true
+		} else if result == "n" || result == "no" {
+			return false
+		} else {
+			err := utils.PrintWarningMessage("Please enter 'y' or 'n'.")
+			errorhandler.CheckNilErr(err)
+		}
+	}
 }
 
 func (p PromptInput) PromptGetInput() string {

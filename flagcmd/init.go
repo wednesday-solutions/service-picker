@@ -1,4 +1,4 @@
-package flagcommand
+package flagcmd
 
 import (
 	"fmt"

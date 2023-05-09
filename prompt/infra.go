@@ -123,7 +123,7 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 
 		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 	default:
-		fmt.Printf("\nWork in Progress. Please stay tuned..!\n")
+		fmt.Printf("\nSelected stack is invalid.\n")
 	}
 	return nil
 }

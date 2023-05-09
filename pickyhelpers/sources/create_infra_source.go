@@ -505,6 +505,25 @@ export function %s({ stack }) {
     exportName: "log-driver-options",
     value: JSON.stringify(container.logDriverConfig.options),
   });
+
+	// Show these in the output.
+  // stack.addOutputs({
+  //   DatabaseHost: database.dbInstanceEndpointAddress,
+  //   DatabaseName: dbName,
+  //   RedisHost: redisCache.attrConfigurationEndpointAddress,
+  //   LoadBalancerDnsName: elb.loadBalancerDnsName,
+  //   AwsRegion: stack.region,
+  //   ElasticContainerRegistryRepo: stack.synthesizer.repositoryName,
+  //   ContainerImageName: container.imageName,
+  //   TaskDefinition: taskDefinition.taskDefinitionArn,
+  //   TaskRole: taskRole.roleArn,
+  //   ExecutionRole: taskDefinition.executionRole.roleArn,
+  //   Family: taskDefinition.family,
+  //   ContainerName: container.ContainerName,
+  //   ContainerPort: container.containerPort.toString(),
+  //   LogDriver: JSON.stringify(container.logDriverConfig.logDriver),
+  //   LogDriverOptions: JSON.stringify(container.logDriverConfig.options),
+  // });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
 		singleQuote, singleQuote, dbName, dbUsername, singleQuote, singleQuote,
