@@ -164,6 +164,8 @@ const (
 	CDFlag                   = "cd"
 	Platform                 = "platform"
 	Github                   = "github"
+	DotSst                   = ".sst"
+	OutputsJson              = "outputs.json"
 )
 
 // Docker related files

@@ -1,10 +1,7 @@
 package sources
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 
 	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/errorhandler"
@@ -122,74 +119,24 @@ jobs:
 
 func TaskDefinitionSource(environment string) string {
 
-	type logDriverOptionsType struct {
-		awsLogsGroup        string
-		awsLogsStreamPrefix string
-		awsLogsRegion       string
-	}
-
-	type output struct {
-		taskRole          string
-		image             string
-		containerName     string
-		containerPort     string
-		executionRole     string
-		taskDefinitionArn string
-		logDriver         string
-		logDriverOptions  logDriverOptionsType
-		family            string
-		awsRegion         string
-	}
-
-	file := fmt.Sprintf(
-		"%s/%s/%s", utils.CurrentDirectory(), ".sst", "outputs.json",
-	)
-	status, _ := utils.IsExists(file)
-	if !status {
+	data := utils.ReadJsonDataInSstOutputs()
+	if data == nil {
 		return ""
 	}
-	sstOutputFile, err := os.Open(file)
-	errorhandler.CheckNilErr(err)
-
-	fileContent, err := ioutil.ReadAll(sstOutputFile)
-	errorhandler.CheckNilErr(err)
-
-	var data interface{}
-	err = json.Unmarshal(fileContent, &data)
-	errorhandler.CheckNilErr(err)
-
 	jsonData, ok := data.(map[string]interface{})
 	if !ok {
-		errorhandler.CheckNilErr(fmt.Errorf("Something error happened when converting map"))
+		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
 	}
 
 	for key, value := range jsonData {
 
 		if utils.EndsWith(key, "Pg") || utils.EndsWith(key, "Mysql") {
 
-			var backendObj output
 			var envName string
 			if environment == constants.Development {
 				envName = constants.Develop
 			}
-			backendJson, ok := value.(map[string]interface{})
-			if !ok {
-				errorhandler.CheckNilErr(fmt.Errorf("Something error happened when converting map"))
-			}
-			backendObj.taskRole, _ = backendJson["taskRole"].(string)
-			backendObj.image, _ = backendJson["image"].(string)
-			backendObj.containerName, _ = backendJson["containerName"].(string)
-			backendObj.containerPort, _ = backendJson["containerPort"].(string)
-			backendObj.executionRole, _ = backendJson["executionRole"].(string)
-			backendObj.taskDefinitionArn, _ = backendJson["taskDefinitionArn"].(string)
-			backendObj.logDriver, _ = backendJson["logDriver"].(string)
-			backendObj.family, _ = backendJson["family"].(string)
-			backendObj.awsRegion, _ = backendJson["awsRegion"].(string)
-
-			logdriveroptions, _ := backendJson["logDriverOptions"].(map[string]interface{})
-			backendObj.logDriverOptions.awsLogsGroup, _ = logdriveroptions["awslogs-group"].(string)
-			backendObj.logDriverOptions.awsLogsStreamPrefix, _ = logdriveroptions["awslogs-stream-prefix"].(string)
-			backendObj.logDriverOptions.awsLogsRegion, _ = logdriveroptions["awslogs-region"].(string)
+			backendObj := utils.ParseBackendOutputsKey(key, value)
 
 			source := fmt.Sprintf(`{
   "ipcMode": null,
@@ -319,19 +266,19 @@ func TaskDefinitionSource(environment string) string {
   "volumes": []
 }
 `,
-				backendObj.executionRole,
-				backendObj.logDriver,
-				backendObj.logDriverOptions.awsLogsGroup,
-				backendObj.logDriverOptions.awsLogsStreamPrefix,
-				backendObj.logDriverOptions.awsLogsRegion,
-				backendObj.containerPort,
+				backendObj.ExecutionRole,
+				backendObj.LogDriver,
+				backendObj.LogDriverOptions.AwsLogsGroup,
+				backendObj.LogDriverOptions.AwsLogsStreamPrefix,
+				backendObj.LogDriverOptions.AwsLogsRegion,
+				backendObj.ContainerPort,
 				envName,
 				environment,
-				backendObj.image,
-				backendObj.containerName,
-				backendObj.taskRole,
-				backendObj.taskDefinitionArn,
-				backendObj.family,
+				backendObj.Image,
+				backendObj.ContainerName,
+				backendObj.TaskRole,
+				backendObj.TaskDefinition,
+				backendObj.Family,
 			)
 			return source
 		}
