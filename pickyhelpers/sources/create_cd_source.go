@@ -12,6 +12,10 @@ import (
 )
 
 func CDBackendSource(stack, stackDir, environment string) string {
+	masterBranch, developBranch := "master", "develop"
+	if stack == constants.NodeHapiTemplate {
+		masterBranch, developBranch = "main", "dev"
+	}
 	userInput := utils.FindUserInputStackName(stackDir)
 	source := fmt.Sprintf(`# CD pipeline for %s for %s branch
 
@@ -20,9 +24,9 @@ name: CD %s - %s
 on:
   push:
     branches:
-      - develop
+      - %s
       - qa
-      - master
+      - %s
     paths: "%s/**"
 
     workflow_dispatch:
@@ -55,12 +59,12 @@ jobs:
       - name: Set environment name
         id: environment
         run: |
-          if [[ ${{ steps.vars.outputs.short_ref }} == master ]]; then
-               echo ::set-output name=environment_name::production
+          if [[ ${{ steps.vars.outputs.short_ref }} == %s ]]; then
+               echo ::set-output name=environment_name::prod
           elif [[ ${{ steps.vars.outputs.short_ref }} == qa ]]; then
                echo ::set-output name=environment_name::qa
           else
-               echo ::set-output name=environment_name::development
+               echo ::set-output name=environment_name::dev
           fi
 
       # Configure AWS with credentials
@@ -110,8 +114,8 @@ jobs:
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 `,
-		stackDir, environment, stackDir, environment, stackDir, stackDir,
-		userInput, stackDir, userInput, userInput, userInput, userInput,
+		stackDir, environment, stackDir, environment, developBranch, masterBranch, masterBranch,
+		stackDir, stackDir, userInput, stackDir, userInput, userInput, userInput, userInput,
 	)
 	return source
 }

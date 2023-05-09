@@ -37,7 +37,7 @@ func CreateStackCI(path, stackDir, stack string) error {
 		environment = constants.Dev
 	}
 	if stack != constants.GolangEchoTemplate {
-		source = sources.CISource(stackDir, environment)
+		source = sources.CISource(stack, stackDir, environment)
 
 		err := utils.WriteToFile(path, source)
 		errorhandler.CheckNilErr(err)

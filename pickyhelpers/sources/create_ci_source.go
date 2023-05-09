@@ -1,14 +1,22 @@
 package sources
 
-import "fmt"
+import (
+	"fmt"
 
-func CISource(stackDir, environment string) string {
+	"github.com/wednesday-solutions/picky/internal/constants"
+)
+
+func CISource(stack, stackDir, environment string) string {
+	masterBranch, developBranch := "master", "develop"
+	if stack == constants.NodeHapiTemplate {
+		masterBranch, developBranch = "main", "dev"
+	}
 	source := fmt.Sprintf(`name: CI %s
 on:
   push:
     branches:
-      - master
-      - develop
+      - %s
+      - %s
       - qa
     paths: "%s/**"
 
@@ -50,7 +58,8 @@ jobs:
       - name: Test
         run: yarn run test
 `,
-		stackDir, stackDir, stackDir, stackDir, stackDir, environment,
+		stackDir, masterBranch, developBranch, stackDir, stackDir, stackDir,
+		stackDir, environment,
 	)
 	return source
 }
