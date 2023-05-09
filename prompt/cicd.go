@@ -70,7 +70,12 @@ func PrintGitHubSecretsInfo(backendExist, webExist bool) {
 	errorhandler.CheckNilErr(err)
 	secrets, count := "\n", 1
 
-	secretKeys := []string{"AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_ECR_REPOSITORY"}
+	secretKeys := []string{
+		constants.AwsRegion,
+		constants.AwsAccessKeyId,
+		constants.AwsSecretAccessKey,
+		constants.AwsEcrRepository,
+	}
 	if backendExist {
 		for _, key := range secretKeys {
 			secrets = fmt.Sprintf("%s  %d. %s\n", secrets, count, key)
@@ -78,7 +83,7 @@ func PrintGitHubSecretsInfo(backendExist, webExist bool) {
 		}
 	}
 	if webExist {
-		secrets = fmt.Sprintf("%s  %d. %s\n", secrets, count, "DISTRIBUTION_ID")
+		secrets = fmt.Sprintf("%s  %d. %s\n", secrets, count, constants.DistributionId)
 	}
 	fmt.Printf("%s\n", secrets)
 }

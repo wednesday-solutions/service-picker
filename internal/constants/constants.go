@@ -228,3 +228,12 @@ const (
 	NodeExpress       = "nodeexpress"
 	Golang            = "golang"
 )
+
+// GitHub secrets
+const (
+	DistributionId     = "DISTRIBUTION_ID"
+	AwsRegion          = "AWS_REGION"
+	AwsAccessKeyId     = "AWS_ACCESS_KEY_ID"
+	AwsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
+	AwsEcrRepository   = "AWS_ECR_REPOSITORY"
+)

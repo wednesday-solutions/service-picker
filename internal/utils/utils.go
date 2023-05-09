@@ -246,7 +246,7 @@ func CreateSstOutputsFile() error {
 	if !ok {
 		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid"))
 	}
-	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	_, _, directories := GetExistingStacksDatabasesAndDirectories()
 	for _, stackDir := range directories {
 		service := FindService(stackDir)
 
@@ -332,15 +332,15 @@ func ParseWebOutputsKey(key string, value interface{}) WebOutputKeys {
 func WebOutputsSource(webObj WebOutputKeys, env string) string {
 	source := fmt.Sprintf(`{
 	"%s": {
-		"distributionId": "%s",
-		"bucketName": "%s",
 		"siteUrl": "%s",
+		"bucketName": "%s",
+		"distributionId": "%s",
 	}
 }`,
 		env,
-		webObj.DistributionId,
-		webObj.BucketName,
 		webObj.SiteUrl,
+		webObj.BucketName,
+		webObj.DistributionId,
 	)
 	return source
 }
@@ -348,24 +348,24 @@ func WebOutputsSource(webObj WebOutputKeys, env string) string {
 func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
 	source := fmt.Sprintf(`{
 	"%s": {
-		"redisHost": "%s",
     "image": "%s",
+    "family": "%s",
+    "taskRole": "%s",
+    "executionRole": "%s",
+    "databaseName": "%s",
+    "databaseHost": "%s",
+		"redisHost": "%s",
     "awsRegion": "%s",
     "secretName": "%s",
-    "databaseHost": "%s",
-    "databaseName": "%s",
     "secretArn": "%s",
-    "logDriver": "%s",
     "loadBalancerDns": "%s",
     "serviceName": "%s",
-    "containerName": "%s",
-    "taskRole": "%s",
-    "clusterName": "%s",
-    "elasticContainerRegistryRepo": "%s",
     "containerPort": "%s",
-    "executionRole": "%s",
+    "containerName": "%s",
+    "clusterName": "%s",
     "taskDefinition": "%s",
-    "family": "%s",
+    "elasticContainerRegistryRepo": "%s",
+    "logDriver": "%s",
 		"logDriverOptions": {
       "awslogs-group": "%s",
       "awslogs-stream-prefix": "%s",
@@ -374,24 +374,24 @@ func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
 	}
 }`,
 		env,
-		backendObj.RedisHost,
 		backendObj.Image,
+		backendObj.Family,
+		backendObj.TaskRole,
+		backendObj.ExecutionRole,
+		backendObj.DatabaseName,
+		backendObj.DatabaseHost,
+		backendObj.RedisHost,
 		backendObj.AwsRegion,
 		backendObj.SecretName,
-		backendObj.DatabaseHost,
-		backendObj.DatabaseName,
 		backendObj.SecretArn,
-		backendObj.LogDriver,
 		backendObj.LoadBalancerDns,
 		backendObj.ServiceName,
-		backendObj.ContainerName,
-		backendObj.TaskRole,
-		backendObj.ClusterName,
-		backendObj.ElasticContainerRegistryRepo,
 		backendObj.ContainerPort,
-		backendObj.ExecutionRole,
+		backendObj.ContainerName,
+		backendObj.ClusterName,
 		backendObj.TaskDefinition,
-		backendObj.Family,
+		backendObj.ElasticContainerRegistryRepo,
+		backendObj.LogDriver,
 		backendObj.LogDriverOptions.AwsLogsGroup,
 		backendObj.LogDriverOptions.AwsLogsStreamPrefix,
 		backendObj.LogDriverOptions.AwsLogsRegion,

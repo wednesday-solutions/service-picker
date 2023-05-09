@@ -10,7 +10,7 @@ func PromptHome() {
 	p.Label = "Pick an option"
 	p.GoBack = PromptAlertMessage
 	var initService bool
-	stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
+	stacks, databases, _ := utils.GetExistingStacksDatabasesAndDirectories()
 	if len(stacks) > 0 {
 		p.Items = []string{constants.InitService, constants.CICD}
 		showCreateDC := ShowCreateDockerCompose(databases)

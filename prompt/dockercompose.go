@@ -69,7 +69,7 @@ func GenerateDockerCompose() error {
 		response = p.PromptYesOrNoConfirm()
 	}
 	if response {
-		stacks, databases, _ := utils.ExistingStacksDatabasesAndDirectories()
+		stacks, databases, _ := utils.GetExistingStacksDatabasesAndDirectories()
 		for i, db := range databases {
 			if db != "" {
 				s.Database = db

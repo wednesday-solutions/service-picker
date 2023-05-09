@@ -22,7 +22,7 @@ func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 		backendPgSnakeCased     []string
 	)
 	var snakeCaseDirName string
-	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
+	_, databases, directories := utils.GetExistingStacksDatabasesAndDirectories()
 	for index, directory := range directories {
 		service := utils.FindService(directory)
 		if service == constants.Backend {

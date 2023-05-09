@@ -15,7 +15,7 @@ func (s StackDetails) GetStackInfo() map[string]interface{} {
 	currentDir := utils.CurrentDirectory()
 	projectName := strcase.ToSnake(utils.GetProjectName())
 
-	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
+	_, databases, directories := utils.GetExistingStacksDatabasesAndDirectories()
 	for i, dirName := range directories {
 		s.Service = utils.FindService(dirName)
 		switch s.Service {

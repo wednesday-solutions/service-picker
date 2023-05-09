@@ -62,7 +62,7 @@ func InfraCmdFn() *cobra.Command {
 func init() {
 	ServiceCmd.AddCommand(InfraCmd)
 	InfraCmd.Flags().StringSliceVarP(
-		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UseInfraStacks(),
+		&stacks, constants.Stacks, "t", utils.GetExistingStacks(), utils.UseInfraStacks(),
 	)
 	InfraCmd.Flags().StringVarP(
 		&cloudProvider, constants.CloudProvider, "p", constants.AWS, utils.UseCloudProvider(),
