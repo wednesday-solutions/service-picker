@@ -21,9 +21,11 @@ func PromptHome() {
 			constants.SetupInfra,
 			constants.Deploy,
 		)
-		showRemoveDeploy := ShowRemoveDeploy()
-		if showRemoveDeploy {
+		if ShowRemoveDeploy() {
 			p.Items = append(p.Items, constants.RemoveDeploy)
+		}
+		if ShowPromptGitInit() {
+			p.Items = append(p.Items, constants.GitInit)
 		}
 		p.Items = append(p.Items, constants.Exit)
 		response, _ := p.PromptSelect()
@@ -40,6 +42,8 @@ func PromptHome() {
 			PromptDeploy()
 		case constants.RemoveDeploy:
 			PromptRemoveDeploy()
+		case constants.GitInit:
+			PromptGitInit()
 		case constants.Exit:
 			PromptExit()
 		}

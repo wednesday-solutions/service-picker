@@ -39,6 +39,14 @@ func PromptSetupInfra() {
 			err := CreateInfra(stacks, cloudProvider, environment)
 			errorhandler.CheckNilErr(err)
 		}
+		if ShowPromptGitInit() {
+			p.Label = "Do you want to initialize git"
+			response = p.PromptYesOrNoSelect()
+			if response {
+				err := GitInit()
+				errorhandler.CheckNilErr(err)
+			}
+		}
 		err := PromptDeployAfterInfra(stacks, environment)
 		errorhandler.CheckNilErr(err)
 	}
