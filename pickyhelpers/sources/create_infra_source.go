@@ -18,9 +18,9 @@ func PackageDotJsonSource() string {
 	"scripts": {
 		"dev": "sst dev",
 		"build": "sst build",
-		"deploy:dev": "sst deploy --stage dev",
-		"deploy:qa": "sst deploy --stage qa",
-		"deploy:prod": "sst deploy --stage prod",
+		"deploy:dev": "sst deploy --stage dev --outputs-file outputs.json",
+		"deploy:qa": "sst deploy --stage qa --outputs-file outputs.json",
+		"deploy:prod": "sst deploy --stage prod --outputs-file outputs.json",
 		"remove:dev": "sst remove --stage dev",
 		"remove:qa": "sst remove --stage qa",
 		"remove:prod": "sst remove --stage prod",
@@ -73,9 +73,14 @@ export default {
 
 func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	var shortEnvironment string
-	if environment == constants.Development {
+	switch environment {
+	case constants.Development:
 		environment = "develop"
 		shortEnvironment = constants.Dev
+	case constants.QA:
+		shortEnvironment = constants.QA
+	case constants.Production:
+		shortEnvironment = constants.Prod
 	}
 	buildOutput, singleQuote := "", "`"
 	stack, _ := utils.FindStackAndDatabase(dirName)
@@ -498,32 +503,13 @@ export function %s({ stack }) {
 
   new CfnOutput(stack, "log-driver", {
     exportName: "log-driver",
-    value: JSON.stringify(container.logDriverConfig.logDriver),
+    value: container.logDriverConfig.logDriver,
   });
 
   new CfnOutput(stack, "log-driver-options", {
     exportName: "log-driver-options",
     value: JSON.stringify(container.logDriverConfig.options),
   });
-
-	// Show these in the output.
-  // stack.addOutputs({
-  //   DatabaseHost: database.dbInstanceEndpointAddress,
-  //   DatabaseName: dbName,
-  //   RedisHost: redisCache.attrConfigurationEndpointAddress,
-  //   LoadBalancerDnsName: elb.loadBalancerDnsName,
-  //   AwsRegion: stack.region,
-  //   ElasticContainerRegistryRepo: stack.synthesizer.repositoryName,
-  //   ContainerImageName: container.imageName,
-  //   TaskDefinition: taskDefinition.taskDefinitionArn,
-  //   TaskRole: taskRole.roleArn,
-  //   ExecutionRole: taskDefinition.executionRole.roleArn,
-  //   Family: taskDefinition.family,
-  //   ContainerName: container.ContainerName,
-  //   ContainerPort: container.containerPort.toString(),
-  //   LogDriver: JSON.stringify(container.logDriverConfig.logDriver),
-  //   LogDriverOptions: JSON.stringify(container.logDriverConfig.options),
-  // });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
 		singleQuote, singleQuote, dbName, dbUsername, singleQuote, singleQuote,
@@ -550,5 +536,29 @@ NODE_ENV=%s
 ENVIRONMENT_NAME=%s
 PORT=9000`, environment, environment)
 
+	return source
+}
+
+func ParseSstOutputsSource() string {
+	source := `import * as fs from "fs";
+
+function parseOutputs() {
+	const outputFile = "./.sst/outputs.json";
+	let fileContent = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
+
+	Object.keys(fileContent).some((k) => {
+		if (k.endsWith("Pg") || k.endsWith("Mysql")) {
+			if (fileContent[k]?.logdriveroptions) {
+				fileContent[k].logdriveroptions = JSON.parse(
+					fileContent[k].logdriveroptions
+				);
+			}
+		}
+	});
+	fileContent = JSON.stringify(fileContent, null, 2);
+	fs.writeFileSync(outputFile, fileContent);
+}
+parseOutputs();	
+`
 	return source
 }

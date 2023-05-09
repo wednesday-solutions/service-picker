@@ -20,6 +20,7 @@ func IsInfraFilesExist() bool {
 		constants.EnvFile,
 		constants.SstConfigFile,
 		constants.Stacks,
+		constants.ParseSstOutputs,
 	}
 	for _, file := range files {
 		status, _ := utils.IsExists(filepath.Join(path, file))
@@ -105,6 +106,14 @@ func CreateSstConfigFile(stackInfo map[string]interface{}, directories []string,
 	stackInfo[constants.ExistingDirectories] = camelCaseDirectories
 
 	err := hbs.ParseAndWriteToFile(sstConfigSource, path, stackInfo)
+	errorhandler.CheckNilErr(err)
+
+	// create parseSstOutputs.js file
+	parseSstOutputsSource := sources.ParseSstOutputsSource()
+	path = fmt.Sprintf("%s/%s", utils.CurrentDirectory(), constants.ParseSstOutputs)
+
+	err = utils.WriteToFile(path, parseSstOutputsSource)
+	errorhandler.CheckNilErr(err)
 	return err
 }
 

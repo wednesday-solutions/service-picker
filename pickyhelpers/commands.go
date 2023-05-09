@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/wednesday-solutions/picky/internal/constants"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
@@ -29,5 +30,10 @@ func RemoveDeploy(pkgManager, environment string) error {
 	environment = utils.GetEnvironment(environment)
 	arg := fmt.Sprintf("remove:%s", environment)
 	err := utils.RunCommandWithLogs("", pkgManager, "run", arg)
+	return err
+}
+
+func ParseDeployOutputs() error {
+	err := utils.RunCommandWithoutLogs("", "node", constants.ParseSstOutputs)
 	return err
 }

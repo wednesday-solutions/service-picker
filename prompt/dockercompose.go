@@ -51,8 +51,6 @@ func PromptRunDockerCompose() {
 	if response {
 		err := RunDockerCompose()
 		errorhandler.CheckNilErr(err)
-	} else {
-		PromptDockerCompose()
 	}
 	PromptHome()
 }
