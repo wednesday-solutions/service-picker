@@ -14,43 +14,56 @@ import (
 
 func CreateService(cmd *cobra.Command, args []string) error {
 
-	dockerCompose, err := cmd.Flags().GetBool(constants.DockerComposeFlag)
+	var (
+		flagDockercompose bool
+		flagCI            bool
+		flagCD            bool
+		flagPlatform      string
+		flagStacks        []string
+		flagEnv           string
+		err               error
+	)
+
+	flagDockercompose, err = cmd.Flags().GetBool(constants.DockerComposeFlag)
 	errorhandler.CheckNilErr(err)
 
-	ci, err := cmd.Flags().GetBool(constants.CIFlag)
+	flagCI, err = cmd.Flags().GetBool(constants.CIFlag)
 	errorhandler.CheckNilErr(err)
 
-	cd, err := cmd.Flags().GetBool(constants.CDFlag)
+	flagCD, err = cmd.Flags().GetBool(constants.CDFlag)
 	errorhandler.CheckNilErr(err)
 
-	platform, err := cmd.Flags().GetString(constants.Platform)
+	flagPlatform, err = cmd.Flags().GetString(constants.Platform)
 	errorhandler.CheckNilErr(err)
 
-	stacks, err = cmd.Flags().GetStringSlice(constants.Stacks)
+	flagStacks, err = cmd.Flags().GetStringSlice(constants.Stacks)
 	errorhandler.CheckNilErr(err)
 
-	err = utils.CheckStacksExist(stacks)
+	flagEnv, err = cmd.Flags().GetString(constants.Environment)
+	errorhandler.CheckNilErr(err)
+
+	err = utils.CheckStacksExist(flagStacks)
 	if err != nil {
 		return err
 	}
 
 	fmt.Printf("\nDocker Compose: %v\nCI: %v\nCD: %v\nPlatform: %s\nStacks: %v\n",
-		dockerCompose, ci, cd, platform, stacks,
+		flagDockercompose, flagCI, flagCD, flagPlatform, flagStacks,
 	)
 
-	if !strings.EqualFold(platform, constants.GitHub) {
+	if !strings.EqualFold(flagPlatform, constants.GitHub) {
 		return fmt.Errorf("Only GitHub is available now.\n")
 	}
-	if dockerCompose {
+	if flagDockercompose {
 		err = prompt.GenerateDockerCompose()
 		errorhandler.CheckNilErr(err)
 	}
-	if ci {
-		err = pickyhelpers.CreateCI(stacks)
+	if flagCI {
+		err = pickyhelpers.CreateCI(flagStacks)
 		errorhandler.CheckNilErr(err)
 	}
-	if cd {
-		err = prompt.CreateCD(stacks)
+	if flagCD {
+		err = prompt.CreateCD(flagStacks, flagEnv)
 		errorhandler.CheckNilErr(err)
 	}
 	return err
@@ -66,10 +79,11 @@ func CreateCmdFn() *cobra.Command {
 
 var CreateCmd = CreateCmdFn()
 var (
-	ci            bool
-	cd            bool
-	dockerCompose bool
-	platform      string
+	ci              bool
+	cd              bool
+	dockerCompose   bool
+	platform        string
+	flagEnvironment string
 )
 
 func init() {
@@ -84,5 +98,8 @@ func init() {
 	)
 	CreateCmd.Flags().StringSliceVarP(
 		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UseInfraStacks(),
+	)
+	CreateCmd.Flags().StringVarP(
+		&flagEnvironment, constants.Environment, "e", constants.Development, utils.UseEnvironment(),
 	)
 }

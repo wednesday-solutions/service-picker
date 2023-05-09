@@ -188,7 +188,7 @@ func GetCloudProvider(cp string) string {
 
 func GetEnvironmentValue(env string) string {
 	env = strings.ToLower(env)
-	if env == "development" || env == "develop" || env == "dev" {
+	if env == constants.Development || env == constants.Develop || env == constants.Dev {
 		return constants.Development
 	}
 	return env

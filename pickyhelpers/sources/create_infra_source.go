@@ -75,7 +75,7 @@ func WebStackSource(dirName, camelCaseDirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
-		environment = "develop"
+		environment = constants.Develop
 		shortEnvironment = constants.Dev
 	case constants.QA:
 		shortEnvironment = constants.QA
@@ -129,16 +129,17 @@ func BackendStackSource(database, dirName, environment string) string {
 	var shortEnvironment string
 	switch environment {
 	case constants.Development:
-		shortEnvironment = "develop"
+		shortEnvironment = constants.Develop
 	case constants.QA:
 		shortEnvironment = constants.QA
 	case constants.Production:
 		shortEnvironment = constants.Production
 	}
 	userInputStackName := utils.FindUserInputStackName(dirName)
-	dbName := fmt.Sprintf("%s_%s",
-		userInputStackName,
+	dbName := fmt.Sprintf("%s_%s_%s",
+		strcase.ToSnake(userInputStackName),
 		constants.Database,
+		shortEnvironment,
 	)
 	dbUsername := "username"
 	camelCaseDirName := strcase.ToCamel(dirName)
@@ -183,11 +184,10 @@ import { Platform } from "aws-cdk-lib/aws-ecr-assets";
 export function %s({ stack }) {
 	const clientName = "%s";
 	const environment = "%s";
-	const clientPrefix = %s${clientName}-${environment}%s;
 	const dbName = "%s";
 	const dbUsername = "%s";
 
-	const vpc = new ec2.Vpc(stack, %s${clientPrefix}-vpc%s, {
+	const vpc = new ec2.Vpc(stack, %s${clientName}-vpc-${environment}%s, {
 		maxAzs: 3,
 		natGateways: 1,
 		subnetConfiguration: [
@@ -205,10 +205,14 @@ export function %s({ stack }) {
 	});
 
 	// Load Balancer Security groups
-	const elbSG = new ec2.SecurityGroup(stack, %s${clientPrefix}-elbSG%s, {
-		vpc,
-		allowAllOutbound: true,
-	});
+	const elbSG = new ec2.SecurityGroup(
+		stack,
+		%s${clientName}-elb-security-group-${environment}%s,
+		{
+			vpc,
+			allowAllOutbound: true,
+		}
+	);
 
 	elbSG.addIngressRule(
 		ec2.Peer.anyIpv4(),
@@ -217,7 +221,7 @@ export function %s({ stack }) {
 	);
 
 	// ECS Security groups
-	const ecsSG = new ec2.SecurityGroup(stack, %s${clientPrefix}-ecsSG%s, {
+	const ecsSG = new ec2.SecurityGroup(stack, %s${clientName}-ecsSG%s, {
 		vpc,
 		allowAllOutbound: true,
 	});
@@ -231,7 +235,7 @@ export function %s({ stack }) {
 	// Database security group
 	const databaseSecurityGroup = new ec2.SecurityGroup(
 		stack,
-		%s${clientPrefix}-database-security-group%s,
+		%s${clientName}-database-security-group-${environment}%s,
 		{
 			vpc,
 			allowAllOutbound: false,
@@ -246,10 +250,10 @@ export function %s({ stack }) {
 
 	const databaseCredentialsSecret = new secretsManager.Secret(
 		stack,
-		%s${clientPrefix}-database-credentials-secret%s,
+		%s${clientName}-database-credentials-secret-${environment}%s,
 		{
-			secretName: %s${clientPrefix}-database-credentials%s,
-			description: %sDatabase credentials for ${clientName}-develop%s,
+			secretName: %s${clientName}-database-credentials-${environment}%s,
+			description: %sDatabase credentials for ${clientName}-${environment}%s,
 			generateSecretString: {
 				excludeCharacters: "\"@/\\ '",
 				generateStringKey: "password",
@@ -266,7 +270,7 @@ export function %s({ stack }) {
 
 	const database = new DatabaseInstance(
 		stack,
-		%s${clientPrefix}-database-instance%s,
+		%s${clientName}-database-instance-${environment}%s,
 		{
 			vpc,
 			securityGroups: [databaseSecurityGroup],
@@ -290,17 +294,17 @@ export function %s({ stack }) {
 	// Elasticache
 	const redisSubnetGroup = new elasticcache.CfnSubnetGroup(
 		stack,
-		%s${clientPrefix}-redis-subnet-group%s,
+		%s${clientName}-redis-subnet-group-${environment}%s,
 		{
 			description: "Subnet group for the redis cluster",
 			subnetIds: vpc.privateSubnets.map((subnet) => subnet.subnetId),
-			cacheSubnetGroupName: %s${clientPrefix}-redis-subnet-group%s,
+			cacheSubnetGroupName: %s${clientName}-redis-subnet-group-${environment}%s,
 		}
 	);
 
 	const redisSecurityGroup = new ec2.SecurityGroup(
 		stack,
-		%s${clientPrefix}-redis-security-group%s,
+		%s${clientName}-redis-security-group-${environment}%s,
 		{
 			vpc,
 			allowAllOutbound: true,
@@ -316,12 +320,12 @@ export function %s({ stack }) {
 
 	const redisCache = new elasticcache.CfnCacheCluster(
 		stack,
-		%s${clientPrefix}-redis-cache%s,
+		%s${clientName}-redis-cache-${environment}%s,
 		{
 			engine: "redis",
 			cacheNodeType: "cache.t3.micro",
 			numCacheNodes: 1,
-			clusterName: %s${clientPrefix}-redis-cluster%s,
+			clusterName: %s${clientName}-redis-cluster-${environment}%s,
 			vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
 			cacheSubnetGroupName: redisSubnetGroup.ref,
 			engineVersion: "6.2",
@@ -331,20 +335,20 @@ export function %s({ stack }) {
 	redisCache.addDependency(redisSubnetGroup);
 
 	// Creating your ECS
-	const cluster = new ecs.Cluster(stack, %s${clientPrefix}-cluster%s, {
-		clusterName: %s${clientPrefix}-cluster%s,
+	const cluster = new ecs.Cluster(stack, %s${clientName}-cluster%s, {
+		clusterName: %s${clientName}-cluster-${environment}%s,
 		vpc,
 	});
 
 	// Creating your Load Balancer
 	const elb = new elasticloadbalancing.ApplicationLoadBalancer(
 		stack,
-		%s${clientPrefix}-elb%s,
+		%s${clientName}-elb-${environment}%s,
 		{
 			vpc,
 			vpcSubnets: { subnets: vpc.publicSubnets },
 			internetFacing: true,
-			loadBalancerName: %s${clientPrefix}-alb%s,
+			loadBalancerName: %s${clientName}-elb-${environment}%s,
 		}
 	);
 
@@ -353,7 +357,7 @@ export function %s({ stack }) {
 	// Creating your target group
 	const targetGroupHttp = new elasticloadbalancing.ApplicationTargetGroup(
 		stack,
-		%s${clientPrefix}-target%s,
+		%s${clientName}-target-${environment}%s,
 		{
 			port: 80,
 			vpc,
@@ -373,24 +377,34 @@ export function %s({ stack }) {
 		port: 80,
 	});
 
-	listener.addTargetGroups(%s${clientPrefix}-tg%s, {
+	listener.addTargetGroups(%s${clientName}-target-group-${environment}%s, {
 		targetGroups: [targetGroupHttp],
 	});
 
-	const taskRole = new iam.Role(stack, %s${clientPrefix}-task-role%s, {
-		assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-		roleName: %s${clientPrefix}-task-role%s,
-		description: "Role that the api task definitions use to run the api code",
-	});
+	const taskRole = new iam.Role(
+		stack,
+		%s${clientName}-task-role-${environment}%s,
+		{
+			assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+			roleName: %s${clientName}-task-role-${environment}%s,
+			description: "Role that the api task definitions use to run the api code",
+		}
+	);
 
-	const taskDefinition = new ecs.TaskDefinition(stack, %s${clientPrefix}-task%s, {
-		family: %s${clientPrefix}-task%s,
-		compatibility: ecs.Compatibility.EC2_AND_FARGATE,
-		cpu: "256",
-		memoryMiB: "512",
-		networkMode: ecs.NetworkMode.AWS_VPC,
-		taskRole: taskRole,
-	});
+	databaseCredentialsSecret.grantRead(taskRole);
+
+	const taskDefinition = new ecs.TaskDefinition(
+		stack,
+		%s${clientName}-task-${environment}%s, 
+		{
+			family: %s${clientName}-task-definition-${environment}%s,
+			compatibility: ecs.Compatibility.EC2_AND_FARGATE,
+			cpu: "256",
+			memoryMiB: "512",
+			networkMode: ecs.NetworkMode.AWS_VPC,
+			taskRole: taskRole,
+		}
+	);
 
 	const username = databaseCredentialsSecret
 		.secretValueFromJson("username")
@@ -409,7 +423,7 @@ export function %s({ stack }) {
 		},
 	});
 
-	const container = taskDefinition.addContainer(%s${clientPrefix}-container%s, {
+	const container = taskDefinition.addContainer(%s${clientName}-container-${environment}%s, {
 		image,
 		memoryLimitMiB: 512,
 		environment: {
@@ -420,49 +434,53 @@ export function %s({ stack }) {
 			REDIS_HOST: redisCache.attrRedisEndpointAddress,
 		},
 		logging: ecs.LogDriver.awsLogs({
-			streamPrefix: %s${clientPrefix}-log-group%s,
+			streamPrefix: %s${clientName}-log-group-${environment}%s,
 		}),
 	});
 
 	container.addPortMappings({ containerPort: 9000 });
 
-	const service = new ecs.FargateService(stack, %s${clientPrefix}-service%s, {
-		cluster,
-		desiredCount: 1,
-		taskDefinition,
-		securityGroups: [ecsSG],
-		assignPublicIp: true,
-	});
+	const service = new ecs.FargateService(
+		stack,
+		%s${clientName}-service-${environment}%s,
+		{
+			cluster,
+			desiredCount: 1,
+			taskDefinition,
+			securityGroups: [ecsSG],
+			assignPublicIp: true,
+		}
+	);
 
 	service.attachToApplicationTargetGroup(targetGroupHttp);
 
 	new CfnOutput(stack, "database-host", {
-		exportName: "database-host",
+		exportName: "databaseHost",
 		value: database.dbInstanceEndpointAddress,
 	});
 
 	new CfnOutput(stack, "database-name", {
-		exportName: "database-name",
+		exportName: "databaseName",
 		value: dbName,
 	});
 
 	new CfnOutput(stack, "redis-host", {
-		exportName: "redis-host",
+		exportName: "redisHost",
 		value: redisCache.attrRedisEndpointAddress,
 	});
 
 	new CfnOutput(stack, "load-balancer-dns", {
-		exportName: "load-balancer-dns",
+		exportName: "loadBalancerDns",
 		value: elb.loadBalancerDnsName,
 	});
 
 	new CfnOutput(stack, "aws-region", {
-		exportName: "aws-region",
+		exportName: "awsRegion",
 		value: stack.region,
 	});
 
   new CfnOutput(stack, "elastic-container-registry-repo", {
-    exportName: "elastic-container-registry-repo",
+    exportName: "elasticContainerRegistryRepo",
     value: stack.synthesizer.repositoryName,
   });
 
@@ -472,17 +490,17 @@ export function %s({ stack }) {
   });
 
   new CfnOutput(stack, "task-definition-arn", {
-    exportName: "task-definition",
+    exportName: "taskDefinition",
     value: taskDefinition.taskDefinitionArn,
   });
 
   new CfnOutput(stack, "task-role", {
-    exportName: "task-role",
+    exportName: "taskRole",
     value: taskRole.roleArn,
   });
 
   new CfnOutput(stack, "execution-role", {
-    exportName: "execution-role",
+    exportName: "executionRole",
     value: taskDefinition.executionRole.roleArn,
   });
 
@@ -492,27 +510,52 @@ export function %s({ stack }) {
   });
 
   new CfnOutput(stack, "container-name", {
-    exportName: "container-name",
+    exportName: "containerName",
     value: container.containerName,
   });
 
   new CfnOutput(stack, "container-port", {
-    exportName: "container-port",
+    exportName: "containerPort",
     value: container.containerPort.toString(),
   });
 
   new CfnOutput(stack, "log-driver", {
-    exportName: "log-driver",
+    exportName: "logDriver",
     value: container.logDriverConfig.logDriver,
   });
 
   new CfnOutput(stack, "log-driver-options", {
-    exportName: "log-driver-options",
+    exportName: "logDriverOptions",
     value: JSON.stringify(container.logDriverConfig.options),
+  });
+
+	new CfnOutput(stack, "service-name", {
+		exportName: "serviceName",
+		value: service.serviceName,
+	});
+
+	new CfnOutput(stack, "cluster-name", {
+    exportName: "clusterName",
+    value: cluster.clusterName,
+  });
+
+	new CfnOutput(stack, "secret-name", {
+    exportName: "secretName",
+    value: databaseCredentialsSecret.secretName,
+  });
+
+	new CfnOutput(stack, "secret-arn", {
+    exportName: "secretArn",
+    value: databaseCredentials.secretName,
+  });
+
+	new CfnOutput(stack, "secret-full-arn", {
+    exportName: "secretFullArn",
+    value: databaseCredentialsSecret.secretFullArn,
   });
 }
 `, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
-		singleQuote, singleQuote, dbName, dbUsername, singleQuote, singleQuote,
+		dbName, dbUsername, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		dbPortNumber, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, dbEngine, singleQuote, singleQuote,

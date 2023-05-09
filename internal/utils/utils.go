@@ -149,3 +149,18 @@ func ResetPortNumbers() {
 	PostgresPortNumber = 5432
 	MysqlPortNumber = 3306
 }
+
+func EndsWith(inputString, endString string) bool {
+	if len(inputString) < len(endString) {
+		return false
+	} else if len(inputString) == len(endString) {
+		return inputString == endString
+	} else {
+		for i, j := len(endString)-1, len(inputString)-1; i >= 0; i, j = i-1, j-1 {
+			if endString[i] != inputString[j] {
+				return false
+			}
+		}
+		return true
+	}
+}

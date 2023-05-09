@@ -27,8 +27,10 @@ func (s StackDetails) CreateCDFile() error {
 		err := utils.CreateFile(cdDestination)
 		errorhandler.CheckNilErr(err)
 
-		// Need to write the CD source to cdSource.
-		cdSource := sources.CDSource(s.Stack, s.Environment)
+		var cdSource string
+		if s.Service == constants.Backend {
+			cdSource = sources.CDBackendSource(s.Stack, s.DirName, s.Environment)
+		}
 
 		// Write CDFileData to CD File
 		err = utils.WriteToFile(cdDestination, cdSource)
@@ -42,4 +44,23 @@ func (s StackDetails) CreateCDFile() error {
 		return errorhandler.ErrExist
 	}
 	return nil
+}
+
+func CreateTaskDefinition(stackDir, environment string) error {
+	if environment == constants.Development {
+		environment = constants.Develop
+	}
+
+	file := fmt.Sprintf("%s/%s/%s-%s.json",
+		utils.CurrentDirectory(),
+		stackDir,
+		"task-definition",
+		environment,
+	)
+	source := sources.TaskDefinitionSource(environment)
+	var err error
+	if source == "" {
+		err = utils.WriteToFile(file, source)
+	}
+	return err
 }
