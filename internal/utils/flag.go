@@ -117,3 +117,58 @@ func GetDatabase(db string) string {
 		return db
 	}
 }
+
+func UseInfraStacks() string {
+	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	var usageString string
+	if len(directories) == 0 {
+		usageString = "Stacks not exist. Existing stacks see here.\n"
+		return usageString
+	}
+	usageString = "Existing stacks are\n"
+	for idx, dir := range directories {
+		usageString = fmt.Sprintf("%s %d. %s\n", usageString, idx+1, dir)
+	}
+	return usageString
+}
+
+func ExistingStacks() []string {
+	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	return directories
+}
+
+func UseCloudProvider() string {
+	usageString := fmt.Sprintf(`Choose a cloud provider
+ %d. %s
+aws is the default cloud provider.
+`, 1, constants.AWS)
+	return usageString
+}
+
+func UseEnvironment() string {
+	usageString := fmt.Sprintf(`Choose an environment
+ %d. %s
+ %d. %s
+ %d. %s
+development is the default environment.
+`, 1, constants.Development,
+		2, constants.QA,
+		3, constants.Production)
+	return usageString
+}
+
+func GetCloudProvider(cp string) string {
+	cp = strings.ToLower(cp)
+	if cp == "aws" {
+		return constants.AWS
+	}
+	return cp
+}
+
+func GetEnvironmentValue(env string) string {
+	env = strings.ToLower(env)
+	if env == "development" || env == "develop" || env == "dev" {
+		return constants.Development
+	}
+	return env
+}

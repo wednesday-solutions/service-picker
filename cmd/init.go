@@ -10,7 +10,7 @@ import (
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
-func InitService(cmd *cobra.Command, args []string) error {
+func InitStack(cmd *cobra.Command, args []string) error {
 
 	var (
 		i            flagcmd.InitInfo
@@ -62,7 +62,7 @@ func InitService(cmd *cobra.Command, args []string) error {
 func InitCmdFn() *cobra.Command {
 	var InitCommand = &cobra.Command{
 		Use:  constants.Init,
-		RunE: InitService,
+		RunE: InitStack,
 	}
 	return InitCommand
 }

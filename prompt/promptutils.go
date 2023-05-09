@@ -108,7 +108,7 @@ func PromptAlreadyExist(existingFile string) bool {
 	var p PromptInput
 	p.Label = fmt.Sprintf("'%s' already exists, do you want to rewrite it", existingFile)
 	p.GoBack = PromptHome
-	return p.PromptYesOrNoSelect()
+	return p.PromptYesOrNoConfirm()
 }
 
 func PromptAlertMessage() {
