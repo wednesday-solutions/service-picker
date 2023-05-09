@@ -7,6 +7,7 @@ import (
 )
 
 type StackDetails struct {
+	Service     string
 	Stack       string
 	DirName     string
 	CurrentDir  string

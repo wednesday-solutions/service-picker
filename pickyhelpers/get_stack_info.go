@@ -10,15 +10,15 @@ import (
 
 func (s StackDetails) GetStackInfo() map[string]interface{} {
 
-	var webDir, mobileDir, backendDir, service string
+	var webDir, mobileDir, backendDir string
 	var webDirectories, backendPgDirectories, backendMysqlDirectories []string
 	currentDir := utils.CurrentDirectory()
 	projectName := strcase.ToSnake(utils.GetProjectName())
 
 	_, databases, directories := utils.ExistingStacksDatabasesAndDirectories()
 	for i, dirName := range directories {
-		service = utils.FindService(dirName)
-		switch service {
+		s.Service = utils.FindService(dirName)
+		switch s.Service {
 		case constants.Web:
 			webDir = dirName
 			webDirectories = append(webDirectories, dirName)
