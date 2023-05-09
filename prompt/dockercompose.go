@@ -103,17 +103,17 @@ func RunDockerCompose() error {
 }
 
 // ShowCreateDockerCompose returns true if a backend service exists.
-func ShowCreateDockerCompose(databases []string) bool {
-	var backendStatus, frontendStatus bool
-	for _, db := range databases {
-		if db == "" {
-			frontendStatus = true
-		} else {
-			backendStatus = true
-		}
-		if backendStatus && frontendStatus {
-			return true
-		}
-	}
-	return false
-}
+// func ShowCreateDockerCompose(databases []string) bool {
+// 	var backendStatus, frontendStatus bool
+// 	for _, db := range databases {
+// 		if db == "" {
+// 			frontendStatus = true
+// 		} else {
+// 			backendStatus = true
+// 		}
+// 		if backendStatus && frontendStatus {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }

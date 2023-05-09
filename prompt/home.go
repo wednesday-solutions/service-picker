@@ -10,22 +10,20 @@ func PromptHome() {
 	p.Label = "Pick an option"
 	p.GoBack = PromptAlertMessage
 	var initService bool
-	stacks, databases, _ := utils.GetExistingStacksDatabasesAndDirectories()
+	stacks, _, _ := utils.GetExistingStacksDatabasesAndDirectories()
 	if len(stacks) > 0 {
-		p.Items = []string{constants.InitService, constants.CICD}
-		showCreateDC := ShowCreateDockerCompose(databases)
-		if showCreateDC {
-			p.Items = append(p.Items, constants.DockerCompose)
+		p.Items = []string{constants.InitService}
+		if ShowPromptGitInit() {
+			p.Items = append(p.Items, constants.GitInit)
 		}
 		p.Items = append(p.Items,
+			constants.CICD,
+			constants.DockerCompose,
 			constants.SetupInfra,
 			constants.Deploy,
 		)
 		if ShowRemoveDeploy() {
 			p.Items = append(p.Items, constants.RemoveDeploy)
-		}
-		if ShowPromptGitInit() {
-			p.Items = append(p.Items, constants.GitInit)
 		}
 		p.Items = append(p.Items, constants.Exit)
 		response, _ := p.PromptSelect()
