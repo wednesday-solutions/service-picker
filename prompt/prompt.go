@@ -16,7 +16,7 @@ type PromptInput struct {
 	GoBack func()
 }
 
-func (p PromptInput) PromptSelect() string {
+func (p PromptInput) PromptSelect() (string, int) {
 	templates := &promptui.SelectTemplates{
 		Active:   fmt.Sprintf("%s {{ . | magenta | underline }}", constants.IconChoose),
 		Selected: fmt.Sprintf("%s {{ . | cyan }}", constants.IconSelect),
@@ -29,7 +29,7 @@ func (p PromptInput) PromptSelect() string {
 		Pointer:   promptui.DefaultCursor,
 		Size:      constants.SizeOfPromptSelect,
 	}
-	_, result, err := prompt.Run()
+	index, result, err := prompt.Run()
 	if err != nil {
 		if err.Error() == errorhandler.ErrInterrupt.Error() {
 			err = errorhandler.ExitMessage
@@ -39,7 +39,7 @@ func (p PromptInput) PromptSelect() string {
 		}
 		errorhandler.CheckNilErr(err)
 	}
-	return result
+	return result, index
 }
 
 type Label struct {
@@ -131,7 +131,7 @@ func (p PromptInput) PromptGetInput() string {
 func (p PromptInput) PromptYesOrNoSelect() bool {
 	p.Items = []string{constants.Yes, constants.No}
 
-	response := p.PromptSelect()
+	response, _ := p.PromptSelect()
 	if response == constants.Yes {
 		return true
 	} else {

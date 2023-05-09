@@ -40,7 +40,8 @@ func (p PromptInput) PromptPlatform() string {
 	p.Label = "Choose a platform"
 	p.Items = []string{constants.GitHub}
 	p.GoBack = PromptHome
-	return p.PromptSelect()
+	platform, _ := p.PromptSelect()
+	return platform
 }
 
 func CreateCD(directories []string) error {

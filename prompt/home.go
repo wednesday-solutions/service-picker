@@ -26,7 +26,7 @@ func PromptHome() {
 			p.Items = append(p.Items, constants.RemoveDeploy)
 		}
 		p.Items = append(p.Items, constants.Exit)
-		response := p.PromptSelect()
+		response, _ := p.PromptSelect()
 		switch response {
 		case constants.InitService:
 			initService = true
