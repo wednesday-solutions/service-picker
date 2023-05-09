@@ -21,26 +21,15 @@ func InfraSetup(cmd *cobra.Command, args []string) error {
 	var (
 		err           error
 		stacks        []string
-		stackExist    bool
 		cloudProvider string
 		environment   string
 	)
 	stacks, err = cmd.Flags().GetStringSlice(constants.Stacks)
 	errorhandler.CheckNilErr(err)
 
-	if len(stacks) == 0 {
-		return fmt.Errorf("No stacks exist.\n")
-	}
-	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
-	for _, stack := range stacks {
-		for _, dir := range directories {
-			if stack == dir {
-				stackExist = true
-			}
-		}
-		if !stackExist {
-			return fmt.Errorf("Entered stack '%s' not exists.\n", stack)
-		}
+	err = utils.CheckStacksExist(stacks)
+	if err != nil {
+		return err
 	}
 	cloudProvider, err = cmd.Flags().GetString(constants.CloudProvider)
 	errorhandler.CheckNilErr(err)

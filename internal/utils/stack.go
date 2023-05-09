@@ -213,3 +213,22 @@ func GetSuffixOfStack(stack, database string) string {
 	}
 	return suffix
 }
+
+func CheckStacksExist(stacks []string) error {
+	var stackExist bool
+	if len(stacks) == 0 {
+		return fmt.Errorf("No stacks exist.\n")
+	}
+	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	for _, stack := range stacks {
+		for _, dir := range directories {
+			if stack == dir {
+				stackExist = true
+			}
+		}
+		if !stackExist {
+			return fmt.Errorf("Entered stack '%s' not exists.\n", stack)
+		}
+	}
+	return nil
+}

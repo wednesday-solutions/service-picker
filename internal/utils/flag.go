@@ -8,7 +8,7 @@ import (
 )
 
 func UseService() string {
-	usageString := fmt.Sprintf(`Choose a service
+	usageString := fmt.Sprintf(`choose a service
   %d. %s
   %d. %s
   %d. %s
@@ -20,7 +20,7 @@ func UseService() string {
 }
 
 func UseStack() string {
-	usageString := fmt.Sprintf(`Choose a stack (select the second name)
+	usageString := fmt.Sprintf(`choose a stack (select the second name)
 
  Web stacks:
   %d. %s          -> %s
@@ -69,7 +69,7 @@ func UseDatabase() string {
 }
 
 func UseDirectory() string {
-	return `Provide a directory name (suffix will be added.)
+	return `provide a directory prefix name (suffix will be added.)
   Eg: example-react-js-web | example-node-hapi-pg`
 }
 
@@ -125,7 +125,7 @@ func UseInfraStacks() string {
 		usageString = "Stacks not exist. Existing stacks see here.\n"
 		return usageString
 	}
-	usageString = "Existing stacks are\n"
+	usageString = "existing stacks are\n"
 	for idx, dir := range directories {
 		usageString = fmt.Sprintf("%s %d. %s\n", usageString, idx+1, dir)
 	}
@@ -138,19 +138,17 @@ func ExistingStacks() []string {
 }
 
 func UseCloudProvider() string {
-	usageString := fmt.Sprintf(`Choose a cloud provider
+	usageString := fmt.Sprintf(`choose a cloud provider
  %d. %s
-aws is the default cloud provider.
 `, 1, constants.AWS)
 	return usageString
 }
 
 func UseEnvironment() string {
-	usageString := fmt.Sprintf(`Choose an environment
+	usageString := fmt.Sprintf(`choose an environment
  %d. %s
  %d. %s
  %d. %s
-development is the default environment.
 `, 1, constants.Development,
 		2, constants.QA,
 		3, constants.Production)
@@ -171,4 +169,24 @@ func GetEnvironmentValue(env string) string {
 		return constants.Development
 	}
 	return env
+}
+
+func UseDockerCompose() string {
+	return "create Docker Compose file for the stacks which are present in the root directory."
+}
+
+func UseCI() string {
+	return "create CI file for the stacks which are present in the root directory."
+}
+
+func UseCD() string {
+	return "create CD file for the stacks which are present in the root directory."
+}
+
+func UsePlatform() string {
+	usage := fmt.Sprintf(`choose a platform
+  %d. %s
+`,
+		1, constants.Github)
+	return usage
 }

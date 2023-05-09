@@ -25,6 +25,7 @@ const (
 	Service = "service"
 	Test    = "test"
 	Init    = "init"
+	Create  = "create"
 	Infra   = "infra"
 )
 
@@ -157,6 +158,11 @@ const (
 	NodeModules              = "node_modules"
 	CloudProvider            = "cloudprovider"
 	Directory                = "directory"
+	DockerComposeFlag        = "dockercompose"
+	CIFlag                   = "ci"
+	CDFlag                   = "cd"
+	Platform                 = "platform"
+	Github                   = "github"
 )
 
 // Docker related files
