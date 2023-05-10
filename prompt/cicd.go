@@ -37,7 +37,6 @@ func PromptCICD() {
 				errorhandler.CheckNilErr(err)
 			}
 		}
-		fmt.Printf("%s", errorhandler.DoneMessage)
 		if isCreateCD {
 			var backendExist, webExist bool
 			for _, stackDir := range stacks {
@@ -47,10 +46,16 @@ func PromptCICD() {
 					err := pickyhelpers.CreateTaskDefinition(stackDir, environment)
 					errorhandler.CheckNilErr(err)
 					backendExist = true
+
+					// Update existing env file of selected environment.
+					err = pickyhelpers.UpdateEnvByEnvironment(stackDir, environment)
+					errorhandler.CheckNilErr(err)
+
 				} else if service == constants.Web {
 					webExist = true
 				}
 			}
+			fmt.Printf("%s", errorhandler.DoneMessage)
 			PrintGitHubSecretsInfo(backendExist, webExist)
 		}
 	}

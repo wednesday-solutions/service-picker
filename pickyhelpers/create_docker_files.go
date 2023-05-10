@@ -88,7 +88,7 @@ EXPOSE 3000`
 			)
 			fileFound, _ = utils.IsExists(path)
 			if fileFound {
-				source = `FROM node:14
+				source = `FROM node:16
 ARG ENVIRONMENT_NAME
 RUN mkdir -p /app-build
 ADD . /app-build
@@ -97,7 +97,7 @@ RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn --f
 RUN yarn
 RUN yarn {{runBuildEnvironment stack}}
 
-FROM node:14-alpine
+FROM node:16-alpine
 ARG ENVIRONMENT_NAME
 ENV ENVIRONMENT_NAME $ENVIRONMENT_NAME
 RUN mkdir -p /dist

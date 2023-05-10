@@ -143,7 +143,7 @@ services:`
       - ./{{this}}/.env.docker
 
 {{else}}
-# No web directories
+# No web stacks present
 
 {{/each}}{{#if backendStatus}}
 # Setup Volumes

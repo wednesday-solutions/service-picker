@@ -11,6 +11,12 @@ func CISource(stack, stackDir, environment string) string {
 	if stack == constants.NodeHapiTemplate {
 		masterBranch, developBranch = "main", "dev"
 	}
+	var envName string
+	if environment == constants.Development {
+		envName = constants.Dev
+	} else if environment == constants.Production {
+		envName = constants.Prod
+	}
 	source := fmt.Sprintf(`name: CI %s
 on:
   push:
@@ -59,7 +65,7 @@ jobs:
         run: yarn run test
 `,
 		stackDir, masterBranch, developBranch, stackDir, stackDir, stackDir,
-		stackDir, environment,
+		stackDir, envName,
 	)
 	return source
 }

@@ -123,7 +123,13 @@ func UpdateEnvByEnvironment(dirName, environment string) error {
 		dirName,
 		fmt.Sprintf("%s.%s", constants.EnvFile, environment),
 	)
-	err := utils.WriteToFile(path, sources.EnvSource(environment))
+	_, database := utils.FindStackAndDatabase(dirName)
+
+	taskDefinition := utils.GetOutputsBackendObject(environment, dirName)
+
+	err := utils.WriteToFile(path, sources.EnvSource(
+		environment, database, taskDefinition.BackendObj,
+	))
 	errorhandler.CheckNilErr(err)
 	return nil
 }
