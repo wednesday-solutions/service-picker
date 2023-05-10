@@ -59,7 +59,7 @@ func CreateTaskDefinition(stackDir, environment string) error {
 		"task-definition",
 		environment,
 	)
-	source := sources.TaskDefinitionSource(environment)
+	source := sources.TaskDefinitionSource(environment, stackDir)
 	var err error
 	if source != "" {
 		err = utils.WriteToFile(file, source)

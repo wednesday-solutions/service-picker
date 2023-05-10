@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/wednesday-solutions/picky/internal/constants"
-	"github.com/wednesday-solutions/picky/internal/errorhandler"
 	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
@@ -26,7 +25,7 @@ on:
       - %s
     paths: "%s/**"
 
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   docker-build-and-push:
@@ -95,7 +94,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: %s/task-definition-${{ steps.vars.outputs.short_ref }}.json
-          container-name: %s-container-${{ steps.vars.outputs.short_ref }}
+          container-name: %s-container-${{ steps.environment.outputs.environment_name }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
 
       # Deploy to Amazon ECS
@@ -103,47 +102,33 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.%s-container.outputs.task-definition }}
-          service: %s-service-${{ steps.vars.outputs.short_ref }}
-          cluster: %s-cluster-${{ steps.vars.outputs.short_ref }}
+          service: %s-service-${{ steps.environment.outputs.environment_name }}
+          cluster: %s-cluster-${{ steps.environment.outputs.environment_name }}
 
       # Logout of Amazon
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 `,
-		stackDir, environment, stackDir, environment, developBranch, masterBranch, masterBranch,
-		stackDir, stackDir, userInput, stackDir, userInput, userInput, userInput, userInput,
+		stackDir, environment, stackDir, environment, developBranch, masterBranch, stackDir,
+		stackDir, masterBranch, userInput, stackDir, userInput, userInput, userInput, userInput,
 	)
 	return source
 }
 
-func TaskDefinitionSource(environment string) string {
+func TaskDefinitionSource(environment, stackDir string) string {
 
-	data := utils.ReadJsonDataInSstOutputs()
-	if data == nil {
-		return ""
-	}
-	jsonData, ok := data.(map[string]interface{})
-	if !ok {
-		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
-	}
+	taskDefinition := utils.GetOutputsBackendObject(environment, stackDir)
 
-	for key, value := range jsonData {
-
-		if utils.EndsWith(key, "Pg") || utils.EndsWith(key, "Mysql") {
-
-			var envName string
-			if environment == constants.Development {
-				envName = constants.Develop
-			}
-			backendObj := utils.ParseBackendOutputsKey(key, value)
-
-			source := fmt.Sprintf(`{
-  "ipcMode": null,
+	taskDefinitionSource := fmt.Sprintf(`{
+  "taskRoleArn": "%s",
   "executionRoleArn": "%s",
+  "taskDefinitionArn": "%s",
+  "family": "%s",
   "containerDefinitions": [
     {
-      "dnsSearchDomains": null,
+      "name": "%s",
+      "image": "%s",
       "logConfiguration": {
         "logDriver": "%s",
         "secretOptions": null,
@@ -153,7 +138,6 @@ func TaskDefinitionSource(environment string) string {
           "awslogs-region": "%s"
         }
       },
-      "entryPoint": null,
       "portMappings": [
         {
           "hostPort": "9000",
@@ -161,9 +145,6 @@ func TaskDefinitionSource(environment string) string {
           "containerPort": "%s"
         }
       ],
-      "command": null,
-      "linuxParameters": null,
-      "cpu": 0,
       "environment": [
         {
           "name": "BUILD_NAME",
@@ -171,17 +152,27 @@ func TaskDefinitionSource(environment string) string {
         },
         {
           "name": "ENVIRONMENT_NAME",
-          "value": ".%s"
+          "value": "%s"
         }
       ],
+      "secrets": [
+        {
+          "name": "%s",
+          "valueFrom": "%s:password::"
+        }
+      ],
+      "cpu": 0,
+      "memory": null,
+      "command": null,
+      "entryPoint": null,
+      "dnsSearchDomains": null,
+      "linuxParameters": null,
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
       "mountPoints": [],
       "workingDirectory": null,
-      "secrets": null,
       "dockerSecurityOptions": null,
-      "memory": null,
       "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
@@ -200,90 +191,77 @@ func TaskDefinitionSource(environment string) string {
       "readonlyRootFilesystem": null,
       "dockerLabels": null,
       "systemControls": null,
-      "privileged": null,
-      "image": "%s",
-      "name": "%s"
+      "privileged": null
     }
   ],
   "placementConstraints": [],
   "memory": "2048",
-  "taskRoleArn": "%s",
   "compatibilities": ["EC2", "FARGATE"],
-  "taskDefinitionArn": "%s",
-  "family": "%s",
   "requiresAttributes": [
     {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
       "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
     },
     {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
       "name": "ecs.capability.execution-role-awslogs"
     },
     {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
       "name": "com.amazonaws.ecs.capability.ecr-auth"
     },
     {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
     },
     {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
       "name": "ecs.capability.execution-role-ecr-pull"
     },
     {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
     },
     {
+      "name": "ecs.capability.task-eni",
       "targetId": null,
       "targetType": null,
-      "value": null,
-      "name": "ecs.capability.task-eni"
+      "value": null
     }
   ],
+  "ipcMode": null,
   "pidMode": null,
   "requiresCompatibilities": ["FARGATE"],
   "networkMode": "awsvpc",
   "cpu": "1024",
-  "revision": 31,
+  "revision": 17,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
-  "volumes": []
+  "volumes": [],
+  "tags": [
+    {
+      "key": "sst:app",
+      "value": "web-app"
+    },
+    {
+      "key": "sst:stage",
+      "value": "dev"
+    }
+  ]
 }
 `,
-				backendObj.ExecutionRole,
-				backendObj.LogDriver,
-				backendObj.LogDriverOptions.AwsLogsGroup,
-				backendObj.LogDriverOptions.AwsLogsStreamPrefix,
-				backendObj.LogDriverOptions.AwsLogsRegion,
-				backendObj.ContainerPort,
-				envName,
-				environment,
-				backendObj.Image,
-				backendObj.ContainerName,
-				backendObj.TaskRole,
-				backendObj.TaskDefinition,
-				backendObj.Family,
-			)
-			return source
-		}
-	}
-	return ""
+		taskDefinition.BackendObj.TaskRole,
+		taskDefinition.BackendObj.ExecutionRole,
+		taskDefinition.BackendObj.TaskDefinition,
+		taskDefinition.BackendObj.Family,
+		taskDefinition.BackendObj.ContainerName,
+		taskDefinition.BackendObj.Image,
+		taskDefinition.BackendObj.LogDriver,
+		taskDefinition.BackendObj.LogDriverOptions.AwsLogsGroup,
+		taskDefinition.BackendObj.LogDriverOptions.AwsLogsStreamPrefix,
+		taskDefinition.BackendObj.LogDriverOptions.AwsLogsRegion,
+		taskDefinition.BackendObj.ContainerPort,
+		taskDefinition.Environment,
+		taskDefinition.EnvName,
+		taskDefinition.SecretName,
+		taskDefinition.BackendObj.SecretArn,
+	)
+	return taskDefinitionSource
 }
 
 func CDWebSource(stack, dirName string) string {

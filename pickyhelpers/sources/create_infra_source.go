@@ -568,12 +568,40 @@ export function %s({ stack }) {
 }
 
 // EnvSource return the source string with respect to the given environment.
-func EnvSource(environment string) string {
+func EnvSource(environment, database string, backendObj utils.BackendOutputKeys) string {
+
+	var dbHost, dbUser, dbName, redisHost string
+	redisHost = "REDIS_HOST"
+	if database == constants.PostgreSQL {
+		dbUser = "POSTGRES_USER"
+		dbHost = "POSTGRES_HOST"
+		dbName = "POSTGRES_DB"
+	} else if database == constants.MySQL {
+		dbUser = "MYSQL_USER"
+		dbHost = "MYSQL_HOST"
+		dbName = "MYSQL_DB"
+	}
 
 	source := fmt.Sprintf(`NAME=Node Template
 NODE_ENV=%s
 ENVIRONMENT_NAME=%s
-PORT=9000`, environment, environment)
+PORT=9000
+%s=%s
+%s=%s
+%s=%s
+%s=%s
+`,
+		environment,
+		environment,
+		dbUser,
+		"username",
+		dbHost,
+		backendObj.DatabaseHost,
+		dbName,
+		backendObj.DatabaseName,
+		redisHost,
+		backendObj.RedisHost,
+	)
 
 	return source
 }

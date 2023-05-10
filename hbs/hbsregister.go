@@ -69,7 +69,7 @@ func AddDependencies(database string) string {
 	case constants.PostgreSQL:
 		return "shelljs bull dotenv pg sequelize@6.6.5"
 	case constants.MySQL:
-		return "shelljs dotenv mysql2 sequelize@6.6.5"
+		return "shelljs bull dotenv mysql2 sequelize@6.6.5"
 	default:
 		return ""
 	}
@@ -78,9 +78,9 @@ func AddDependencies(database string) string {
 func RunBuildEnvironment(stack string) string {
 	switch stack {
 	case constants.NodeExpressGraphqlTemplate:
-		return "build:docker"
+		return "build:$ENVIRONMENT_NAME"
 	case constants.NodeHapiTemplate:
-		return "build:env"
+		return "build:$ENVIRONMENT_NAME"
 	default:
 		return ""
 	}

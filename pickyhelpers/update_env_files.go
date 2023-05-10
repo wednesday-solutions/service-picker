@@ -68,7 +68,7 @@ MYSQL_USER=root
 MYSQL_PASSWORD=password
 NODE_ENV=local
 ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa14b1bb195bbe9d72c9599ba0c6b556f9bd1607a8478be87e5a91b697c74032e0ae7af
-REDIS_DOMAIN=localhost
+REDIS_HOST=localhost
 REDIS_PORT=6379`
 
 		envDevSource = `DB_URI=mysql://root:password@db_mysql:3306/reporting_dashboard_dev
@@ -88,7 +88,7 @@ MYSQL_PORT=3306
 NODE_ENV=local
 ENVIRONMENT_NAME=docker
 ACCESS_TOKEN_SECRET=4cd7234152590dcfe77e1b6fc52e84f4d30c06fddadd0dd2fb42cbc51fa14b1bb195bbe9d72c9599ba0c6b556f9bd1607a8478be87e5a91b697c74032e0ae7af
-REDIS_DOMAIN=redis
+REDIS_HOST=redis
 REDIS_PORT=6379
 APP_NAME=app`, snakeCaseDirName, snakeCaseDirName)
 

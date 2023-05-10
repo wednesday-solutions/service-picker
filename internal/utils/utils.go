@@ -334,9 +334,10 @@ func WebOutputsSource(webObj WebOutputKeys, env string) string {
 	"%s": {
 		"siteUrl": "%s",
 		"bucketName": "%s",
-		"distributionId": "%s",
+		"distributionId": "%s"
 	}
-}`,
+}
+`,
 		env,
 		webObj.SiteUrl,
 		webObj.BucketName,
@@ -370,9 +371,10 @@ func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
       "awslogs-group": "%s",
       "awslogs-stream-prefix": "%s",
       "awslogs-region": "%s"
-    },
+    }
 	}
-}`,
+}
+`,
 		env,
 		backendObj.Image,
 		backendObj.Family,
@@ -397,4 +399,43 @@ func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
 		backendObj.LogDriverOptions.AwsLogsRegion,
 	)
 	return source
+}
+
+type TaskDefinitionDetails struct {
+	BackendObj  BackendOutputKeys
+	Environment string
+	EnvName     string
+	SecretName  string
+}
+
+func GetOutputsBackendObject(environment, stackDir string) TaskDefinitionDetails {
+	stackKey := strcase.ToCamel(stackDir)
+	data := ReadJsonDataInSstOutputs()
+	if data == nil {
+		return TaskDefinitionDetails{}
+	}
+	jsonData, ok := data.(map[string]interface{})
+	if !ok {
+		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
+	}
+	var taskDefinition TaskDefinitionDetails
+	for key, value := range jsonData {
+		if EndsWith(key, stackKey) {
+			if EndsWith(key, "Pg") {
+				taskDefinition.SecretName = "POSTGRES_PASSWORD"
+			} else if EndsWith(key, "Mysql") {
+				taskDefinition.SecretName = "MYSQL_PASSWORD"
+			}
+			if environment == constants.Develop {
+				taskDefinition.EnvName = constants.Dev
+			} else if environment == constants.Production {
+				taskDefinition.EnvName = constants.Prod
+			}
+			taskDefinition.BackendObj = ParseBackendOutputsKey(key, value)
+			taskDefinition.Environment = environment
+
+			return taskDefinition
+		}
+	}
+	return TaskDefinitionDetails{}
 }
