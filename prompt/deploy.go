@@ -136,6 +136,7 @@ func PromptInstallDependenciesAndDeploy(configStacks []string, environment strin
 		errorhandler.CheckNilErr(err)
 
 		err = utils.CreateSstOutputsFile()
+		errorhandler.CheckNilErr(err)
 
 	} else {
 		PromptDeploy()

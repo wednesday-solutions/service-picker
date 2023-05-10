@@ -145,7 +145,7 @@ services:`
 {{else}}
 # No web directories
 
-{{/each}}
+{{/each}}{{#if backendStatus}}
 # Setup Volumes
 volumes:
 {{#each backendPgDirectories}}
@@ -153,7 +153,7 @@ volumes:
 {{/each}}
 {{#each backendMysqlDirectories}}
   {{this}}-db-volume:
-{{/each}}
+{{/each}}{{/if}}
 `, source)
 
 	err := hbs.ParseAndWriteToFile(source, filePath, stackInfo)

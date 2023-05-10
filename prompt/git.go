@@ -45,6 +45,11 @@ func GitInit() error {
 	err = utils.CreateFile(file)
 	errorhandler.CheckNilErr(err)
 
+	err = WriteDotGitignoreFile(file)
+	return err
+}
+
+func WriteDotGitignoreFile(file string) error {
 	source := constants.NodeModules
 	_, _, directories := utils.GetExistingStacksDatabasesAndDirectories()
 	for _, dir := range directories {
@@ -58,6 +63,6 @@ func GitInit() error {
 		"build",
 		"out",
 	)
-	err = utils.WriteToFile(file, source)
+	err := utils.WriteToFile(file, source)
 	return err
 }

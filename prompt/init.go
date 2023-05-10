@@ -110,6 +110,15 @@ func (i InitInfo) StackInitialize() error {
 	err = s.CreateDockerFiles()
 	errorhandler.CheckNilErr(err)
 
+	if !ShowPromptGitInit() {
+		file := fmt.Sprintf("%s/%s",
+			utils.CurrentDirectory(),
+			constants.DotGitIgnore,
+		)
+		err = WriteDotGitignoreFile(file)
+		errorhandler.CheckNilErr(err)
+	}
+
 	<-done
 	fmt.Printf("\nDownloading %s", errorhandler.CompleteMessage)
 
