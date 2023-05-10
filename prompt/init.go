@@ -95,8 +95,8 @@ func (i InitInfo) StackInitialize() error {
 	errorhandler.CheckNilErr(err)
 
 	// Delete .git folder inside the cloned repo.
-	err = s.DeleteDotGitFolder()
-	errorhandler.CheckNilErr(err)
+	// err = s.DeleteDotGitFolder()
+	// errorhandler.CheckNilErr(err)
 
 	// stackInfo gives the information about the stacks which is present in the root.
 	s.Environment = constants.Environment

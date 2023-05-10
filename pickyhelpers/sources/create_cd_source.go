@@ -23,7 +23,7 @@ on:
       - %s
       - qa
       - %s
-    // paths: "%s/**"
+    # paths: "%s/**"
   workflow_dispatch:
 
 jobs:
@@ -277,7 +277,7 @@ on:
       - master
       - develop
       - qa
-    // paths: "%s/**"
+    # paths: "%s/**"
 
 jobs:
   deploy:

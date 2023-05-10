@@ -237,3 +237,12 @@ const (
 	AwsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
 	AwsEcrRepository   = "AWS_ECR_REPOSITORY"
 )
+
+// Port numbers for infra setup
+const (
+	WebPortNumber      = 3000
+	BackendPortNumber  = 9000
+	PostgresPortNumber = 5432
+	MysqlPortNumber    = 3306
+	RedisPortNumber    = 6379
+)

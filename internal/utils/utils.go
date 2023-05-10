@@ -137,20 +137,13 @@ func CreateGithubWorkflowDir() {
 	}
 }
 
-var (
-	WebPortNumber      = 3000
-	BackendPortNumber  = 9000
-	PostgresPortNumber = 5432
-	MysqlPortNumber    = 3306
-)
-
 // ResetPortNumbers resets the port numbers to default.
-func ResetPortNumbers() {
-	WebPortNumber = 3000
-	BackendPortNumber = 9000
-	PostgresPortNumber = 5432
-	MysqlPortNumber = 3306
-}
+// func ResetPortNumbers() {
+// 	constants.WebPortNumber = 3000
+// 	constants.BackendPortNumber = 9000
+// 	constants.PostgresPortNumber = 5432
+// 	constants.MysqlPortNumber = 3306
+// }
 
 func EndsWith(inputString, endString string) bool {
 	if len(inputString) < len(endString) {
@@ -438,4 +431,40 @@ func GetOutputsBackendObject(environment, stackDir string) TaskDefinitionDetails
 		}
 	}
 	return TaskDefinitionDetails{}
+}
+
+func GetPortNumber(defaultPN int) int {
+	_, _, stackDirs := GetExistingStacksDatabasesAndDirectories()
+	var backendServices []string
+	for _, dir := range stackDirs {
+		service := FindService(dir)
+		if service == constants.Backend {
+			backendServices = append(backendServices, service)
+		}
+	}
+	currentPN := defaultPN + len(backendServices) - 1
+	return currentPN
+}
+
+func GetDatabasePortNumber(driver string) int {
+	_, _, stackDirs := GetExistingStacksDatabasesAndDirectories()
+	var postgresStacks, mysqlStacks []string
+	for _, dir := range stackDirs {
+		service := FindService(dir)
+		if service == constants.Backend {
+			_, database := FindStackAndDatabase(dir)
+			if database == constants.PostgreSQL {
+				postgresStacks = append(postgresStacks, dir)
+			} else if database == constants.MySQL {
+				mysqlStacks = append(mysqlStacks, dir)
+			}
+		}
+	}
+	var currentPortNumber int
+	if driver == constants.PostgreSQL {
+		currentPortNumber = constants.PostgresPortNumber + len(postgresStacks) - 1
+	} else if driver == constants.MySQL {
+		currentPortNumber = constants.MysqlPortNumber + len(mysqlStacks) - 1
+	}
+	return currentPortNumber
 }

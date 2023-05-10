@@ -149,20 +149,23 @@ func BackendStackSource(database, dirName, environment string) string {
 	camelCaseDirName := strcase.ToCamel(dirName)
 	var (
 		dbEngineVersion string
-		dbPortNumber    string
+		dbPortNumber    int
 		dbEngine        string
 		dbUri           string
 		dbHost          string
 	)
+	backendPortNumber := utils.GetPortNumber(constants.BackendPortNumber)
+	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
+
 	if database == constants.PostgreSQL {
 		dbEngineVersion = "PostgresEngineVersion"
-		dbPortNumber = "5432"
+		dbPortNumber = utils.GetDatabasePortNumber(constants.PostgreSQL)
 		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
 		dbUri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
-		dbPortNumber = "3306"
+		dbPortNumber = utils.GetDatabasePortNumber(constants.MySQL)
 		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_31,\n\t\t\t})"
 		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
@@ -251,7 +254,7 @@ export function %s({ stack }) {
 
 	databaseSecurityGroup.addIngressRule(
 		ecsSG,
-		ec2.Port.tcp(%s),
+		ec2.Port.tcp(%d),
 		"Permit the database to accept requests from the fargate service"
 	);
 
@@ -322,7 +325,7 @@ export function %s({ stack }) {
 
 	redisSecurityGroup.addIngressRule(
 		ecsSG,
-		ec2.Port.tcp(6379),
+		ec2.Port.tcp(%d),
 		"Permit the redis cluster to accept requests from the fargate service"
 	);
 
@@ -450,14 +453,14 @@ export function %s({ stack }) {
 			DB_URI: dbURI,
 			%s,
 			REDIS_HOST: redisCache.attrRedisEndpointAddress,
-			REDIS_PORT: "6379",
+			REDIS_PORT: "%d",
 		},
 		logging: ecs.LogDriver.awsLogs({
 			streamPrefix: %s${clientName}-log-group-${environment}%s,
 		}),
 	});
 
-	container.addPortMappings({ containerPort: 9000 });
+	container.addPortMappings({ containerPort: %d });
 
 	const service = new ecs.FargateService(
 		stack,
@@ -555,13 +558,14 @@ export function %s({ stack }) {
 		singleQuote, singleQuote, singleQuote, singleQuote, dbPortNumber, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, dbEngine, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, redisPortNumber, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, dbUri, dirName, singleQuote, singleQuote, environment, dbHost,
-		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
+		redisPortNumber,
+		singleQuote, singleQuote, backendPortNumber, singleQuote, singleQuote, singleQuote, singleQuote,
 	)
 
 	return source
@@ -580,6 +584,7 @@ func EnvSource(environment, database string, backendObj utils.BackendOutputKeys)
 		dbHost = "MYSQL_HOST"
 		dbName = "MYSQL_DATABASE"
 	}
+	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
 
 	source := fmt.Sprintf(`NAME=Node Template
 NODE_ENV=%s
@@ -589,7 +594,7 @@ PORT=9000
 %s=%s
 %s=%s
 %s=%s
-%s=%s
+%s=%d
 `,
 		environment,
 		environment,
@@ -602,7 +607,7 @@ PORT=9000
 		"REDIS_HOST",
 		backendObj.RedisHost,
 		"REDIS_PORT",
-		"6379",
+		redisPortNumber,
 	)
 	return source
 }
