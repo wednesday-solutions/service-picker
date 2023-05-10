@@ -92,7 +92,7 @@ func UseDatabase() string {
 }
 
 func UseDirectory() string {
-	return `provide a directory prefix name (suffix will be added.)
+	return `provide a directory prefix name (suffix will be added)
   Eg: example-react-js-web | example-node-hapi-pg`
 }
 
@@ -142,7 +142,7 @@ func GetDatabase(db string) string {
 }
 
 func UseInfraStacks() string {
-	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	_, _, directories := GetExistingStacksDatabasesAndDirectories()
 	var usageString string
 	if len(directories) == 0 {
 		usageString = "Stacks not exist. Existing stacks see here.\n"
@@ -155,8 +155,8 @@ func UseInfraStacks() string {
 	return usageString
 }
 
-func ExistingStacks() []string {
-	_, _, directories := ExistingStacksDatabasesAndDirectories()
+func GetExistingStacks() []string {
+	_, _, directories := GetExistingStacksDatabasesAndDirectories()
 	return directories
 }
 

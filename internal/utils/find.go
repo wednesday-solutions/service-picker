@@ -61,9 +61,9 @@ func FindStackAndDatabase(dirName string) (string, string) {
 	return stack, database
 }
 
-// ExistingStacksDatabasesAndDirectories return existing stacks details.
+// GetExistingStacksDatabasesAndDirectories return existing stacks details.
 // Stack details contain stack name, database, and the directory name.
-func ExistingStacksDatabasesAndDirectories() ([]string, []string, []string) {
+func GetExistingStacksDatabasesAndDirectories() ([]string, []string, []string) {
 	var stacks, databases, dirNames []string
 	var stack, database string
 	directories, err := ReadAllContents(CurrentDirectory())
@@ -108,7 +108,7 @@ func FindService(dirName string) string {
 func FindStackDirectoriesByConfigStacks(configStacks []string) []string {
 	var stacks []string
 
-	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	_, _, directories := GetExistingStacksDatabasesAndDirectories()
 	camelCaseDirectories := ConvertToCamelCase(directories)
 
 	for _, configStack := range configStacks {
@@ -126,7 +126,7 @@ func FindStackDirectoriesByConfigStacks(configStacks []string) []string {
 func IsBackendWebAndMobileExist() (bool, bool, bool) {
 	var service string
 	backendExist, webExist, mobileExist := false, false, false
-	_, _, stackDirectories := ExistingStacksDatabasesAndDirectories()
+	_, _, stackDirectories := GetExistingStacksDatabasesAndDirectories()
 	for _, stackDir := range stackDirectories {
 		service = FindService(stackDir)
 		if service == constants.Web {
@@ -143,7 +143,7 @@ func IsBackendWebAndMobileExist() (bool, bool, bool) {
 func FindExistingGraphqlBackendAndWebStacks() ([]string, []string) {
 	var backendGraphqlStacks, webGraphqlStacks []string
 	var stack, service string
-	_, _, stackDirectories := ExistingStacksDatabasesAndDirectories()
+	_, _, stackDirectories := GetExistingStacksDatabasesAndDirectories()
 	for _, stackDir := range stackDirectories {
 		service = FindService(stackDir)
 		if service == constants.Backend {

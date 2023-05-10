@@ -219,7 +219,7 @@ func CheckStacksExist(stacks []string) error {
 	if len(stacks) == 0 {
 		return fmt.Errorf("No stacks exist.\n")
 	}
-	_, _, directories := ExistingStacksDatabasesAndDirectories()
+	_, _, directories := GetExistingStacksDatabasesAndDirectories()
 	for _, stack := range stacks {
 		for _, dir := range directories {
 			if stack == dir {

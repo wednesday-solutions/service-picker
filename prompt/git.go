@@ -46,10 +46,18 @@ func GitInit() error {
 	errorhandler.CheckNilErr(err)
 
 	source := constants.NodeModules
-	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
+	_, _, directories := utils.GetExistingStacksDatabasesAndDirectories()
 	for _, dir := range directories {
 		source = fmt.Sprintf("%s\n%s/%s", source, dir, constants.NodeModules)
 	}
+	source = fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s\n",
+		source,
+		constants.DotSst,
+		constants.OutputsJson,
+		"cdk.context.json",
+		"build",
+		"out",
+	)
 	err = utils.WriteToFile(file, source)
 	return err
 }

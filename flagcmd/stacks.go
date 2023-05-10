@@ -41,7 +41,7 @@ func (f StackFlag) FlagStacks() string {
 		}
 	}
 	if f.E {
-		stacks = utils.ExistingStacks()
+		stacks = utils.GetExistingStacks()
 		userOutput = utils.ConvertStacksIntoString(stacks)
 		userOutput = fmt.Sprintf("\nAll existing stacks: %s", userOutput)
 		if f.B || f.M || f.W {

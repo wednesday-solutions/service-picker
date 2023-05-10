@@ -74,7 +74,7 @@ func PromptSelectExistingStacks() []string {
 	var p PromptInput
 	p.Label = "Select available stacks"
 	p.GoBack = PromptHome
-	_, _, directories := utils.ExistingStacksDatabasesAndDirectories()
+	_, _, directories := utils.GetExistingStacksDatabasesAndDirectories()
 	p.Items = directories
 	if len(directories) > 1 {
 		p.Items = append(p.Items, "All")

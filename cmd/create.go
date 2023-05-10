@@ -97,7 +97,7 @@ func init() {
 		&platform, constants.Platform, "p", constants.Github, utils.UsePlatform(),
 	)
 	CreateCmd.Flags().StringSliceVarP(
-		&stacks, constants.Stacks, "t", utils.ExistingStacks(), utils.UseInfraStacks(),
+		&stacks, constants.Stacks, "t", utils.GetExistingStacks(), utils.UseInfraStacks(),
 	)
 	CreateCmd.Flags().StringVarP(
 		&flagEnvironment, constants.Environment, "e", constants.Development, utils.UseEnvironment(),
