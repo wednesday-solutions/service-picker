@@ -163,7 +163,7 @@ func BackendStackSource(database, dirName, environment string) string {
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
 		dbPortNumber = "3306"
-		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_23,\n\t\t\t})"
+		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_31,\n\t\t\t})"
 		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
 	}
@@ -437,7 +437,7 @@ export function %s({ stack }) {
 		exclude: ["node_modules", ".git"],
 		platform: Platform.LINUX_AMD64,
 		buildArgs: {
-			ENVIRONMENT_NAME: "%s",
+			ENVIRONMENT_NAME: environment,
 		},
 	});
 
@@ -445,11 +445,12 @@ export function %s({ stack }) {
 		image,
 		memoryLimitMiB: 1024,
 		environment: {
-			BUILD_NAME: "%s",
-			ENVIRONMENT_NAME: "%s",
+			BUILD_NAME: environment,
+			// ENVIRONMENT_NAME: "%s",
 			DB_URI: dbURI,
 			%s,
 			REDIS_HOST: redisCache.attrRedisEndpointAddress,
+			REDIS_PORT: "6379",
 		},
 		logging: ecs.LogDriver.awsLogs({
 			streamPrefix: %s${clientName}-log-group-${environment}%s,
@@ -559,9 +560,8 @@ export function %s({ stack }) {
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, dbUri, dirName, environment, singleQuote, singleQuote, shortEnvironment,
-		environment, dbHost, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote,
+		singleQuote, dbUri, dirName, singleQuote, singleQuote, environment, dbHost,
+		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 	)
 
 	return source
@@ -570,8 +570,7 @@ export function %s({ stack }) {
 // EnvSource return the source string with respect to the given environment.
 func EnvSource(environment, database string, backendObj utils.BackendOutputKeys) string {
 
-	var dbHost, dbUser, dbName, redisHost string
-	redisHost = "REDIS_HOST"
+	var dbHost, dbUser, dbName string
 	if database == constants.PostgreSQL {
 		dbUser = "POSTGRES_USER"
 		dbHost = "POSTGRES_HOST"
@@ -579,13 +578,14 @@ func EnvSource(environment, database string, backendObj utils.BackendOutputKeys)
 	} else if database == constants.MySQL {
 		dbUser = "MYSQL_USER"
 		dbHost = "MYSQL_HOST"
-		dbName = "MYSQL_DB"
+		dbName = "MYSQL_DATABASE"
 	}
 
 	source := fmt.Sprintf(`NAME=Node Template
 NODE_ENV=%s
 ENVIRONMENT_NAME=%s
 PORT=9000
+%s=%s
 %s=%s
 %s=%s
 %s=%s
@@ -599,10 +599,11 @@ PORT=9000
 		backendObj.DatabaseHost,
 		dbName,
 		backendObj.DatabaseName,
-		redisHost,
+		"REDIS_HOST",
 		backendObj.RedisHost,
+		"REDIS_PORT",
+		"6379",
 	)
-
 	return source
 }
 
