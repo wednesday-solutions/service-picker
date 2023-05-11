@@ -33,7 +33,7 @@ func PortConnection(stack string) string {
 	webPortNumber := utils.GetPortNumber(constants.WebPortNumber)
 	postgresPortNumber := utils.GetDatabasePortNumber(constants.PostgreSQL)
 	mysqlPortNumber := utils.GetDatabasePortNumber(constants.MySQL)
-	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
+	redisPortNumber := constants.RedisPortNumber
 	switch stack {
 	case constants.PostgreSQL:
 		portConnectionStr = fmt.Sprintf("%d:%d", postgresPortNumber, constants.PostgresPortNumber)

@@ -78,13 +78,13 @@ func GetStackDetails(service string) []stackDetails {
 			Type:      "GraphQL API",
 			Databases: fmt.Sprintf("%s & %s", constants.PostgreSQL, constants.MySQL),
 		}
-		nodeExpress := stackDetails{
-			Name:      constants.NodeExpressTemplate,
-			Language:  "JavaScript",
-			Framework: "Node JS & Express",
-			Type:      "REST API",
-			Databases: constants.MongoDB,
-		}
+		// nodeExpress := stackDetails{
+		// 	Name:      constants.NodeExpressTemplate,
+		// 	Language:  "JavaScript",
+		// 	Framework: "Node JS & Express",
+		// 	Type:      "REST API",
+		// 	Databases: constants.MongoDB,
+		// }
 		golangGraphql := stackDetails{
 			Name:      constants.GolangEchoTemplate,
 			Language:  "Golang",
@@ -96,13 +96,13 @@ func GetStackDetails(service string) []stackDetails {
 		if mobileStackExist {
 			stacksDetails = []stackDetails{
 				nodeHapi,
-				nodeExpress,
+				// nodeExpress,
 			}
 		} else {
 			stacksDetails = []stackDetails{
 				nodeHapi,
 				nodeGraphql,
-				nodeExpress,
+				// nodeExpress,
 				golangGraphql,
 			}
 		}

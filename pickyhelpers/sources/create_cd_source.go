@@ -276,6 +276,7 @@ on:
       - develop
       - qa
     # paths: "%s/**"
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -330,7 +331,7 @@ jobs:
         with:
           args: --follow-symlinks --delete
         env:
-          AWS_S3_BUCKET: %s-${{ steps.vars.outputs.short_ref }}
+          AWS_S3_BUCKET: %s-${{ steps.environment.outputs.short_env }}
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2.4
