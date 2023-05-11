@@ -87,8 +87,9 @@ EXPOSE 3000`
 				constants.DockerFile,
 			)
 			fileFound, _ = utils.IsExists(path)
+			backendPortNumber := utils.FetchExistingPortNumber(s.DirName, constants.BackendPort)
 			if fileFound {
-				source = `FROM node:16
+				source = fmt.Sprintf(`FROM node:16
 ARG ENVIRONMENT_NAME
 ARG BUILD_NAME
 RUN mkdir -p /app-build
@@ -111,7 +112,7 @@ ADD . /
 COPY --from=0 /app-build/dist ./dist
 
 CMD ["sh", "./migrate-and-run.sh"]
-EXPOSE 9000`
+EXPOSE %s`, backendPortNumber)
 
 				err = hbs.ParseAndWriteToFile(source, path, s.StackInfo)
 				errorhandler.CheckNilErr(err)

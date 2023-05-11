@@ -453,7 +453,7 @@ export function %s({ stack }) {
 		%s${clientName}-container-${environment}%s, 
 		{
 			image,
-			cpu:  512,
+			cpu: 512,
 			memoryLimitMiB: 1024,
 			environment: {
 				BUILD_NAME: environment,
