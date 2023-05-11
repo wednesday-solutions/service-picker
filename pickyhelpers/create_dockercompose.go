@@ -38,17 +38,21 @@ func CreateDockerComposeFile(stackInfo map[string]interface{}) error {
 		}
 	}
 
+	var backendPortNumber string
+	var dbPortNumber string
 	// Don't make any changes in the below source string.
 	source := `version: '3'
 services:`
 
 	for i, d := range backendPgDirectories {
+		backendPortNumber = utils.FetchExistingPortNumber(d, constants.BackendPort)
+		dbPortNumber = utils.FetchExistingPortNumber(d, constants.PostgresPort)
 		source = fmt.Sprintf(`%s
   # Setup {{PostgreSQL}}
   %s_db:
     image: '{{dbVersion PostgreSQL}}' 
     ports:
-      - {{portConnection PostgreSQL}} 
+      - %s:%d
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
       - ./%s/.env.docker
@@ -73,22 +77,28 @@ services:`
       args:
         ENVIRONMENT_NAME: docker
     ports:
-      - {{portConnection backend}}
+      - %s:%d
     env_file:
       - ./%s/.env.docker
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
-`, source, backendPgSnakeCased[i], d, d, d, d, d, d)
+`,
+			source, backendPgSnakeCased[i], dbPortNumber,
+			constants.PostgresPortNumber, d, d, d, d, d,
+			backendPortNumber, constants.BackendPortNumber, d,
+		)
 	}
 
 	for i, d := range backendMysqlDirectories {
+		backendPortNumber = utils.FetchExistingPortNumber(d, constants.BackendPort)
+		dbPortNumber = utils.FetchExistingPortNumber(d, constants.MysqlPort)
 		source = fmt.Sprintf(`%s
   # Setup {{MySQL}}
   %s_db:
     image: '{{dbVersion MySQL}}' 
     ports:
-      - {{portConnection MySQL}} 
+      - %s:%d
     restart: always # This will make sure that the container comes up post unexpected shutdowns
     env_file:
       - ./%s/.env.docker
@@ -112,13 +122,17 @@ services:`
       args:
         ENVIRONMENT_NAME: docker
     ports:
-      - {{portConnection backend}}
+      - %s:%d
     env_file:
       - ./%s/.env.docker
     environment:
       ENVIRONMENT_NAME: docker
 {{dependsOnFieldOfGo stack}}
-`, source, backendMysqlSnakeCased[i], d, d, d, d, d, d)
+`,
+			source, backendMysqlSnakeCased[i], dbPortNumber,
+			constants.MysqlPortNumber, d, d, d, d, d,
+			backendPortNumber, constants.BackendPortNumber, d,
+		)
 	}
 
 	source = fmt.Sprintf(`%s
