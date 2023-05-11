@@ -315,7 +315,7 @@ func ParseWebOutputsKey(key string, value interface{}) WebOutputKeys {
 	return webObj
 }
 
-func WebOutputsSource(webObj WebOutputKeys, env string) string {
+func WebOutputsSource(webObj WebOutputKeys, key string) string {
 	source := fmt.Sprintf(`{
 	"%s": {
 		"siteUrl": "%s",
@@ -324,7 +324,7 @@ func WebOutputsSource(webObj WebOutputKeys, env string) string {
 	}
 }
 `,
-		env,
+		key,
 		webObj.SiteUrl,
 		webObj.BucketName,
 		webObj.DistributionId,
@@ -332,7 +332,7 @@ func WebOutputsSource(webObj WebOutputKeys, env string) string {
 	return source
 }
 
-func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
+func BackendOutputsSource(backendObj BackendOutputKeys, key string) string {
 	source := fmt.Sprintf(`{
 	"%s": {
     "image": "%s",
@@ -361,7 +361,7 @@ func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
 	}
 }
 `,
-		env,
+		key,
 		backendObj.Image,
 		backendObj.Family,
 		backendObj.TaskRole,
@@ -489,4 +489,50 @@ func FetchExistingPortNumber(stackDir, portName string) string {
 		portNumber = strconv.Itoa(constants.RedisPortNumber)
 	}
 	return portNumber
+}
+
+func CreateJsonFile() error {
+	data := ReadJsonDataInSstOutputs()
+	if data == nil {
+		return nil
+	}
+	jsonData, ok := data.(map[string]interface{})
+	if !ok {
+		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid"))
+	}
+	_, _, directories := GetExistingStacksDatabasesAndDirectories()
+	for _, stackDir := range directories {
+		service := FindService(stackDir)
+
+		for key, value := range jsonData {
+			outputsFile := fmt.Sprintf("%s/%s-%s", CurrentDirectory(), key, constants.OutputsJson)
+			status, _ := IsExists(outputsFile)
+			if !status {
+				err := CreateFile(outputsFile)
+				errorhandler.CheckNilErr(err)
+			}
+			var source string
+			if EndsWith(key, "Pg") || EndsWith(key, "Mysql") {
+				if service == constants.Backend {
+					backendObj := ParseBackendOutputsKey(key, value)
+					// source = BackendOutputsSource(backendObj, key)
+
+					for key, value := range backendObj {
+						source = fmt.Sprintf(`\t"%s": "%s"`)
+					}
+
+					err := WriteToFile(outputsFile, fmt.Sprintf("%+v\n", backendObj))
+					errorhandler.CheckNilErr(err)
+				}
+			} else if EndsWith(key, "Web") {
+				if service == constants.Web {
+					webObj := ParseWebOutputsKey(key, value)
+					// source = WebOutputsSource(webObj, key)
+					err := WriteToFile(outputsFile, fmt.Sprintf("%+v\n", webObj))
+					errorhandler.CheckNilErr(err)
+				}
+			}
+		}
+	}
+	return nil
 }
