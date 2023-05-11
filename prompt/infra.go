@@ -122,9 +122,6 @@ func CreateInfra(directories []string, cloudProvider string, environment string)
 		err = pickyhelpers.CreateSstConfigFile(s.StackInfo, directories)
 		errorhandler.CheckNilErr(err)
 
-		// Reset all port numbers to their default value.
-		// utils.ResetPortNumbers()
-
 		fmt.Printf("\n%s %s", "Generating", errorhandler.CompleteMessage)
 	default:
 		fmt.Printf("\nSelected stack is invalid.\n")
