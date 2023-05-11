@@ -44,6 +44,14 @@ func (s StackDetails) ConvertTemplateDatabase() error {
 		err = ConvertQueries(s.Stack, s.DirName)
 		errorhandler.CheckNilErr(err)
 
+		// Convert testDBConfig
+		err = ConvertDBConfig(s.Stack, s.DirName)
+		errorhandler.CheckNilErr(err)
+
+		// Convert dbTests
+		err = ConvertDBTests(s.Stack, s.DirName)
+		errorhandler.CheckNilErr(err)
+
 		// Update docker-compose file
 		err = UpdateDockerCompose(s.Stack, s.DirName, s.StackInfo)
 		errorhandler.CheckNilErr(err)
