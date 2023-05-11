@@ -33,12 +33,14 @@ func (i *InitInfo) PromptSelectStack() {
 		i.PromptSelectStackDatabase()
 	}
 	if DisplayMultipleStackWarningMessage(i.Service) {
+		// It will redirect to home if the selected service already exists.
 		PromptHome()
 	}
 	i.DirName = i.PromptGetDirectoryName()
 	i.PromptSelectInit()
 }
 
+// DisplayMultipleStackWarningMessage prints message if the selected service is already exists.
 func DisplayMultipleStackWarningMessage(service string) bool {
 	var serviceExist bool
 	backendExist, webExist, _ := utils.IsBackendWebAndMobileExist()
