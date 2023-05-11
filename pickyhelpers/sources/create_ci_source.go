@@ -7,10 +7,6 @@ import (
 )
 
 func CISource(stack, stackDir, environment string) string {
-	masterBranch, developBranch := "master", "develop"
-	if stack == constants.NodeHapiTemplate {
-		masterBranch, developBranch = "main", "dev"
-	}
 	var envName string
 	if environment == constants.Development ||
 		environment == constants.Develop ||
@@ -25,9 +21,9 @@ func CISource(stack, stackDir, environment string) string {
 on:
   push:
     branches:
-      - %s
-      - %s
+      - develop
       - qa
+      - master
     paths: "%s/**"
 
   pull_request:
@@ -68,7 +64,7 @@ jobs:
       - name: Test
         run: yarn run test
 `,
-		stackDir, masterBranch, developBranch, stackDir, stackDir, stackDir,
+		stackDir, stackDir, stackDir, stackDir,
 		stackDir, envName,
 	)
 	return source

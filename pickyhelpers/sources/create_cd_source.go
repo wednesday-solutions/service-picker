@@ -8,10 +8,7 @@ import (
 )
 
 func CDBackendSource(stack, stackDir, environment string) string {
-	masterBranch, developBranch := "master", "develop"
-	if stack == constants.NodeHapiTemplate {
-		masterBranch, developBranch = "main", "dev"
-	}
+
 	userInput := utils.FindUserInputStackName(stackDir)
 	source := fmt.Sprintf(`# CD pipeline for %s for %s branch
 
@@ -20,9 +17,9 @@ name: CD %s - %s
 on:
   push:
     branches:
-      - %s
+      - develop
       - qa
-      - %s
+      - master
     # paths: "%s/**"
   workflow_dispatch:
 
@@ -53,7 +50,7 @@ jobs:
 
       - name: Set env.ENV_NAME and env.BUILD_NAME
         run: |
-          if [[ ${{ steps.vars.outputs.short_ref }} == %s ]]; then
+          if [[ ${{ steps.vars.outputs.short_ref }} == master ]]; then
               echo "BUILD_NAME=prod" >> "$GITHUB_ENV"
           else
               echo "ENV_NAME=.development" >> "$GITHUB_ENV"
@@ -107,8 +104,8 @@ jobs:
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 `,
-		stackDir, environment, stackDir, environment, developBranch, masterBranch, stackDir,
-		stackDir, masterBranch, userInput, stackDir, userInput, userInput, userInput, userInput,
+		stackDir, environment, stackDir, environment, stackDir, stackDir,
+		userInput, stackDir, userInput, userInput, userInput, userInput,
 	)
 	return source
 }

@@ -315,7 +315,7 @@ func ParseWebOutputsKey(key string, value interface{}) WebOutputKeys {
 	return webObj
 }
 
-func WebOutputsSource(webObj WebOutputKeys, env string) string {
+func WebOutputsSource(webObj WebOutputKeys, key string) string {
 	source := fmt.Sprintf(`{
 	"%s": {
 		"siteUrl": "%s",
@@ -324,7 +324,7 @@ func WebOutputsSource(webObj WebOutputKeys, env string) string {
 	}
 }
 `,
-		env,
+		key,
 		webObj.SiteUrl,
 		webObj.BucketName,
 		webObj.DistributionId,
@@ -332,7 +332,7 @@ func WebOutputsSource(webObj WebOutputKeys, env string) string {
 	return source
 }
 
-func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
+func BackendOutputsSource(backendObj BackendOutputKeys, key string) string {
 	source := fmt.Sprintf(`{
 	"%s": {
     "image": "%s",
@@ -361,7 +361,7 @@ func BackendOutputsSource(backendObj BackendOutputKeys, env string) string {
 	}
 }
 `,
-		env,
+		key,
 		backendObj.Image,
 		backendObj.Family,
 		backendObj.TaskRole,
