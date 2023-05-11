@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/iancoleman/strcase"
@@ -136,14 +137,6 @@ func CreateGithubWorkflowDir() {
 		errorhandler.CheckNilErr(err)
 	}
 }
-
-// ResetPortNumbers resets the port numbers to default.
-// func ResetPortNumbers() {
-// 	constants.WebPortNumber = 3000
-// 	constants.BackendPortNumber = 9000
-// 	constants.PostgresPortNumber = 5432
-// 	constants.MysqlPortNumber = 3306
-// }
 
 func EndsWith(inputString, endString string) bool {
 	if len(inputString) < len(endString) {
@@ -467,4 +460,33 @@ func GetDatabasePortNumber(driver string) int {
 		currentPortNumber = constants.MysqlPortNumber + len(mysqlStacks) - 1
 	}
 	return currentPortNumber
+}
+
+func FetchExistingPortNumber(stackDir, portName string) string {
+	envFile := fmt.Sprintf("%s/%s/%s",
+		CurrentDirectory(),
+		stackDir,
+		constants.DockerEnvFile,
+	)
+	var portNumber string
+	content, err := os.ReadFile(envFile)
+	errorhandler.CheckNilErr(err)
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		if StartsWith(line, portName) {
+			portLine := strings.Split(line, "=")
+			portNumber = portLine[len(portLine)-1]
+			return portNumber
+		}
+	}
+	if portName == constants.BackendPort {
+		portNumber = strconv.Itoa(constants.BackendPortNumber)
+	} else if portName == constants.PostgresPort {
+		portNumber = strconv.Itoa(constants.PostgresPortNumber)
+	} else if portName == constants.MysqlPort {
+		portNumber = strconv.Itoa(constants.MysqlPortNumber)
+	} else if portName == constants.RedisPort {
+		portNumber = strconv.Itoa(constants.RedisPortNumber)
+	}
+	return portNumber
 }

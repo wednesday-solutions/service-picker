@@ -31,8 +31,8 @@ func PortConnection(stack string) string {
 	var portConnectionStr string
 	backendPortNumber := utils.GetPortNumber(constants.BackendPortNumber)
 	webPortNumber := utils.GetPortNumber(constants.WebPortNumber)
-	postgresPortNumber := utils.GetPortNumber(constants.PostgresPortNumber)
-	mysqlPortNumber := utils.GetPortNumber(constants.MysqlPortNumber)
+	postgresPortNumber := utils.GetDatabasePortNumber(constants.PostgreSQL)
+	mysqlPortNumber := utils.GetDatabasePortNumber(constants.MySQL)
 	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
 	switch stack {
 	case constants.PostgreSQL:
@@ -80,9 +80,9 @@ func AddDependencies(database string) string {
 func RunBuildEnvironment(stack string) string {
 	switch stack {
 	case constants.NodeExpressGraphqlTemplate:
-		return "build:$ENVIRONMENT_NAME"
+		return "build:$BUILD_NAME"
 	case constants.NodeHapiTemplate:
-		return "build:$ENVIRONMENT_NAME"
+		return "build:$BUILD_NAME"
 	default:
 		return ""
 	}

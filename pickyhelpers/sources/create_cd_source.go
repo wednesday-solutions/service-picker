@@ -51,15 +51,13 @@ jobs:
         id: vars
         run: echo ::set-output name=short_ref::${GITHUB_REF_NAME}
 
-      - name: Set environment name
-        id: environment
+      - name: Set env.ENV_NAME and env.BUILD_NAME
         run: |
           if [[ ${{ steps.vars.outputs.short_ref }} == %s ]]; then
-               echo ::set-output name=environment_name::prod
-          elif [[ ${{ steps.vars.outputs.short_ref }} == qa ]]; then
-               echo ::set-output name=environment_name::qa
+              echo "BUILD_NAME=prod" >> "$GITHUB_ENV"
           else
-               echo ::set-output name=environment_name::dev
+              echo "ENV_NAME=.development" >> "$GITHUB_ENV"
+              echo "BUILD_NAME=dev" >> "$GITHUB_ENV"
           fi
 
       # Configure AWS with credentials
@@ -84,7 +82,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           DOCKER_BUILDKIT: 1
         run: |
-          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg ENVIRONMENT_NAME=${{ steps.environment.outputs.environment_name }}
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg BUILD_NAME=${{ env.BUILD_NAME }} --build-arg ENVIRONMENT_NAME=${{ env.ENV_NAME }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # Create and configure Amazon ECS task definition
@@ -92,8 +90,8 @@ jobs:
         id: %s-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: %s/task-definition-${{ steps.vars.outputs.short_ref }}.json
-          container-name: %s-container-${{ steps.environment.outputs.environment_name }}
+          task-definition: %s/task-definition-${{ env.BUILD_NAME }}.json
+          container-name: %s-container-${{ env.BUILD_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
 
       # Deploy to Amazon ECS
@@ -101,8 +99,8 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.%s-container.outputs.task-definition }}
-          service: %s-service-${{ steps.environment.outputs.environment_name }}
-          cluster: %s-cluster-${{ steps.environment.outputs.environment_name }}
+          service: %s-service-${{ env.BUILD_NAME }}
+          cluster: %s-cluster-${{ env.BUILD_NAME }}
 
       # Logout of Amazon
       - name: Logout of Amazon ECR

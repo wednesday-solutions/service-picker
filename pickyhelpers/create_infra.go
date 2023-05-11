@@ -127,7 +127,7 @@ func UpdateEnvByEnvironment(dirName, environment string) error {
 
 	taskDefinition := utils.GetOutputsBackendObject(environment, dirName)
 
-	envSource := sources.EnvSource(environment, database, taskDefinition.BackendObj)
+	envSource := sources.EnvSource(dirName, environment, database, taskDefinition.BackendObj)
 	err := utils.WriteToFile(path, envSource)
 	errorhandler.CheckNilErr(err)
 

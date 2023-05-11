@@ -90,6 +90,7 @@ EXPOSE 3000`
 			if fileFound {
 				source = `FROM node:16
 ARG ENVIRONMENT_NAME
+ARG BUILD_NAME
 RUN mkdir -p /app-build
 ADD . /app-build
 WORKDIR /app-build
@@ -99,7 +100,7 @@ RUN yarn {{runBuildEnvironment stack}}
 
 FROM node:16-alpine
 ARG ENVIRONMENT_NAME
-ENV ENVIRONMENT_NAME $ENVIRONMENT_NAME
+ARG BUILD_NAME
 RUN mkdir -p /dist
 RUN apk add yarn
 RUN yarn global add {{globalAddDependencies database}}

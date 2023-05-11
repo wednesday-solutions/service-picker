@@ -127,13 +127,16 @@ export function %s({ stack }) {
 }
 
 func BackendStackSource(database, dirName, environment string) string {
-	var shortEnvironment string
+	var envFileEnvironment, shortEnvironment string
 	switch environment {
 	case constants.Development:
+		envFileEnvironment = fmt.Sprintf(".%s", constants.Development)
 		shortEnvironment = constants.Dev
 	case constants.QA:
+		envFileEnvironment = fmt.Sprintf(".%s", constants.QA)
 		shortEnvironment = constants.QA
 	case constants.Production:
+		envFileEnvironment = ""
 		shortEnvironment = constants.Prod
 	}
 	userInputStackName := utils.FindUserInputStackName(dirName)
@@ -145,27 +148,27 @@ func BackendStackSource(database, dirName, environment string) string {
 		"${environment}",
 		singleQuote,
 	)
-	dbUsername := "username"
+	dbUsername := constants.DBUsername
 	camelCaseDirName := strcase.ToCamel(dirName)
 	var (
 		dbEngineVersion string
-		dbPortNumber    int
+		dbPortNumber    string
 		dbEngine        string
 		dbUri           string
 		dbHost          string
 	)
-	backendPortNumber := utils.GetPortNumber(constants.BackendPortNumber)
-	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
+	backendPortNumber := utils.FetchExistingPortNumber(dirName, constants.BackendPort)
+	redisPortNumber := utils.FetchExistingPortNumber(dirName, constants.RedisPort)
 
 	if database == constants.PostgreSQL {
 		dbEngineVersion = "PostgresEngineVersion"
-		dbPortNumber = utils.GetDatabasePortNumber(constants.PostgreSQL)
+		dbPortNumber = utils.FetchExistingPortNumber(dirName, constants.PostgresPort)
 		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
 		dbUri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
-		dbPortNumber = utils.GetDatabasePortNumber(constants.MySQL)
+		dbPortNumber = utils.FetchExistingPortNumber(dirName, constants.MysqlPort)
 		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_31,\n\t\t\t})"
 		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
@@ -254,7 +257,7 @@ export function %s({ stack }) {
 
 	databaseSecurityGroup.addIngressRule(
 		ecsSG,
-		ec2.Port.tcp(%d),
+		ec2.Port.tcp(%s),
 		"Permit the database to accept requests from the fargate service"
 	);
 
@@ -325,7 +328,7 @@ export function %s({ stack }) {
 
 	redisSecurityGroup.addIngressRule(
 		ecsSG,
-		ec2.Port.tcp(%d),
+		ec2.Port.tcp(%s),
 		"Permit the redis cluster to accept requests from the fargate service"
 	);
 
@@ -440,27 +443,32 @@ export function %s({ stack }) {
 		exclude: ["node_modules", ".git"],
 		platform: Platform.LINUX_AMD64,
 		buildArgs: {
-			ENVIRONMENT_NAME: environment,
-		},
-	});
-
-	const container = taskDefinition.addContainer(%s${clientName}-container-${environment}%s, {
-		image,
-		memoryLimitMiB: 1024,
-		environment: {
+			ENVIRONMENT_NAME: "%s",
 			BUILD_NAME: environment,
-			// ENVIRONMENT_NAME: "%s",
-			DB_URI: dbURI,
-			%s,
-			REDIS_HOST: redisCache.attrRedisEndpointAddress,
-			REDIS_PORT: "%d",
 		},
-		logging: ecs.LogDriver.awsLogs({
-			streamPrefix: %s${clientName}-log-group-${environment}%s,
-		}),
 	});
 
-	container.addPortMappings({ containerPort: %d });
+	const container = taskDefinition.addContainer(
+		%s${clientName}-container-${environment}%s, 
+		{
+			image,
+			cpu:  512,
+			memoryLimitMiB: 1024,
+			environment: {
+				BUILD_NAME: environment,
+				// ENVIRONMENT_NAME: "%s",
+				DB_URI: dbURI,
+				%s,
+				REDIS_HOST: redisCache.attrRedisEndpointAddress,
+				REDIS_PORT: "%s",
+			},
+			logging: ecs.LogDriver.awsLogs({
+				streamPrefix: %s${clientName}-log-group-${environment}%s,
+			}),
+		}
+	);
+
+	container.addPortMappings({ containerPort: %s });
 
 	const service = new ecs.FargateService(
 		stack,
@@ -553,62 +561,70 @@ export function %s({ stack }) {
     value: databaseCredentialsSecret.secretArn,
   });
 }
-`, dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
+`,
+		dbEngineVersion, camelCaseDirName, userInputStackName, shortEnvironment,
 		dbName, dbUsername, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, dbPortNumber, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, dbEngine, singleQuote, singleQuote, singleQuote,
-		singleQuote, singleQuote, singleQuote, redisPortNumber, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, singleQuote, redisPortNumber, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
 		singleQuote, singleQuote, singleQuote, singleQuote, singleQuote, singleQuote,
-		singleQuote, dbUri, dirName, singleQuote, singleQuote, environment, dbHost,
-		redisPortNumber,
-		singleQuote, singleQuote, backendPortNumber, singleQuote, singleQuote, singleQuote, singleQuote,
+		singleQuote, singleQuote, dbUri, dirName, envFileEnvironment, singleQuote,
+		singleQuote, environment, dbHost, redisPortNumber, singleQuote, singleQuote,
+		backendPortNumber, singleQuote, singleQuote, singleQuote, singleQuote,
 	)
-
 	return source
 }
 
 // EnvSource return the source string with respect to the given environment.
-func EnvSource(environment, database string, backendObj utils.BackendOutputKeys) string {
+func EnvSource(dirName, environment, database string, backendObj utils.BackendOutputKeys) string {
 
 	var dbHost, dbUser, dbName string
 	if database == constants.PostgreSQL {
-		dbUser = "POSTGRES_USER"
-		dbHost = "POSTGRES_HOST"
-		dbName = "POSTGRES_DB"
+		dbUser = constants.PostgresUser
+		dbHost = constants.PostgresHost
+		dbName = constants.PostgresDB
 	} else if database == constants.MySQL {
-		dbUser = "MYSQL_USER"
-		dbHost = "MYSQL_HOST"
-		dbName = "MYSQL_DATABASE"
+		dbUser = constants.MysqlUser
+		dbHost = constants.MysqlHost
+		dbName = constants.MysqlDatabase
 	}
-	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
+	redisPortNumber := utils.FetchExistingPortNumber(dirName, constants.RedisPort)
+	backendPortNumber := utils.FetchExistingPortNumber(dirName, constants.BackendPort)
 
 	source := fmt.Sprintf(`NAME=Node Template
 NODE_ENV=%s
 ENVIRONMENT_NAME=%s
-PORT=9000
-%s=%s
-%s=%s
-%s=%s
-%s=%s
-%s=%d
+PORT=%s
 `,
 		environment,
 		environment,
-		dbUser,
-		"username",
-		dbHost,
-		backendObj.DatabaseHost,
-		dbName,
-		backendObj.DatabaseName,
-		"REDIS_HOST",
-		backendObj.RedisHost,
-		"REDIS_PORT",
-		redisPortNumber,
+		backendPortNumber,
 	)
+	if backendObj.DatabaseHost != "" && backendObj.DatabaseName != "" && backendObj.RedisHost != "" {
+		source = fmt.Sprintf(`%s
+%s=%s
+%s=%s
+%s=%s
+%s=%s
+%s=%s
+`,
+			source,
+			dbUser,
+			constants.DBUsername,
+			dbHost,
+			backendObj.DatabaseHost,
+			dbName,
+			backendObj.DatabaseName,
+			constants.RedisHost,
+			backendObj.RedisHost,
+			constants.RedisPort,
+			redisPortNumber,
+		)
+	}
 	return source
 }
 
