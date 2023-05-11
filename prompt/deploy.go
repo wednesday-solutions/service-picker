@@ -135,7 +135,7 @@ func PromptInstallDependenciesAndDeploy(configStacks []string, environment strin
 		err = pickyhelpers.ParseDeployOutputs()
 		errorhandler.CheckNilErr(err)
 
-		err = utils.CreateSstOutputsFile()
+		err = utils.CreateInfraOutputsJson(environment)
 		errorhandler.CheckNilErr(err)
 
 	} else {
@@ -166,7 +166,7 @@ func PromptRemoveDeploy() {
 
 func RemoveDeploy(environment string) error {
 	pkgManager := utils.GetPackageManagerOfUser()
-	environment = utils.GetEnvironment(environment)
+	environment = utils.GetShortEnvName(environment)
 
 	err := utils.PrintInfoMessage("Removing deployed infrastructure..")
 	errorhandler.CheckNilErr(err)

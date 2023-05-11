@@ -98,20 +98,6 @@ func GetPackageManagerOfUser() string {
 	return pkgManager
 }
 
-// GetEnvironment return short environment name for the given environment.
-func GetEnvironment(environment string) string {
-	switch environment {
-	case constants.Development:
-		return constants.Dev
-	case constants.QA:
-		return constants.QA
-	case constants.Production:
-		return constants.Prod
-	default:
-		return environment
-	}
-}
-
 // GetProjectName returns projectName
 func GetProjectName() string {
 	currentDir := CurrentDirectory()
@@ -168,7 +154,48 @@ func StartsWith(inputString, startString string) bool {
 	}
 }
 
-func ReadJsonDataInSstOutputs() interface{} {
+type LogDriverOptionsKeys struct {
+	AwsLogsGroup        string `json:"awsLogsGroup"`
+	AwsLogsStreamPrefix string `json:"awsLogsStreamPrefix"`
+	AwsLogsRegion       string `json:"awsLogsRegion"`
+}
+
+type WebOutputKeys struct {
+	DistributionId string `json:"distributionId"`
+	BucketName     string `json:"bucketName"`
+	SiteUrl        string `json:"siteUrl"`
+}
+
+type BackendOutputKeys struct {
+	TaskRole                     string `json:"taskRole"`
+	Image                        string `json:"image"`
+	ContainerName                string `json:"containerName"`
+	ContainerPort                string `json:"containerPort"`
+	ExecutionRole                string `json:"executionRole"`
+	TaskDefinition               string `json:"taskDefinition"`
+	LogDriver                    string `json:"logDriver"`
+	LogDriverOptions             LogDriverOptionsKeys
+	Family                       string `json:"family"`
+	AwsRegion                    string `json:"awsRegion"`
+	RedisHost                    string `json:"redisHost"`
+	SecretName                   string `json:"secretName"`
+	DatabaseHost                 string `json:"databaseHost"`
+	DatabaseName                 string `json:"databaseName"`
+	SecretArn                    string `json:"secretArn"`
+	LoadBalancerDns              string `json:"loadBalancerDns"`
+	ServiceName                  string `json:"serviceName"`
+	ClusterName                  string `json:"clusterName"`
+	ElasticContainerRegistryRepo string `json:"elasticContainerRegistryRepo"`
+}
+
+type TaskDefinitionDetails struct {
+	BackendObj  BackendOutputKeys
+	Environment string
+	EnvName     string
+	SecretName  string
+}
+
+func ReadJsonDataInSstOutputs() map[string]interface{} {
 	file := fmt.Sprintf(
 		"%s/%s/%s", CurrentDirectory(), constants.DotSst, constants.OutputsJson,
 	)
@@ -186,244 +213,81 @@ func ReadJsonDataInSstOutputs() interface{} {
 	err = json.Unmarshal(fileContent, &data)
 	errorhandler.CheckNilErr(err)
 
-	return data
-}
-
-type LogDriverOptionsKeys struct {
-	AwsLogsGroup        string
-	AwsLogsStreamPrefix string
-	AwsLogsRegion       string
-}
-
-type WebOutputKeys struct {
-	DistributionId string
-	BucketName     string
-	SiteUrl        string
-}
-
-type BackendOutputKeys struct {
-	TaskRole                     string
-	Image                        string
-	ContainerName                string
-	ContainerPort                string
-	ExecutionRole                string
-	TaskDefinition               string
-	LogDriver                    string
-	LogDriverOptions             LogDriverOptionsKeys
-	Family                       string
-	AwsRegion                    string
-	RedisHost                    string
-	SecretName                   string
-	DatabaseHost                 string
-	DatabaseName                 string
-	SecretArn                    string
-	LoadBalancerDns              string
-	ServiceName                  string
-	ClusterName                  string
-	ElasticContainerRegistryRepo string
-}
-
-func CreateSstOutputsFile() error {
-	data := ReadJsonDataInSstOutputs()
-	if data == nil {
-		return nil
+	if jsonData, ok := data.(map[string]interface{}); ok {
+		return jsonData
 	}
-	jsonData, ok := data.(map[string]interface{})
-	if !ok {
+	return nil
+}
+
+func GetOutputsBackendObject(environment, stackDir string) TaskDefinitionDetails {
+	camelCaseDir := strcase.ToCamel(stackDir)
+	jsonData := ReadJsonDataInSstOutputs()
+	if jsonData == nil {
+		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
+	}
+	var td TaskDefinitionDetails
+	td.Environment = environment
+	td.EnvName = GetShortEnvName(environment)
+	key := fmt.Sprintf("%s-web-app-%s", td.EnvName, camelCaseDir)
+
+	if value, ok := jsonData[key]; ok {
+
+		jsonOutput, err := json.Marshal(value)
+		errorhandler.CheckNilErr(err)
+
+		var backendObj BackendOutputKeys
+		err = json.Unmarshal(jsonOutput, &backendObj)
+		errorhandler.CheckNilErr(err)
+
+		td.BackendObj = backendObj
+		return td
+	}
+	return TaskDefinitionDetails{}
+}
+
+func CreateInfraOutputsJson(environment string) error {
+
+	jsonData := ReadJsonDataInSstOutputs()
+	if jsonData == nil {
 		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid"))
 	}
+	envName := GetShortEnvName(environment)
 	_, _, directories := GetExistingStacksDatabasesAndDirectories()
 	for _, stackDir := range directories {
-		service := FindService(stackDir)
+		camelCaseDir := strcase.ToCamel(stackDir)
 
-		for key, value := range jsonData {
-			outputsFile := fmt.Sprintf("%s/%s-%s", CurrentDirectory(), stackDir, constants.OutputsJson)
-			status, _ := IsExists(outputsFile)
+		key := fmt.Sprintf("%s-web-app-%s", envName, camelCaseDir)
+
+		if value, ok := jsonData[key]; ok {
+			outputFile := fmt.Sprintf("%s/%s-%s", CurrentDirectory(), stackDir, constants.OutputsJson)
+
+			status, _ := IsExists(outputFile)
 			if !status {
-				err := CreateFile(outputsFile)
+				err := CreateFile(outputFile)
 				errorhandler.CheckNilErr(err)
 			}
-			env, source := "", ""
-			if StartsWith(key, "dev") {
-				env = constants.Dev
-			} else if StartsWith(key, "prod") {
-				env = constants.Prod
-			}
-			if EndsWith(key, "Pg") || EndsWith(key, "Mysql") {
-				if service == constants.Backend {
-					backendObj := ParseBackendOutputsKey(key, value)
-					source = BackendOutputsSource(backendObj, env)
-				}
-			} else if EndsWith(key, "Web") {
-				if service == constants.Web {
-					webObj := ParseWebOutputsKey(key, value)
-					source = WebOutputsSource(webObj, env)
-				}
-			}
-			if source != "" {
-				err := WriteToFile(outputsFile, source)
-				errorhandler.CheckNilErr(err)
-			}
+
+			jsonOutput, err := json.MarshalIndent(value, "", "\t")
+			errorhandler.CheckNilErr(err)
+
+			err = WriteToFile(outputFile, string(jsonOutput))
+			errorhandler.CheckNilErr(err)
 		}
 	}
 	return nil
 }
 
-func ParseBackendOutputsKey(key string, value interface{}) BackendOutputKeys {
-	var backendObj BackendOutputKeys
-	backendJson, ok := value.(map[string]interface{})
-	if !ok {
-		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid"))
+// GetShortEnvName return short environment name for the given environment.
+func GetShortEnvName(environment string) string {
+	var shortEnv string
+	if environment == constants.Dev || environment == constants.Develop || environment == constants.Development {
+		shortEnv = constants.Dev
+	} else if environment == constants.QA {
+		shortEnv = constants.QA
+	} else if environment == constants.Prod || environment == constants.Production {
+		shortEnv = constants.Prod
 	}
-	backendObj.TaskRole, _ = backendJson["taskRole"].(string)
-	backendObj.Image, _ = backendJson["image"].(string)
-	backendObj.ContainerName, _ = backendJson["containerName"].(string)
-	backendObj.ContainerPort, _ = backendJson["containerPort"].(string)
-	backendObj.ExecutionRole, _ = backendJson["executionRole"].(string)
-	backendObj.TaskDefinition, _ = backendJson["taskDefinition"].(string)
-	backendObj.LogDriver, _ = backendJson["logDriver"].(string)
-	backendObj.Family, _ = backendJson["family"].(string)
-	backendObj.AwsRegion, _ = backendJson["awsRegion"].(string)
-	backendObj.RedisHost, _ = backendJson["redisHost"].(string)
-	backendObj.SecretArn, _ = backendJson["secretArn"].(string)
-	backendObj.DatabaseHost, _ = backendJson["databaseHost"].(string)
-	backendObj.DatabaseName, _ = backendJson["databaseName"].(string)
-	backendObj.SecretName, _ = backendJson["secretName"].(string)
-	backendObj.LoadBalancerDns, _ = backendJson["loadBalancerDns"].(string)
-	backendObj.ServiceName, _ = backendJson["serviceName"].(string)
-	backendObj.ClusterName, _ = backendJson["clusterName"].(string)
-	backendObj.ElasticContainerRegistryRepo, _ = backendJson["elasticContainerRegistryRepo"].(string)
-
-	logdriveroptions, _ := backendJson["logDriverOptions"].(map[string]interface{})
-	backendObj.LogDriverOptions.AwsLogsGroup, _ = logdriveroptions["awslogs-group"].(string)
-	backendObj.LogDriverOptions.AwsLogsStreamPrefix, _ = logdriveroptions["awslogs-stream-prefix"].(string)
-	backendObj.LogDriverOptions.AwsLogsRegion, _ = logdriveroptions["awslogs-region"].(string)
-
-	return backendObj
-}
-
-func ParseWebOutputsKey(key string, value interface{}) WebOutputKeys {
-	var webObj WebOutputKeys
-	webJson, ok := value.(map[string]interface{})
-	if !ok {
-		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid"))
-	}
-	webObj.DistributionId, _ = webJson["distributionId"].(string)
-	webObj.BucketName, _ = webJson["bucketName"].(string)
-	webObj.SiteUrl, _ = webJson["siteUrl"].(string)
-
-	return webObj
-}
-
-func WebOutputsSource(webObj WebOutputKeys, key string) string {
-	source := fmt.Sprintf(`{
-	"%s": {
-		"siteUrl": "%s",
-		"bucketName": "%s",
-		"distributionId": "%s"
-	}
-}
-`,
-		key,
-		webObj.SiteUrl,
-		webObj.BucketName,
-		webObj.DistributionId,
-	)
-	return source
-}
-
-func BackendOutputsSource(backendObj BackendOutputKeys, key string) string {
-	source := fmt.Sprintf(`{
-	"%s": {
-    "image": "%s",
-    "family": "%s",
-    "taskRole": "%s",
-    "executionRole": "%s",
-    "databaseName": "%s",
-    "databaseHost": "%s",
-		"redisHost": "%s",
-    "awsRegion": "%s",
-    "secretName": "%s",
-    "secretArn": "%s",
-    "loadBalancerDns": "%s",
-    "serviceName": "%s",
-    "containerPort": "%s",
-    "containerName": "%s",
-    "clusterName": "%s",
-    "taskDefinition": "%s",
-    "elasticContainerRegistryRepo": "%s",
-    "logDriver": "%s",
-		"logDriverOptions": {
-      "awslogs-group": "%s",
-      "awslogs-stream-prefix": "%s",
-      "awslogs-region": "%s"
-    }
-	}
-}
-`,
-		key,
-		backendObj.Image,
-		backendObj.Family,
-		backendObj.TaskRole,
-		backendObj.ExecutionRole,
-		backendObj.DatabaseName,
-		backendObj.DatabaseHost,
-		backendObj.RedisHost,
-		backendObj.AwsRegion,
-		backendObj.SecretName,
-		backendObj.SecretArn,
-		backendObj.LoadBalancerDns,
-		backendObj.ServiceName,
-		backendObj.ContainerPort,
-		backendObj.ContainerName,
-		backendObj.ClusterName,
-		backendObj.TaskDefinition,
-		backendObj.ElasticContainerRegistryRepo,
-		backendObj.LogDriver,
-		backendObj.LogDriverOptions.AwsLogsGroup,
-		backendObj.LogDriverOptions.AwsLogsStreamPrefix,
-		backendObj.LogDriverOptions.AwsLogsRegion,
-	)
-	return source
-}
-
-type TaskDefinitionDetails struct {
-	BackendObj  BackendOutputKeys
-	Environment string
-	EnvName     string
-	SecretName  string
-}
-
-func GetOutputsBackendObject(environment, stackDir string) TaskDefinitionDetails {
-	stackKey := strcase.ToCamel(stackDir)
-	data := ReadJsonDataInSstOutputs()
-	if data == nil {
-		return TaskDefinitionDetails{}
-	}
-	jsonData, ok := data.(map[string]interface{})
-	if !ok {
-		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
-	}
-	var taskDefinition TaskDefinitionDetails
-	for key, value := range jsonData {
-		if EndsWith(key, stackKey) {
-			if EndsWith(key, "Pg") {
-				taskDefinition.SecretName = "POSTGRES_PASSWORD"
-			} else if EndsWith(key, "Mysql") {
-				taskDefinition.SecretName = "MYSQL_PASSWORD"
-			}
-			if environment == constants.Develop {
-				taskDefinition.EnvName = constants.Dev
-			} else if environment == constants.Production {
-				taskDefinition.EnvName = constants.Prod
-			}
-			taskDefinition.BackendObj = ParseBackendOutputsKey(key, value)
-			taskDefinition.Environment = environment
-
-			return taskDefinition
-		}
-	}
-	return TaskDefinitionDetails{}
+	return shortEnv
 }
 
 func GetPortNumber(defaultPN int) int {

@@ -20,14 +20,14 @@ func BuildSST(pkgManager string) error {
 }
 
 func DeploySST(pkgManager, environment string) error {
-	environment = utils.GetEnvironment(environment)
+	environment = utils.GetShortEnvName(environment)
 	arg := fmt.Sprintf("deploy:%s", environment)
 	err := utils.RunCommandWithLogs("", pkgManager, arg)
 	return err
 }
 
 func RemoveDeploy(pkgManager, environment string) error {
-	environment = utils.GetEnvironment(environment)
+	environment = utils.GetShortEnvName(environment)
 	arg := fmt.Sprintf("remove:%s", environment)
 	err := utils.RunCommandWithLogs("", pkgManager, "run", arg)
 	return err
