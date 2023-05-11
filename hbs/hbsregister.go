@@ -29,27 +29,29 @@ func DBVersion(db string) string {
 
 func PortConnection(stack string) string {
 	var portConnectionStr string
+	backendPortNumber := utils.GetPortNumber(constants.BackendPortNumber)
+	webPortNumber := utils.GetPortNumber(constants.WebPortNumber)
+	postgresPortNumber := utils.GetDatabasePortNumber(constants.PostgreSQL)
+	mysqlPortNumber := utils.GetDatabasePortNumber(constants.MySQL)
+	redisPortNumber := utils.GetPortNumber(constants.RedisPortNumber)
 	switch stack {
 	case constants.PostgreSQL:
-		portConnectionStr = fmt.Sprintf("%d:5432", utils.PostgresPortNumber)
-		utils.PostgresPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:%d", postgresPortNumber, constants.PostgresPortNumber)
 		return portConnectionStr
 	case constants.MySQL:
-		portConnectionStr = fmt.Sprintf("%d:3306", utils.MysqlPortNumber)
-		utils.MysqlPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:%d", mysqlPortNumber, constants.MysqlPortNumber)
 		return portConnectionStr
 	case constants.MongoDB:
 		return "27017:27017"
 	case constants.Web, constants.Mobile:
-		portConnectionStr = fmt.Sprintf("%d:3000", utils.WebPortNumber)
-		utils.WebPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:%d", webPortNumber, constants.WebPortNumber)
 		return portConnectionStr
 	case constants.Backend:
-		portConnectionStr = fmt.Sprintf("%d:9000", utils.BackendPortNumber)
-		utils.BackendPortNumber++
+		portConnectionStr = fmt.Sprintf("%d:%d", backendPortNumber, constants.BackendPortNumber)
 		return portConnectionStr
 	case constants.Redis:
-		return "6379:6379"
+		portConnectionStr = fmt.Sprintf("%d:%d", redisPortNumber, constants.RedisPortNumber)
+		return portConnectionStr
 	default:
 		return portConnectionStr
 	}
@@ -78,9 +80,9 @@ func AddDependencies(database string) string {
 func RunBuildEnvironment(stack string) string {
 	switch stack {
 	case constants.NodeExpressGraphqlTemplate:
-		return "build:$ENVIRONMENT_NAME"
+		return "build:$BUILD_NAME"
 	case constants.NodeHapiTemplate:
-		return "build:$ENVIRONMENT_NAME"
+		return "build:$BUILD_NAME"
 	default:
 		return ""
 	}

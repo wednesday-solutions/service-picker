@@ -12,9 +12,13 @@ func CISource(stack, stackDir, environment string) string {
 		masterBranch, developBranch = "main", "dev"
 	}
 	var envName string
-	if environment == constants.Development {
+	if environment == constants.Development ||
+		environment == constants.Develop ||
+		environment == constants.Dev {
 		envName = constants.Dev
-	} else if environment == constants.Production {
+	} else if environment == constants.QA {
+		envName = constants.QA
+	} else if environment == constants.Production || environment == constants.Prod {
 		envName = constants.Prod
 	}
 	source := fmt.Sprintf(`name: CI %s

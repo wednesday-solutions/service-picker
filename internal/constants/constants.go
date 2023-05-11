@@ -166,6 +166,7 @@ const (
 	Github                   = "github"
 	DotSst                   = ".sst"
 	OutputsJson              = "outputs.json"
+	DBUsername               = "username"
 )
 
 // Docker related files
@@ -236,4 +237,32 @@ const (
 	AwsAccessKeyId     = "AWS_ACCESS_KEY_ID"
 	AwsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
 	AwsEcrRepository   = "AWS_ECR_REPOSITORY"
+)
+
+// Port numbers for infra setup
+const (
+	WebPortNumber      = 3000
+	BackendPortNumber  = 9000
+	PostgresPortNumber = 5432
+	MysqlPortNumber    = 3306
+	RedisPortNumber    = 6379
+)
+
+// Env values
+const (
+	PostgresUser  = "POSTGRES_USER"
+	PostgresHost  = "POSTGRES_HOST"
+	PostgresDB    = "POSTGRES_DB"
+	MysqlUser     = "MYSQL_USER"
+	MysqlHost     = "MYSQL_HOST"
+	MysqlDatabase = "MYSQL_DATABASE"
+	RedisHost     = "REDIS_HOST"
+	RedisPort     = "REDIS_PORT"
+)
+
+// Port number names
+const (
+	BackendPort  = "PORT"
+	PostgresPort = "POSTGRES_PORT"
+	MysqlPort    = "MYSQL_PORT"
 )

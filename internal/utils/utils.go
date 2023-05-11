@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/iancoleman/strcase"
@@ -135,21 +136,6 @@ func CreateGithubWorkflowDir() {
 		err := CreateDirectory(workflowsPath)
 		errorhandler.CheckNilErr(err)
 	}
-}
-
-var (
-	WebPortNumber      = 3000
-	BackendPortNumber  = 9000
-	PostgresPortNumber = 5432
-	MysqlPortNumber    = 3306
-)
-
-// ResetPortNumbers resets the port numbers to default.
-func ResetPortNumbers() {
-	WebPortNumber = 3000
-	BackendPortNumber = 9000
-	PostgresPortNumber = 5432
-	MysqlPortNumber = 3306
 }
 
 func EndsWith(inputString, endString string) bool {
@@ -438,4 +424,69 @@ func GetOutputsBackendObject(environment, stackDir string) TaskDefinitionDetails
 		}
 	}
 	return TaskDefinitionDetails{}
+}
+
+func GetPortNumber(defaultPN int) int {
+	_, _, stackDirs := GetExistingStacksDatabasesAndDirectories()
+	var backendServices []string
+	for _, dir := range stackDirs {
+		service := FindService(dir)
+		if service == constants.Backend {
+			backendServices = append(backendServices, service)
+		}
+	}
+	currentPN := defaultPN + len(backendServices) - 1
+	return currentPN
+}
+
+func GetDatabasePortNumber(driver string) int {
+	_, _, stackDirs := GetExistingStacksDatabasesAndDirectories()
+	var postgresStacks, mysqlStacks []string
+	for _, dir := range stackDirs {
+		service := FindService(dir)
+		if service == constants.Backend {
+			_, database := FindStackAndDatabase(dir)
+			if database == constants.PostgreSQL {
+				postgresStacks = append(postgresStacks, dir)
+			} else if database == constants.MySQL {
+				mysqlStacks = append(mysqlStacks, dir)
+			}
+		}
+	}
+	var currentPortNumber int
+	if driver == constants.PostgreSQL {
+		currentPortNumber = constants.PostgresPortNumber + len(postgresStacks) - 1
+	} else if driver == constants.MySQL {
+		currentPortNumber = constants.MysqlPortNumber + len(mysqlStacks) - 1
+	}
+	return currentPortNumber
+}
+
+func FetchExistingPortNumber(stackDir, portName string) string {
+	envFile := fmt.Sprintf("%s/%s/%s",
+		CurrentDirectory(),
+		stackDir,
+		constants.DockerEnvFile,
+	)
+	var portNumber string
+	content, err := os.ReadFile(envFile)
+	errorhandler.CheckNilErr(err)
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		if StartsWith(line, portName) {
+			portLine := strings.Split(line, "=")
+			portNumber = portLine[len(portLine)-1]
+			return portNumber
+		}
+	}
+	if portName == constants.BackendPort {
+		portNumber = strconv.Itoa(constants.BackendPortNumber)
+	} else if portName == constants.PostgresPort {
+		portNumber = strconv.Itoa(constants.PostgresPortNumber)
+	} else if portName == constants.MysqlPort {
+		portNumber = strconv.Itoa(constants.MysqlPortNumber)
+	} else if portName == constants.RedisPort {
+		portNumber = strconv.Itoa(constants.RedisPortNumber)
+	}
+	return portNumber
 }

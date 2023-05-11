@@ -6,7 +6,7 @@ import (
 
 var services = []string{
 	constants.Web,
-	constants.Mobile,
+	// constants.Mobile,
 	constants.Backend,
 }
 

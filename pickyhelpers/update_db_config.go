@@ -14,10 +14,14 @@ func UpdateDBConfig(stack, dbFile string, stackInfo map[string]interface{}) erro
 
 	switch stack {
 	case constants.NodeHapiTemplate:
-		dbConfigSource = `const pg = require('pg');
+		dbConfigSource = fmt.Sprintf(`const pg = require('pg');
 
 module.exports = {
-	url: process.env.DB_URI,
+	url:
+		process.env.DB_URI ||
+		%spostgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}/${
+			process.env.POSTGRES_DB
+		}%s,
 	host: process.env.POSTGRES_HOST,
 	dialectModule: pg,
 	dialect: 'postgres',
@@ -31,17 +35,21 @@ module.exports = {
 		timestamps: false,
 	},
 };
-`
+`, "`", "`")
 
 	case constants.NodeExpressGraphqlTemplate:
-		dbConfigSource = `const Sequelize = require('sequelize');
+		dbConfigSource = fmt.Sprintf(`const Sequelize = require('sequelize');
 const mysql2 = require('mysql2');
 const dotenv = require('dotenv');
 
 dotenv.config({ path: {{envEnvironmentName}} });
 
 module.exports = {
-  url: process.env.DB_URI,
+  url:
+    process.env.DB_URI ||
+    %smysql://${process.env.MYSQL_USER}:${process.env.MYSQL_PASSWORD}@${process.env.MYSQL_HOST}/${
+      process.env.MYSQL_DATABASE
+    }%s,
   host: process.env.MYSQL_HOST,
   dialectModule: mysql2,
   dialect: 'mysql',
@@ -68,7 +76,8 @@ module.exports = {
     max: 10 // maximum amount of tries.
   }
 };
-`
+`, "`", "`")
+
 	default:
 		return fmt.Errorf("Selected stack is invalid")
 	}

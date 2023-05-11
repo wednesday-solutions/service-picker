@@ -50,7 +50,9 @@ func (s StackDetails) CreateCDFile() error {
 
 func CreateTaskDefinition(stackDir, environment string) error {
 	if environment == constants.Development {
-		environment = constants.Develop
+		environment = constants.Dev
+	} else if environment == constants.Production {
+		environment = constants.Prod
 	}
 
 	file := fmt.Sprintf("%s/%s/%s-%s.json",
