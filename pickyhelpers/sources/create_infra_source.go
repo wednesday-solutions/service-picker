@@ -2,6 +2,7 @@ package sources
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/iancoleman/strcase"
 	"github.com/wednesday-solutions/picky/internal/constants"
@@ -158,7 +159,7 @@ func BackendStackSource(database, dirName, environment string) string {
 		dbHost          string
 	)
 	backendPortNumber := utils.FetchExistingPortNumber(dirName, constants.BackendPort)
-	redisPortNumber := utils.FetchExistingPortNumber(dirName, constants.RedisPort)
+	redisPortNumber := strconv.Itoa(constants.RedisPortNumber)
 
 	if database == constants.PostgreSQL {
 		dbEngineVersion = "PostgresEngineVersion"
@@ -592,7 +593,7 @@ func EnvSource(dirName, environment, database string, backendObj utils.BackendOu
 		dbHost = constants.MysqlHost
 		dbName = constants.MysqlDatabase
 	}
-	redisPortNumber := utils.FetchExistingPortNumber(dirName, constants.RedisPort)
+	redisPortNumber := strconv.Itoa(constants.RedisPortNumber)
 	backendPortNumber := utils.FetchExistingPortNumber(dirName, constants.BackendPort)
 
 	source := fmt.Sprintf(`NAME=Node Template
