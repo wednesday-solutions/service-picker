@@ -92,7 +92,7 @@ This tool will have support for production applications using the following tech
 - DynamoDB
 - Neo4j -->
 
-**Infrastructure:**
+**Cache:**
 
 - Redis
 <!-- - Kafka -->
@@ -131,7 +131,10 @@ Use the arrow keys to navigate and pick a service you want.<br>
 
 The complete stack initialization tutorial is given below.
 
-[<img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">](https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4 "Stacks initialization tutorial")
+<!-- [<img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">](https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4 "Stacks initialization tutorial") -->
+
+![stack_initialisation_demo](https://github.com/wednesday-solutions/service-picker/assets/114065489/79c66f38-f35f-451d-889b-01499c977b6e)
+
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
