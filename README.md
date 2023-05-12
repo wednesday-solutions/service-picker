@@ -180,6 +180,8 @@ my-project
 ├── .gitignore
 ├── cdk.context.json
 ├── docker-compose.yml
+├── backend-node-hapi-outputs.json
+├── frontend-next-js-web-outputs.json
 ├── package.json
 ├── parseSstOutputs.js
 ├── sst.config.js
