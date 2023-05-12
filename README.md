@@ -195,7 +195,7 @@ If you have any feedback, please reach out to us at [GitHub Discussions](https:/
 
 ## License
 
-This project is under the [MIT License](https://github.com/wednesday-solutions/service-picker).
+This project is under the [MIT License](https://github.com/wednesday-solutions/service-picker/blob/main/LICENSE).
 
 ## Future Plans
 
