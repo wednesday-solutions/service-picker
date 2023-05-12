@@ -99,7 +99,7 @@ This tool will have support for production applications using the following tech
 
 ## Installing
 
-Using Picky is easy. First use `go get` to install the latest version of the library (`go` should be installed in your system).
+Using Picky is easy. First use `go install` to install the latest version of the library (`go` should be installed in your system).
 
 ```bash
 go install github.com/wednesday-solutions/picky@latest
