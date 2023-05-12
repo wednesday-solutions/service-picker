@@ -113,8 +113,8 @@ picky -v
 
 ## Creating a Project
 
-To create a new project, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)
-To start using `picky`,
+To create a new project, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)<br>
+To start using `picky`
 
 ```bash
 mkdir my-project
@@ -141,8 +141,9 @@ You can see `picky`'s home page if you initialized atleast one stack. You can ch
 
 | Option          | Use                                                                                       |
 | --------------- | ----------------------------------------------------------------------------------------- |
-| `Init`          | Initialize a stack.                                                                       |
+| `Init Service`  | Initialize a stack.                                                                       |
 | `CI/CD`         | Create CI/CD Pipeline in GitHub.                                                          |
+| `Docker Compose`| Create Docker Compose file for the mono-repo. It consist of all the selected stacks.      |
 | `Setup Infra`   | Setup infrastructure for initialized stacks.                                              |
 | `Deploy`        | Deploy the infrastructure in AWS. It can deploy Frontend, Backend or Full stack projects. |
 | `Remove Deploy` | Remove the deployed infrastructure.                                                       |
