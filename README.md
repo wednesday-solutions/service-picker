@@ -135,7 +135,7 @@ The complete stack initialization tutorial is given below.
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
-<img width="461" alt="Picky Home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
+<img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/8b2a94dd-3103-4a1c-ad4e-1eedd7e87164">
 
 ## User Guide
 
