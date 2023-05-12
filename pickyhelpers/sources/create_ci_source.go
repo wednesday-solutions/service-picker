@@ -3,20 +3,11 @@ package sources
 import (
 	"fmt"
 
-	"github.com/wednesday-solutions/picky/internal/constants"
+	"github.com/wednesday-solutions/picky/internal/utils"
 )
 
 func CISource(stack, stackDir, environment string) string {
-	var envName string
-	if environment == constants.Development ||
-		environment == constants.Develop ||
-		environment == constants.Dev {
-		envName = constants.Dev
-	} else if environment == constants.QA {
-		envName = constants.QA
-	} else if environment == constants.Production || environment == constants.Prod {
-		envName = constants.Prod
-	}
+	envName := utils.GetShortEnvName(environment)
 	source := fmt.Sprintf(`name: CI %s
 on:
   push:

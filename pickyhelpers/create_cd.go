@@ -49,11 +49,7 @@ func (s StackDetails) CreateCDFile() error {
 }
 
 func CreateTaskDefinition(stackDir, environment string) error {
-	if environment == constants.Development {
-		environment = constants.Dev
-	} else if environment == constants.Production {
-		environment = constants.Prod
-	}
+	environment = utils.GetShortEnvName(environment)
 
 	file := fmt.Sprintf("%s/%s/%s-%s.json",
 		utils.CurrentDirectory(),

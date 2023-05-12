@@ -73,17 +73,8 @@ export default {
 }
 
 func WebStackSource(dirName, camelCaseDirName, environment string) string {
-	var shortEnvironment string
-	switch environment {
-	case constants.Development:
-		environment = constants.Dev
-		shortEnvironment = constants.Dev
-	case constants.QA:
-		shortEnvironment = constants.QA
-	case constants.Production:
-		environment = constants.Prod
-		shortEnvironment = constants.Prod
-	}
+
+	envName := utils.GetShortEnvName(environment)
 	buildOutput, singleQuote := "", "`"
 	stack, _ := utils.FindStackAndDatabase(dirName)
 	if stack == constants.ReactJS {
@@ -121,24 +112,22 @@ export function %s({ stack }) {
 		bucketName: site.cdk?.bucket?.bucketName,
 	});
 }
-`, camelCaseDirName, dirName, environment, singleQuote, singleQuote, camelCaseDirName,
-		dirName, shortEnvironment, buildOutput, singleQuote, singleQuote)
+`, camelCaseDirName, dirName, envName, singleQuote, singleQuote, camelCaseDirName,
+		dirName, envName, buildOutput, singleQuote, singleQuote)
 
 	return source
 }
 
 func BackendStackSource(database, dirName, environment string) string {
-	var envFileEnvironment, shortEnvironment string
+	var envFileEnvironment string
+	shortEnvironment := utils.GetShortEnvName(environment)
 	switch environment {
 	case constants.Development:
 		envFileEnvironment = fmt.Sprintf(".%s", constants.Development)
-		shortEnvironment = constants.Dev
 	case constants.QA:
 		envFileEnvironment = fmt.Sprintf(".%s", constants.QA)
-		shortEnvironment = constants.QA
 	case constants.Production:
 		envFileEnvironment = ""
-		shortEnvironment = constants.Prod
 	}
 	userInputStackName := utils.FindUserInputStackName(dirName)
 	singleQuote := "`"
