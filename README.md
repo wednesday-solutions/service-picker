@@ -1,4 +1,4 @@
-<img align="left" src="" width="480" height="620" />
+<img align="left" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/c3366e7d-7213-4ed4-9cc5-b19c0271c03b"  width="380" height="500" />
 
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
@@ -92,14 +92,14 @@ This tool will have support for production applications using the following tech
 - DynamoDB
 - Neo4j -->
 
-**Infrastructure:**
+**Cache:**
 
 - Redis
 <!-- - Kafka -->
 
 ## Installing
 
-Using Picky is easy. First use `go get` to install the latest version of the library (`go` should be installed in your system).
+Using Picky is easy. First use `go install` to install the latest version of the library (`go` should be installed in your system).
 
 ```bash
 go install github.com/wednesday-solutions/picky@latest
@@ -113,8 +113,8 @@ picky -v
 
 ## Creating a Project
 
-To create a new project, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)
-To start using `picky`,
+To create a new project, you need to pick stacks which are mentioned in [tech stacks](#tech-stacks)<br>
+To start using `picky`
 
 ```bash
 mkdir my-project
@@ -131,18 +131,20 @@ Use the arrow keys to navigate and pick a service you want.<br>
 
 The complete stack initialization tutorial is given below.
 
-[<img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">](https://user-images.githubusercontent.com/114065489/236762965-ff6b9dab-e357-4c17-b57f-1ec09cdfb440.mp4 "Stacks initialization tutorial")
+![stack_initialisation_demo](https://github.com/wednesday-solutions/service-picker/assets/114065489/79c66f38-f35f-451d-889b-01499c977b6e)
+
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
-<img width="461" alt="Picky Home" src="https://user-images.githubusercontent.com/114065489/236789527-d108e2ef-dc46-4115-b946-19511d00304e.png">
+<img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/8b2a94dd-3103-4a1c-ad4e-1eedd7e87164">
 
 ## User Guide
 
 | Option          | Use                                                                                       |
 | --------------- | ----------------------------------------------------------------------------------------- |
-| `Init`          | Initialize a stack.                                                                       |
+| `Init Service`  | Initialize a stack.                                                                       |
 | `CI/CD`         | Create CI/CD Pipeline in GitHub.                                                          |
+| `Docker Compose`| Create Docker Compose file for the mono-repo. It consist of all the selected stacks.      |
 | `Setup Infra`   | Setup infrastructure for initialized stacks.                                              |
 | `Deploy`        | Deploy the infrastructure in AWS. It can deploy Frontend, Backend or Full stack projects. |
 | `Remove Deploy` | Remove the deployed infrastructure.                                                       |
@@ -180,6 +182,8 @@ my-project
 ├── .gitignore
 ├── cdk.context.json
 ├── docker-compose.yml
+├── backend-node-hapi-outputs.json
+├── frontend-next-js-web-outputs.json
 ├── package.json
 ├── parseSstOutputs.js
 ├── sst.config.js
@@ -192,7 +196,7 @@ If you have any feedback, please reach out to us at [GitHub Discussions](https:/
 
 ## License
 
-This project is under the [MIT License](https://github.com/wednesday-solutions/service-picker).
+This project is under the [MIT License](https://github.com/wednesday-solutions/service-picker/blob/main/LICENSE).
 
 ## Future Plans
 
