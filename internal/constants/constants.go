@@ -167,6 +167,9 @@ const (
 	DotSst                   = ".sst"
 	OutputsJson              = "outputs.json"
 	DBUsername               = "username"
+	DeployNow                = "Deploy Now"
+	ChangeStacks             = "Change Stacks"
+	GoBack                   = "Go Back"
 )
 
 // Docker related files
