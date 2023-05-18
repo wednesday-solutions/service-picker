@@ -66,6 +66,7 @@ jobs:
             echo "COMMIT_MESSAGE=${msg}" >> $GITHUB_ENV
 
       - name: Bump Version
+        # DEFAULT_BUMP values: major, minor, patch
         uses: anothrNick/github-tag-action@v1
         id: bump
         env:
@@ -107,5 +108,6 @@ jobs:
             ${{ env.COMMIT_MESSAGE }}
             @alichherawalla
             @praveenkumar1798
+            @ijas-ws
           draft: false
           prerelease: false

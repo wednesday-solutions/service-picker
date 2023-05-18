@@ -10,7 +10,7 @@ import (
 
 // RootCmd is the command variable of root command picky.
 var RootCmd = RootCmdFn()
-var version = "0.0.1"
+var version = "0.0.8"
 
 // RootCmd represents the base command when called without any subcommands
 func RootCmdFn() *cobra.Command {
@@ -26,28 +26,19 @@ Welcome to Service Picker.
 It contains a number of @wednesday-solutions's open source projects, connected and working together. Pick whatever you need and build your own ecosystem.
 
 This repo will have support for production applications using the following tech stacks
-- mobile
-  - android app
-  - iOS app
-  - react-native app
-  - flutter app
-- frontend
+- Frontend
   - react
   - next
-- backend
+- Backend
   - Node (Hapi - REST API)
   - Node (Express - GraphQL API)
-  - Node (Express - TypeScript)
-  - Golang (Echo - GraphQL API)
 - Databases
   - MySQL
   - PostgreSQL
-  - MongoDB
-  - DynamoDB
-  - Neo4j
-- Infrastructure
+- Cache
   - Redis
-  - Kafka
+- Infrastructure Provider
+  - AWS
 
 Wednesday Solutions`, errorhandler.WaveMessage),
 	}
