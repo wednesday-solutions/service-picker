@@ -62,7 +62,7 @@ Thats where the service-picker comes in. We're working on building a cli tool th
 
 This means that setting up the infra and codebase for your next project which needs a React web app, with a node.js backend and a postgreSQL db is as simple as a hitting a few arrow buttons, and enter a couple of times.
 
-`picky` is our CLI tool. `picky` works on macOS, Windows and Linux.<br>
+Service picker works on macOS, Windows and Linux.<br>
 If something doesn't work, please file an [issue](https://github.com/wednesday-solutions/service-picker/issues).<br>
 If you have questions, suggestions or need help, please ask in [GitHub Discussions](https://github.com/wednesday-solutions/service-picker/discussions)
 
@@ -200,4 +200,4 @@ This project is under the [MIT License](https://github.com/wednesday-solutions/s
 
 ## Future Plans
 
-Currently the service-picker is capable of setting up full-stack javascipt applications. In it's end state the service picker will allow you to chose right from your cloud infra structure provider (GCP, AWS, AZURE) to different backends and databases that you'd like to use, to your caching strategy, message broker, mobile app release tooling and any other tooling choice that you must make along the product development journey.
+Currently the service-picker is capable of setting up full-stack javascript applications. In it's end state the service picker will allow you to choose right from your cloud infra structure provider (GCP, AWS, AZURE) to different backends and databases that you'd like to use, to your caching strategy, message broker, mobile app release tooling and any other tooling choice that you must make along your product development journey.
