@@ -33,3 +33,5 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace github.com/wednesday-solutions/picky => github.com/wednesday-solutions/service-picker v0.0.5
