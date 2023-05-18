@@ -91,8 +91,6 @@ This tool will have support for production applications using the following tech
 
 ## Setup and Configuration.
 
----
-
 ### Pre-requisites
 
 - [Golang](https://go.dev/doc/install)
