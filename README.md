@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/c3366e7d-7213-4ed4-9cc5-b19c0271c03b"  width="380" height="500" />
+<img align="left" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/fb48bfef-29d6-4568-b2da-acb3ceff924d"  width="380" height="500" />
 
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
@@ -89,6 +89,10 @@ This tool will have support for production applications using the following tech
 
 - Redis
 
+**Infrastructure Provider:**
+
+- [AWS](https://aws.amazon.com/)
+
 ## Setup and Configuration.
 
 ### Pre-requisites
@@ -132,11 +136,11 @@ Use the arrow keys to navigate and pick a service you want.<br>
 
 The complete stack initialization tutorial is given below.
 
-![stack_initialisation_demo](https://github.com/wednesday-solutions/service-picker/assets/114065489/79c66f38-f35f-451d-889b-01499c977b6e)
+![stack_initialisation_demo](https://github.com/wednesday-solutions/service-picker/assets/114065489/0c2f0e0b-bc05-4a3d-9d27-a69c6654419b)
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
-<img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/8b2a94dd-3103-4a1c-ad4e-1eedd7e87164">
+<img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/322fc49b-43b3-4d0e-9753-6db6d3dd96a5">
 
 ## User Guide
 
