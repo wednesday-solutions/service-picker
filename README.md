@@ -43,7 +43,7 @@ It contains a number of <a href="https://github.com/wednesday-solutions">Wednesd
 
 1. [Overview](#overview)
 2. [Tech Stacks](#tech-stacks)
-3. [Prerequisites](#pre-requisites)
+3. [Pre-requisites](#pre-requisites)
 4. [Installation](#installation)
 5. [Creating a Project](#creating-a-project)
 6. [User Guide](#user-guide)
