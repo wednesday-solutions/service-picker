@@ -92,7 +92,7 @@ jobs:
         run: |
           VERSION=${{ steps.new-tag.outputs.new_tag }}
           echo "New version: $VERSION"
-          PKG="github.com/wednesday-solutions/picky@$VERSION"
+          PKG="github.com/wednesday-solutions/service-picker@$VERSION"
           echo "New package version: $PKG"
           GOPROXY=proxy.golang.org go list -m $PKG
 
