@@ -19,11 +19,18 @@ func ServiceCmdFn() *cobra.Command {
 	var ServiceCmd = &cobra.Command{
 		Use:   constants.Service,
 		Short: "Pick a Service",
+		// 		Long: `Pick a service for your:
+
+		// 		1. Web
+		// 		2. Mobile
+		// 		3. Backend
+
+		// 		from the list of @wednesday-solutions's open source projects.
+		// `,
 		Long: `Pick a service for your:
 
 		1. Web
-		2. Mobile
-		3. Backend
+		2. Backend
 
 		from the list of @wednesday-solutions's open source projects.
 `,

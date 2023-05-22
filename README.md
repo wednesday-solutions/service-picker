@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/c3366e7d-7213-4ed4-9cc5-b19c0271c03b"  width="380" height="500" />
+<img align="left" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/fb48bfef-29d6-4568-b2da-acb3ceff924d"  width="380" height="500" />
 
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
@@ -62,7 +62,7 @@ Thats where the service-picker comes in. We're working on building a cli tool th
 
 This means that setting up the infra and codebase for your next project which needs a React web app, with a node.js backend and a postgreSQL db is as simple as a hitting a few arrow buttons, and enter a couple of times.
 
-`picky` is our CLI tool. `picky` works on macOS, Windows and Linux.<br>
+Service picker works on macOS, Windows and Linux.<br>
 If something doesn't work, please file an [issue](https://github.com/wednesday-solutions/service-picker/issues).<br>
 If you have questions, suggestions or need help, please ask in [GitHub Discussions](https://github.com/wednesday-solutions/service-picker/discussions)
 
@@ -89,14 +89,27 @@ This tool will have support for production applications using the following tech
 
 - Redis
 
+**Infrastructure Provider:**
+
+- [AWS](https://aws.amazon.com/)
+
 ## Setup and Configuration.
 
 ### Pre-requisites
 
 - [Golang](https://go.dev/doc/install)
 - [Node JS](https://nodejs.org/en/download)
-- [Docker](https://docs.docker.com/engine/install/)
 - Package Manager([npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable))
+- [Docker](https://docs.docker.com/engine/install/) - Install and have it running in your local to docker compose applications and setup infrastructures in AWS.
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - Configure to your AWS account.
+```bash
+ $ aws configure
+AWS Access Key ID: MYACCESSKEYID
+AWS Secret Access Key: MYSECRETKEY
+Default region name [us-west-2]: MYAWSREGION
+Default output format [None]: 
+```
+
 
 ### Installation
 
@@ -126,17 +139,21 @@ cd my-project
 picky service
 ```
 
-<img width="469" alt="Pick a service" src="https://user-images.githubusercontent.com/114065489/236760233-e3dadf7a-42de-4f98-8cba-7c01161b1d3c.png">
+![pick_a_service](https://github.com/wednesday-solutions/service-picker/assets/114065489/a3440e2a-9486-4419-85a6-eae2029ba45a)
 
 Use the arrow keys to navigate and pick a service you want.<br>
 
 The complete stack initialization tutorial is given below.
 
-![stack_initialisation_demo](https://github.com/wednesday-solutions/service-picker/assets/114065489/79c66f38-f35f-451d-889b-01499c977b6e)
+![stack_initialisation_demo](https://github.com/wednesday-solutions/service-picker/assets/114065489/0c2f0e0b-bc05-4a3d-9d27-a69c6654419b)
 
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
-<img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/8b2a94dd-3103-4a1c-ad4e-1eedd7e87164">
+<img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/322fc49b-43b3-4d0e-9753-6db6d3dd96a5">
+
+***Tips:*** 
+- If you want to go back from the prompt, click `Ctrl + D`
+- If you want to exit from the prompt, click `Ctrl + C`
 
 ## User Guide
 
@@ -200,4 +217,4 @@ This project is under the [MIT License](https://github.com/wednesday-solutions/s
 
 ## Future Plans
 
-Currently the service-picker is capable of setting up full-stack javascipt applications. In it's end state the service picker will allow you to chose right from your cloud infra structure provider (GCP, AWS, AZURE) to different backends and databases that you'd like to use, to your caching strategy, message broker, mobile app release tooling and any other tooling choice that you must make along the product development journey.
+Currently the service-picker is capable of setting up full-stack javascript applications. In it's end state the service picker will allow you to choose right from your cloud infra structure provider (GCP, AWS, AZURE) to different backends and databases that you'd like to use, to your caching strategy, message broker, mobile app release tooling and any other tooling choice that you must make along your product development journey.
