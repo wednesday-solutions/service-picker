@@ -99,8 +99,17 @@ This tool will have support for production applications using the following tech
 
 - [Golang](https://go.dev/doc/install)
 - [Node JS](https://nodejs.org/en/download)
-- [Docker](https://docs.docker.com/engine/install/)
 - Package Manager([npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable))
+- [Docker](https://docs.docker.com/engine/install/) - Install and have it running in your local to docker compose applications and setup infrastructures in AWS.
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - Configure to your AWS account.
+```bash
+ $ aws configure
+AWS Access Key ID: MYACCESSKEYID
+AWS Secret Access Key: MYSECRETKEY
+Default region name [us-west-2]: MYAWSREGION
+Default output format [None]: 
+```
+
 
 ### Installation
 
@@ -130,7 +139,7 @@ cd my-project
 picky service
 ```
 
-<img width="469" alt="Pick a service" src="https://user-images.githubusercontent.com/114065489/236760233-e3dadf7a-42de-4f98-8cba-7c01161b1d3c.png">
+![pick_a_service](https://github.com/wednesday-solutions/service-picker/assets/114065489/a3440e2a-9486-4419-85a6-eae2029ba45a)
 
 Use the arrow keys to navigate and pick a service you want.<br>
 
@@ -141,6 +150,10 @@ The complete stack initialization tutorial is given below.
 You can see `picky`'s home page if you initialized atleast one stack. You can choose any option in the following.
 
 <img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/322fc49b-43b3-4d0e-9753-6db6d3dd96a5">
+
+***Tips:*** 
+- If you want to go back from the prompt, click `Ctrl + D`
+- If you want to exit from the prompt, click `Ctrl + C`
 
 ## User Guide
 
