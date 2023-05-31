@@ -12,7 +12,7 @@ func CISource(stack, stackDir, environment string) string {
 on:
   push:
     branches:
-      - develop
+      - dev
       - qa
       - master
     paths: "%s/**"

@@ -17,7 +17,7 @@ name: CD %s - %s
 on:
   push:
     branches:
-      - develop
+      - dev
       - qa
       - master
     # paths: "%s/**"
@@ -269,9 +269,9 @@ func CDWebSource(stack, dirName string) string {
 on:
   push:
     branches:
-      - master
-      - develop
+      - dev
       - qa
+      - master
     # paths: "%s/**"
   workflow_dispatch:
 
