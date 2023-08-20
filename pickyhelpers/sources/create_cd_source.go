@@ -28,7 +28,7 @@ jobs:
     name: Docker build image and push
     runs-on: ubuntu-latest
     defaults:
-      run: 
+      run:
         working-directory: ./%s
     strategy:
       matrix:

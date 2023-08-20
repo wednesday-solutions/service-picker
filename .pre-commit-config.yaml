@@ -1,7 +1,7 @@
 fail_fast: true
 repos:
   - repo: https://github.com/tekwizely/pre-commit-golang
-    rev: v1.0.0-beta.5
+    rev: v1.0.0-rc.1
     hooks:
       - id: go-fmt
       - id: go-vet-mod
@@ -10,3 +10,18 @@ repos:
       - id: go-build-repo-mod
       - id: go-mod-tidy
       - id: go-mod-tidy-repo
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+      - id: go-imports
+      - id: no-go-testing
+      - id: golangci-lint
+      - id: go-unit-tests
