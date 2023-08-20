@@ -1,15 +1,5 @@
 fail_fast: true
 repos:
-  - repo: https://github.com/tekwizely/pre-commit-golang
-    rev: v1.0.0-rc.1
-    hooks:
-      - id: go-fmt
-      - id: go-vet-mod
-      # - id: golangci-lint-mod
-        # args: ["--allow-parallel-runners"]
-      - id: go-build-repo-mod
-      - id: go-mod-tidy
-      - id: go-mod-tidy-repo
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
