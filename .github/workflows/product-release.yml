@@ -14,7 +14,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: 1.20
 
       - name: Actions Ecosystem Action Get Merged Pull Request
         uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
