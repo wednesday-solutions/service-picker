@@ -6,7 +6,7 @@ repos:
       - id: go-fmt
       - id: go-vet-mod
       - id: golangci-lint-mod
-        args: ["--allow-parallel-runners"]
+        # args: ["--allow-parallel-runners"]
       - id: go-build-repo-mod
       - id: go-mod-tidy
       - id: go-mod-tidy-repo
