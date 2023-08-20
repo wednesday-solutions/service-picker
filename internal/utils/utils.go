@@ -3,7 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -206,7 +206,7 @@ func ReadJsonDataInSstOutputs() map[string]interface{} {
 	sstOutputFile, err := os.Open(file)
 	errorhandler.CheckNilErr(err)
 
-	fileContent, err := ioutil.ReadAll(sstOutputFile)
+	fileContent, err := io.ReadAll(sstOutputFile)
 	errorhandler.CheckNilErr(err)
 
 	var data interface{}
