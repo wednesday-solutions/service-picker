@@ -107,7 +107,7 @@ This tool will have support for production applications using the following tech
 AWS Access Key ID: MYACCESSKEYID
 AWS Secret Access Key: MYSECRETKEY
 Default region name [us-west-2]: MYAWSREGION
-Default output format [None]: 
+Default output format [None]:
 ```
 
 
@@ -151,7 +151,7 @@ You can see `picky`'s home page if you initialized atleast one stack. You can ch
 
 <img width="551" alt="Picky Home Preview Image" src="https://github.com/wednesday-solutions/service-picker/assets/114065489/322fc49b-43b3-4d0e-9753-6db6d3dd96a5">
 
-***Tips:*** 
+***Tips:***
 - If you want to go back from the prompt, click `Ctrl + D`
 - If you want to exit from the prompt, click `Ctrl + C`
 

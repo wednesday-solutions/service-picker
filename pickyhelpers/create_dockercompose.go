@@ -50,7 +50,7 @@ services:`
 		source = fmt.Sprintf(`%s
   # Setup {{PostgreSQL}}
   %s_db:
-    image: '{{dbVersion PostgreSQL}}' 
+    image: '{{dbVersion PostgreSQL}}'
     ports:
       - %s:%d
     restart: always # This will make sure that the container comes up post unexpected shutdowns
@@ -96,7 +96,7 @@ services:`
 		source = fmt.Sprintf(`%s
   # Setup {{MySQL}}
   %s_db:
-    image: '{{dbVersion MySQL}}' 
+    image: '{{dbVersion MySQL}}'
     ports:
       - %s:%d
     restart: always # This will make sure that the container comes up post unexpected shutdowns
@@ -146,7 +146,7 @@ services:`
     command: ['redis-server']
 
 {{/if}}
-{{#each webDirectories}} 
+{{#each webDirectories}}
   # Setup {{this}} web
   {{this}}:
     build:

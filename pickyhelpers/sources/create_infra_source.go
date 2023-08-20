@@ -408,7 +408,7 @@ export function %s({ stack }) {
 
 	const taskDefinition = new ecs.TaskDefinition(
 		stack,
-		%s${clientName}-task-${environment}%s, 
+		%s${clientName}-task-${environment}%s,
 		{
 			family: %s${clientName}-task-definition-${environment}%s,
 			compatibility: ecs.Compatibility.EC2_AND_FARGATE,
@@ -439,7 +439,7 @@ export function %s({ stack }) {
 	});
 
 	const container = taskDefinition.addContainer(
-		%s${clientName}-container-${environment}%s, 
+		%s${clientName}-container-${environment}%s,
 		{
 			image,
 			cpu: 512,
@@ -637,7 +637,7 @@ function parseOutputs() {
 	fileContent = JSON.stringify(fileContent, null, 2);
 	fs.writeFileSync(outputFile, fileContent);
 }
-parseOutputs();	
+parseOutputs();
 `
 	return source
 }
