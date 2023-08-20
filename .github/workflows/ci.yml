@@ -53,4 +53,4 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: 1.54
+          version: 1.2.3
