@@ -17,7 +17,7 @@ name: CD %s - %s
 on:
   push:
     branches:
-      - develop
+      - dev
       - qa
       - master
     # paths: "%s/**"
@@ -28,7 +28,7 @@ jobs:
     name: Docker build image and push
     runs-on: ubuntu-latest
     defaults:
-      run: 
+      run:
         working-directory: ./%s
     strategy:
       matrix:
@@ -269,9 +269,9 @@ func CDWebSource(stack, dirName string) string {
 on:
   push:
     branches:
-      - master
-      - develop
+      - dev
       - qa
+      - master
     # paths: "%s/**"
   workflow_dispatch:
 

@@ -19,7 +19,9 @@ func PromptCICD() {
 	for len(selectedOptions) == 0 {
 		selectedOptions, _ = p.PromptMultiSelect()
 	}
-	environment := PromptEnvironment()
+	// Uncomment the below line if we environment prompt.
+	// environment := PromptEnvironment()
+	environment := constants.Development
 	stacks := PromptSelectExistingStacks()
 
 	if platform == constants.GitHub {

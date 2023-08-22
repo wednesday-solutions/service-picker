@@ -10,7 +10,7 @@ import (
 
 // RootCmd is the command variable of root command picky.
 var RootCmd = RootCmdFn()
-var version = "0.0.8"
+var version = "0.0.9"
 
 // RootCmd represents the base command when called without any subcommands
 func RootCmdFn() *cobra.Command {
