@@ -153,13 +153,13 @@ func BackendStackSource(database, dirName, environment string) string {
 	if database == constants.PostgreSQL {
 		dbEngineVersion = "PostgresEngineVersion"
 		dbPortNumber = utils.FetchExistingPortNumber(dirName, constants.PostgresPort)
-		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_2,\n\t\t\t})"
+		dbEngine = "DatabaseInstanceEngine.postgres({\n\t\t\t\tversion: PostgresEngineVersion.VER_14_8,\n\t\t\t})"
 		dbUri = "`postgres://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "POSTGRES_HOST: database.dbInstanceEndpointAddress"
 	} else if database == constants.MySQL {
 		dbEngineVersion = "MysqlEngineVersion"
 		dbPortNumber = utils.FetchExistingPortNumber(dirName, constants.MysqlPort)
-		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_31,\n\t\t\t})"
+		dbEngine = "DatabaseInstanceEngine.mysql({\n\t\t\t\tversion: MysqlEngineVersion.VER_8_0_34,\n\t\t\t})"
 		dbUri = "`mysql://${username}:${password}@${database.dbInstanceEndpointAddress}/${dbName}`"
 		dbHost = "MYSQL_HOST: database.dbInstanceEndpointAddress"
 	}

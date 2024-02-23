@@ -222,9 +222,9 @@ func ReadJsonDataInSstOutputs() map[string]interface{} {
 func GetOutputsBackendObject(environment, stackDir string) TaskDefinitionDetails {
 	camelCaseDir := strcase.ToCamel(stackDir)
 	jsonData := ReadJsonDataInSstOutputs()
-	if jsonData == nil {
-		errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
-	}
+	// if jsonData == nil {
+	// 	errorhandler.CheckNilErr(fmt.Errorf("outputs.json is not valid."))
+	// }
 	var td TaskDefinitionDetails
 	td.Environment = environment
 	td.EnvName = GetShortEnvName(environment)
