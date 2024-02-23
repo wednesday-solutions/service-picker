@@ -41,16 +41,18 @@ It contains a number of <a href="https://github.com/wednesday-solutions">Wednesd
 
 ## Table of contents
 
-1. [Overview](#overview)
-2. [Tech Stacks](#tech-stacks)
-3. [Pre-requisites](#pre-requisites)
-4. [Installation](#installation)
-5. [Creating a Project](#creating-a-project)
-6. [User Guide](#user-guide)
-7. [Project Structure](#project-structure)
-8. [Feedback](#feedback)
-9. [License](#license)
-10. [Future Plans](#future-plans)
+- [Table of contents](#table-of-contents)
+- [Overview](#overview)
+- [Tech Stacks](#tech-stacks)
+- [Setup and Configuration.](#setup-and-configuration)
+  - [Pre-requisites](#pre-requisites)
+  - [Installation](#installation)
+- [Creating a Project](#creating-a-project)
+- [User Guide](#user-guide)
+- [Project Structure](#project-structure)
+- [Feedback](#feedback)
+- [License](#license)
+- [Future Plans](#future-plans)
 
 ## Overview
 
@@ -72,7 +74,7 @@ This tool will have support for production applications using the following tech
 
 **Web:**
 
-- [React JS](https://gitub.com/wednesday-solutions/react-template)
+- [React JS](https://github.com/wednesday-solutions/react-template)
 - [Next JS](https://github.com/wednesday-solutions/nextjs-template)
 
 **Backend:**
@@ -108,6 +110,11 @@ AWS Access Key ID: MYACCESSKEYID
 AWS Secret Access Key: MYSECRETKEY
 Default region name [us-west-2]: MYAWSREGION
 Default output format [None]:
+```
+- Create a repository in your [AWS ECR](https://aws.amazon.com/ecr/).
+
+```bash
+ $ aws ecr create-repository --repository-name cdk-hnb659fds-container-assets-MYAWSACCOUNTID-MYAWSREGION
 ```
 
 
